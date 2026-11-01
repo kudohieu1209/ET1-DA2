@@ -459,6 +459,7 @@ def create_report_docx(output_path):
         ("Hình 1.2", "Sơ đồ bố trí linh kiện trên Kit phát triển vi điều khiển AVR", "4"),
         ("Hình 2.1", "Sơ đồ nguyên lý kết nối chi tiết giữa ATmega16, DHT11, LCD 1602 và khối LED", "11"),
         ("Hình 2.2", "Mô hình thiết kế 3D của bo mạch trên phần mềm Altium Designer", "12"),
+        ("Hình 2.3", "Giao diện phần mềm ProgISP khi nạp firmware và cấu hình Fuse Bits 0xD9E4 cho ATmega16", "17"),
         ("Hình 3.1", "Hình ảnh thực tế hệ thống vận hành trong trạng thái cảnh báo quá nhiệt (31.5°C)", "19"),
     ]
     lof_tbl = doc.add_table(rows=len(lof_items), cols=3)
@@ -841,6 +842,14 @@ def create_report_docx(output_path):
         "Nhập mã Program Fuse: 0xD9E4 (High Fuse 0xD9 tắt JTAG, Low Fuse 0xE4 chọn dao động nội 8MHz). "
         "Nhấn Load Flash chọn file tempsen.hex, kiểm tra dung lượng bộ đệm và bấm Auto để nạp hoàn tất vào chip."
     )
+    
+    img_progisp = os.path.join(os.path.dirname(output_path), "img", "progisp_setup.png")
+    if os.path.exists(img_progisp):
+        p_prg = doc.add_paragraph()
+        p_prg.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_prg.paragraph_format.first_line_indent = Cm(0)
+        p_prg.add_run().add_picture(img_progisp, width=Cm(11.0))
+        add_figure_caption("Hình 2.3: Giao diện phần mềm ProgISP khi nạp firmware và cấu hình Fuse Bits 0xD9E4 cho ATmega16")
 
     # ====================================================
     # CHƯƠNG 3

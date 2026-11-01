@@ -205,3 +205,10 @@ Các bước nạp chương trình chuẩn hóa vào vi điều khiển ATmega16
     \item Nạp file mã máy vào bộ đệm: Nhấn nút Load Flash, chọn đường dẫn tới file \texttt{src/tempsen.hex}. Đảm bảo thông số góc dưới bên trái thay đổi từ \texttt{Flash: 0 / 16384} sang giá trị dung lượng thực tế của file nạp.
     \item Nhấn nút Auto để thực thi tuần tự các bước: Xóa chip (Erase), Ghi Flash (Write Flash), Kiểm tra lại (Verify Flash) và Ghi cầu chì (Write Fuse). Khi phần mềm báo dòng chữ \textit{Successfully done}, vi điều khiển lập tức tự khởi động lại và bắt đầu chạy chương trình.
 \end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.58\textwidth]{progisp_setup.png}
+    \caption{Giao diện phần mềm ProgISP khi nạp firmware và cấu hình Fuse Bits 0xD9E4 cho ATmega16}
+    \label{fig:progisp-setup}
+\end{figure}
