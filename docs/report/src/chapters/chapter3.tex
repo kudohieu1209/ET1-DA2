@@ -67,7 +67,7 @@ Trong điều kiện nhiệt độ phòng thí nghiệm ổn định ở mức $
 \subsection{Kiểm tra phản hồi khi mất cảm biến và xử lý lỗi hệ thống}
 Nhằm kiểm tra độ tin cậy và khả năng tự bảo vệ của hệ thống trước các tình huống bất thường, nhóm đã tiến hành xác minh theo hai cấp độ:
 \begin{itemize}[leftmargin=1.2cm, topsep=0pt, itemsep=0.5pt, parsep=0pt]
-    \item Thử nghiệm thực tế khi mất cảm biến (Kiểm chứng phần cứng): Để mô phỏng sự cố tuột dây tín hiệu, nhóm chủ động rút chân DATA (PA1). Hàm \texttt{DHT11\_Read} kích hoạt bộ đếm Timeout và thoát an toàn sau tối đa 10.000 lần lặp kiểm tra của biến đếm phần mềm mà không gây treo vi điều khiển. Màn hình LCD cập nhật thông báo chẩn đoán lỗi ở lần đọc hợp lệ tiếp theo (Hình \ref{fig:actual-disconnect}):
+    \item Thử nghiệm thực tế khi mất cảm biến (Kiểm chứng phần cứng): Để mô phỏng sự cố tuột dây tín hiệu, nhóm chủ động rút chân DATA (PA1). Hàm \texttt{DHT11\_Read} kích hoạt bộ đếm Timeout và thoát an toàn sau tối đa 10.000 lần lặp kiểm tra của biến đếm phần mềm mà không gây treo vi điều khiển. Màn hình LCD cập nhật thông báo chẩn đoán lỗi sau khi hàm đọc cảm biến phát hiện timeout (Hình \ref{fig:actual-disconnect}):
     \begin{center}\vspace{-0.25cm}
     \fbox{\parbox{6.5cm}{
     \texttt{Dòng 1: DHT11: No Signal}\\[0.02cm]
@@ -84,13 +84,13 @@ Nhằm kiểm tra độ tin cậy và khả năng tự bảo vệ của hệ th�
     \item Trạng thái xử lý lỗi xác định: Trong cả hai tình huống, vi điều khiển chủ động đưa dàn 5 LED về mức tắt (\texttt{PORTD |= 0x1F}) nhằm loại bỏ báo động giả từ dữ liệu cũ lỗi thời, đồng thời dồn sự chú ý vào thông báo trên LCD.
 \end{itemize}
 
-\begin{table}[H]\vspace{-0.25cm}
+\begin{table}[H]\vspace{-0.4cm}
 \centering
 \footnotesize
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3.5pt}
 \caption{Bảng tổng hợp các kịch bản kiểm tra và kết quả đánh giá hệ thống}
 \label{tab:system-results}
-\renewcommand{\arraystretch}{1.0}
+\renewcommand{\arraystretch}{0.85}
 \begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{2.5cm} >{\centering\arraybackslash}p{1.3cm} >{\raggedright\arraybackslash}X >{\centering\arraybackslash}p{2.3cm}}
 \toprule
 \textbf{Kịch bản kiểm tra} & \textbf{Phương pháp xác minh} & \textbf{Nhiệt độ} & \textbf{Nội dung hiển thị trên LCD 1602} & \textbf{Trạng thái dàn LED} \\
@@ -106,13 +106,13 @@ Mất tín hiệu cảm biến & Thực nghiệm trên Kit (Rút chân PA1) & Kh
 Sai mã Checksum & Phân tích giải thuật mã nguồn & Không xác định & Dòng 1: \mbox{\texttt{DHT11: Sum Error}}\newline Dòng 2: \mbox{\texttt{Checksum Invalid}} & Tắt toàn bộ (Xác định) \\
 \bottomrule
 \end{tabularx}
-\end{table}\vspace{-0.25cm}
+\end{table}\vspace{-0.4cm}
 
 \section{Đánh giá kết quả thực nghiệm}
 
 Qua quá trình thử nghiệm thực tế trên Kit phần cứng, hệ thống đã đạt các kết quả đề ra:
-\begin{itemize}[leftmargin=1.2cm, topsep=0pt, itemsep=0.5pt, parsep=0pt]
-    \item Độ ổn định và tính hợp lệ dữ liệu: DHT11 và ATmega16 giao tiếp ổn định qua bus 1-Wire chu kỳ 2.0 giây. Thuật toán Checksum cộng 8-bit giúp phát hiện một số lỗi dữ liệu truyền do biến dạng tín hiệu hoặc xung nhiễu đường truyền, dù không bảo đảm phát hiện được mọi tổ hợp lỗi bit đồng thời.
-    \item Khả năng hiển thị và minh chứng thực tế: Kết quả thử nghiệm trên Kit (Hình \ref{fig:actual-system}a) cho thấy màn hình LCD ghi nhận giá trị $31.5^\circ\text{C}$ từ chương trình đọc cảm biến, đồng thời hiển thị ký hiệu cảnh báo \texttt{"*!"} và kích hoạt dàn 5 LED sáng rõ nét. Mặc dù chuẩn tài liệu cơ bản DHT11 thường chỉ định byte thập phân bằng 0, giá trị $31.5^\circ\text{C}$ phản ánh sự giải mã trực tiếp của vi điều khiển từ các byte dữ liệu nhận được trong thử nghiệm.
-    \item Trạng thái xử lý lỗi xác định: Khi mất cảm biến hoặc sai Checksum, cơ chế Timeout chống treo vi điều khiển, chủ động đưa dàn 5 LED về trạng thái tắt xác định (\texttt{PORTD |= 0x1F}) và hiển thị thông điệp chẩn đoán chi tiết trên LCD để hỗ trợ người vận hành.
+\begin{itemize}[leftmargin=1.2cm, topsep=0pt, itemsep=0.3pt, parsep=0pt]
+    \item Độ ổn định và tính hợp lệ dữ liệu: DHT11 và ATmega16 giao tiếp ổn định qua bus Aosong 1-Wire chu kỳ 2.0 giây. Thuật toán Checksum cộng 8-bit hỗ trợ phát hiện lỗi bit truyền dữ liệu do biến dạng tín hiệu, dù có giới hạn toán học là không bắt được mọi tổ hợp lỗi bit bù trừ đồng thời.
+    \item Minh chứng thực nghiệm hiển thị: Kết quả thử nghiệm (Hình \ref{fig:actual-system}a) ghi nhận LCD hiển thị $31.5^\circ\text{C}$, ký hiệu \texttt{"*!"} và kích hoạt 5 LED cảnh báo. Cần lưu ý theo tài liệu Aosong, DHT11 tiêu chuẩn có độ phân giải danh định $1^\circ\text{C}$ (byte thập phân quy định bằng 0, dù một số module thị trường có trả về phần lẻ). Do chưa trích xuất log 5 byte thô qua máy tính, báo cáo chỉ ghi nhận hiển thị trực tiếp trên LCD mà không kết luận về độ phân giải phần cứng vượt chuẩn.
+    \item Phân định cơ chế bảo vệ và xử lý lỗi: Hệ thống tách biệt hai cơ chế: bộ đếm Timeout ngăn treo vi điều khiển khi mất kết nối cảm biến vật lý (rút chân PA1); giải thuật Checksum cộng 8-bit loại bỏ các gói tin bị biến dạng do xung nhiễu đường truyền. Khi phát hiện sự cố, MCU lập tức tắt 5 LED cảnh báo (\texttt{PORTD |= 0x1F}) và hiển thị thông điệp chẩn đoán chi tiết trên LCD.
 \end{itemize}

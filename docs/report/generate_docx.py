@@ -1374,7 +1374,11 @@ def create_report_docx(output_path):
 
     add_para(
 
-        "Giao thức 1-Wire của DHT11 truyền gói tin 40-bit gồm 5 byte: phần nguyên độ ẩm, phần thập phân độ ẩm, phần nguyên nhiệt độ, "
+        "Cần nhấn mạnh rằng giao thức truyền thông một dây (Single-Bus) của DHT11 do nhà sản xuất Aosong thiết kế là giao thức điểm–điểm chuyên biệt, "
+
+        "hoàn toàn không tương thích với chuẩn công nghiệp Dallas/Maxim 1-Wire (vốn sử dụng mã định danh ROM 64-bit, khe thời gian do Master điều khiển và hỗ trợ đa điểm). "
+
+        "Giao thức của DHT11 truyền gói tin 40-bit gồm 5 byte: phần nguyên độ ẩm, phần thập phân độ ẩm, phần nguyên nhiệt độ, "
 
         "phần thập phân nhiệt độ và byte Checksum kiểm tra lỗi. Mỗi bit bắt đầu bằng xung LOW 50µs; nếu xung HIGH tiếp theo kéo dài 26–28µs là bit '0', "
 
@@ -2044,11 +2048,11 @@ def create_report_docx(output_path):
 
         "Qua quá trình thử nghiệm thực tế trên phần cứng Kit vi điều khiển, hệ thống đã đạt được các kết quả kỹ thuật đề ra: "
 
-        "giao tiếp 1-Wire ổn định giữa ATmega16 và cảm biến DHT11 với chu kỳ 2.0 giây; thuật toán Checksum cộng 8-bit giúp phát hiện một số lỗi dữ liệu truyền do biến dạng tín hiệu hoặc xung nhiễu đường truyền, dù không bảo đảm phát hiện được mọi tổ hợp lỗi bit đồng thời; "
+        "giao tiếp Aosong 1-Wire ổn định giữa ATmega16 và cảm biến DHT11 với chu kỳ 2.0 giây; thuật toán Checksum cộng 8-bit hỗ trợ phát hiện lỗi bit truyền dữ liệu do biến dạng tín hiệu (dù có giới hạn toán học không bắt được mọi tổ hợp lỗi bù trừ đồng thời); "
 
-        "kết quả thử nghiệm thực tế trên Kit (Hình 3.1) cho thấy màn hình LCD ghi nhận giá trị 31.5°C từ chương trình đọc cảm biến, đồng thời hiển thị ký hiệu cảnh báo '*!' và kích hoạt dàn 5 LED sáng rõ nét; "
+        "kết quả thử nghiệm thực tế trên Kit (Hình 3.1a) ghi nhận LCD hiển thị giá trị 31.5°C kèm ký hiệu cảnh báo '*!' và kích hoạt 5 LED cảnh báo (lưu ý tài liệu Aosong quy định độ phân giải danh định 1°C, báo cáo chỉ ghi nhận hiển thị trực tiếp trên LCD trong phiên thử nghiệm mà không khẳng định độ phân giải phần cứng vượt chuẩn); "
 
-        "đồng thời cơ chế Timeout chống treo vi điều khiển, chủ động đưa dàn 5 LED về trạng thái tắt xác định (PORTD |= 0x1F) và hiển thị thông báo chẩn đoán lỗi rõ ràng trên LCD khi mất cảm biến hoặc sai Checksum."
+        "hệ thống phân định rõ hai cơ chế bảo vệ độc lập: bộ đếm Timeout ngăn treo vi điều khiển khi mất kết nối cảm biến vật lý, trong khi Checksum loại bỏ gói tin sai lệch do can nhiễu, chủ động đưa 5 LED về mức tắt xác định (PORTD |= 0x1F) và hiển thị thông điệp chẩn đoán chi tiết trên LCD."
 
     )
 

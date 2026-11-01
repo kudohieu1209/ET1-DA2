@@ -5,17 +5,17 @@
 \subsection{Sơ đồ khối chức năng và kết nối liên khối hệ thống}
 
 Hệ thống đo nhiệt độ và cảnh báo ngưỡng được xây dựng trên cấu trúc liên kết gồm 5 khối chức năng chính:
-\begin{enumerate}[leftmargin=1.2cm]
-    \item \textbf{Khối nguồn nuôi}: Cung cấp điện áp ổn định +5V DC qua hai đường: nguồn ngoài 9--12V qua IC ổn áp LM7805 trên Kit, hoặc cấp 5V trực tiếp từ cổng nạp USBasp/USB máy tính.
-    \item \textbf{Khối MCU trung tâm (ATmega16)}: Thực thi chương trình nhúng, phát xung kích hoạt 1-Wire, nhận gói tin và kiểm tra Checksum, so sánh ngưỡng nhiệt độ $30^\circ\text{C}$, điều khiển LCD 1602 và dàn LED cảnh báo.
-    \item \textbf{Khối cảm biến số DHT11}: Thu thập nhiệt độ, độ ẩm môi trường và truyền dữ liệu nối tiếp về chân PA1 (tích hợp điện trở kéo lên $4.7\text{k}\Omega$ lên nguồn 5V).
-    \item \textbf{Khối hiển thị LCD 1602}: Kết nối ở chế độ 4-bit bus qua các chân PC4--PC7 (dữ liệu) và PD5--PD7 (điều khiển), hiển thị thời gian thực thông số đo và cảnh báo.
-    \item \textbf{Khối cảnh báo}: Dàn 5 LED đơn nối với các chân PD0--PD4, tích cực mức thấp (Active Low) qua trở hạn dòng $330\Omega$.
+\begin{enumerate}[leftmargin=1.2cm, topsep=0pt, itemsep=0.5pt, parsep=0pt]
+    \item \textbf{Khối nguồn nuôi 5V}: Cung cấp điện áp +5V ổn định cho toàn mạch qua IC LM7805 hoặc qua cổng USB máy tính.
+    \item \textbf{Khối MCU trung tâm}: ATmega16 (DIP-40, dao động nội 8.0 MHz) đảm nhiệm điều phối toàn bộ chu trình hoạt động.
+    \item \textbf{Khối cảm biến}: Cảm biến DHT11 thu thập giá trị nhiệt độ và độ ẩm, giao tiếp đơn tuyến với MCU qua chân PA1.
+    \item \textbf{Khối hiển thị}: Màn hình LCD 1602 giao tiếp 4-bit qua các chân dữ liệu PC4--PC7 và chân điều khiển PD5--PD7.
+    \item \textbf{Khối cảnh báo}: Dàn 5 LED đơn nối với chân PD0--PD4, tích cực mức thấp qua trở hạn dòng $330\Omega$.
 \end{enumerate}
 
-\begin{figure}[H]\vspace{-0.2cm}
+\begin{figure}[H]\vspace{-0.25cm}
     \centering
-    \includegraphics[width=0.72\textwidth,keepaspectratio]{system_wiring.png}
+    \includegraphics[width=0.82\textwidth,keepaspectratio]{system_wiring.png}\vspace{-0.2cm}
     \caption{Sơ đồ kết nối liên khối chi tiết của hệ thống đo nhiệt độ và cảnh báo}
     \label{fig:system-wiring}
 \end{figure}

@@ -135,12 +135,14 @@ Dải đo độ ẩm & 20\% -- 90\% RH \\
 Độ phân giải độ ẩm & 1\% RH \\
 Chu kỳ lấy mẫu tối thiểu & $\ge 1.0$ giây (Khuyến nghị $2.0$ giây theo tài liệu của Aosong để đảm bảo ổn định) \\
 Dòng điện tiêu thụ & $0.5\text{ mA} - 2.5\text{ mA}$ khi đo; $100\text{ }\mu\text{A} - 150\text{ }\mu\text{A}$ khi chờ \\
-Chuẩn giao tiếp & 1-Wire Single-Bus (Đường truyền dữ liệu đơn tuyến số) \\
+Chuẩn giao tiếp & Aosong 1-Wire Single-Bus (Đường truyền đơn tuyến chuyên biệt) \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Giao thức truyền thông 1-Wire Single-Bus}
+\subsection{Giao thức truyền thông đơn tuyến Aosong 1-Wire}
+
+\textbf{Phân định chuẩn giao thức}: Cần nhấn mạnh rằng giao thức truyền thông một dây (Single-Bus) của DHT11 do nhà sản xuất Aosong thiết kế là giao thức điểm--điểm chuyên biệt, \textbf{hoàn toàn không tương thích} với chuẩn công nghiệp Dallas/Maxim 1-Wire (vốn sử dụng mã định danh ROM 64-bit, khe thời gian do Master chủ động điều khiển và hỗ trợ kết nối đa điểm trên cùng một bus). Giao thức của DHT11 hoạt động theo nguyên tắc Master phát xung khởi động kích hoạt một lần, sau đó Slave (cảm biến) tự động phát liên tục chuỗi 40 bit dữ liệu theo các mốc thời gian quy ước.
 
 Cảm biến DHT11 giao tiếp với vi điều khiển chỉ thông qua một chân dữ liệu DATA duy nhất. Đường tín hiệu này đòi hỏi phải có một điện trở kéo lên nguồn 5V (giá trị từ 4.7 k$\Omega$ đến 10 k$\Omega$) để duy trì mức cao khi đường truyền ở trạng thái rảnh rỗi. 
 
