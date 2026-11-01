@@ -460,7 +460,7 @@ def create_report_docx(output_path):
         ("Hình 2.1", "Sơ đồ nguyên lý kết nối chi tiết giữa ATmega16, DHT11, LCD 1602 và khối LED", "11"),
         ("Hình 2.2", "Mô hình thiết kế 3D của bo mạch trên phần mềm Altium Designer", "12"),
         ("Hình 2.3", "Giao diện phần mềm ProgISP khi nạp firmware và cấu hình Fuse Bits 0xD9E4 cho ATmega16", "17"),
-        ("Hình 3.1", "Hình ảnh thực tế hệ thống vận hành trong trạng thái cảnh báo quá nhiệt (31.5°C)", "19"),
+        ("Hình 3.1", "Hình ảnh thực tế hệ thống vận hành trong các kịch bản thử nghiệm", "19"),
     ]
     lof_tbl = doc.add_table(rows=len(lof_items), cols=3)
     lof_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -864,7 +864,56 @@ def create_report_docx(output_path):
     )
     
     img_actual = os.path.join(os.path.dirname(output_path), "img", "actual_system.png")
-    if os.path.exists(img_actual):
+    img_disconnect = os.path.join(os.path.dirname(output_path), "img", "sensor_disconnect.png")
+    if os.path.exists(img_actual) and os.path.exists(img_disconnect):
+        tbl_img = doc.add_table(rows=2, cols=2)
+        tbl_img.alignment = WD_TABLE_ALIGNMENT.CENTER
+        tbl_img.autofit = False
+        col_w = [Cm(7.8), Cm(7.8)]
+        for r in tbl_img.rows:
+            for c_idx, w in enumerate(col_w):
+                r.cells[c_idx].width = w
+        
+        c00 = tbl_img.cell(0, 0)
+        p00 = c00.paragraphs[0]
+        p00.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p00.paragraph_format.first_line_indent = Cm(0)
+        p00.paragraph_format.space_before = Pt(2)
+        p00.paragraph_format.space_after = Pt(2)
+        p00.add_run().add_picture(img_actual, width=Cm(7.2))
+        
+        c01 = tbl_img.cell(0, 1)
+        p01 = c01.paragraphs[0]
+        p01.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p01.paragraph_format.first_line_indent = Cm(0)
+        p01.paragraph_format.space_before = Pt(2)
+        p01.paragraph_format.space_after = Pt(2)
+        p01.add_run().add_picture(img_disconnect, width=Cm(7.2))
+        
+        c10 = tbl_img.cell(1, 0)
+        p10 = c10.paragraphs[0]
+        p10.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p10.paragraph_format.first_line_indent = Cm(0)
+        p10.paragraph_format.space_before = Pt(2)
+        p10.paragraph_format.space_after = Pt(6)
+        r10 = p10.add_run("(a) Cảnh báo quá nhiệt (31.5°C)")
+        r10.font.name = 'Times New Roman'
+        r10.font.size = Pt(11)
+        r10.font.italic = True
+        
+        c11 = tbl_img.cell(1, 1)
+        p11 = c11.paragraphs[0]
+        p11.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p11.paragraph_format.first_line_indent = Cm(0)
+        p11.paragraph_format.space_before = Pt(2)
+        p11.paragraph_format.space_after = Pt(6)
+        r11 = p11.add_run("(b) Sự cố rút dây tín hiệu PA1")
+        r11.font.name = 'Times New Roman'
+        r11.font.size = Pt(11)
+        r11.font.italic = True
+        
+        add_figure_caption("Hình 3.1: Hình ảnh thực tế hệ thống vận hành trong các kịch bản thử nghiệm")
+    elif os.path.exists(img_actual):
         p_act = doc.add_paragraph()
         p_act.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p_act.paragraph_format.first_line_indent = Cm(0)

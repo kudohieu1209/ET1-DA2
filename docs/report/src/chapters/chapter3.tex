@@ -47,8 +47,20 @@ Trong điều kiện nhiệt độ phòng thí nghiệm ổn định ở mức $
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.42\textwidth]{actual_system.png}
-    \caption{Hình ảnh thực tế hệ thống vận hành trong trạng thái cảnh báo quá nhiệt ($31.5^\circ\text{C}$)}
+    \begin{subfigure}[b]{0.46\textwidth}
+        \centering
+        \includegraphics[height=7.0cm,keepaspectratio]{actual_system.png}
+        \caption{Cảnh báo quá nhiệt ($31.5^\circ\text{C}$)}
+        \label{fig:actual-overheat}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.46\textwidth}
+        \centering
+        \includegraphics[height=7.0cm,keepaspectratio]{sensor_disconnect.png}
+        \caption{Sự cố rút dây tín hiệu PA1}
+        \label{fig:actual-disconnect}
+    \end{subfigure}
+    \caption{Hình ảnh thực tế hệ thống vận hành trong các kịch bản thử nghiệm}
     \label{fig:actual-system}
 \end{figure}
 
