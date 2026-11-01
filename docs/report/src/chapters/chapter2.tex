@@ -238,20 +238,20 @@ Mã nguồn dự án được tổ chức và biên dịch tự động hóa th�
 
 \subsection{Quy trình nạp chương trình bằng phần mềm ProgISP}
 
-Các bước nạp chương trình chuẩn hóa vào vi điều khiển ATmega16 trên Kit thí nghiệm:
+Các bước nạp chương trình chuẩn hóa vào vi điều khiển ATmega16 trên Kit:
 \begin{enumerate}[leftmargin=1.2cm]
-    \item Kết nối mạch nạp USBasp giữa cổng USB của máy tính và cổng ISP 10 chân trên Kit.
+    \item Kết nối mạch nạp USBasp giữa cổng USB của máy tính và cổng ISP trên Kit.
     \item Khởi chạy phần mềm ProgISP 1.72.
     \item Tại mục Select Chip, chọn chính xác tên vi điều khiển: \texttt{ATMEGA16}.
-    \item Nhấn nút RD (Read) trên giao diện để kiểm tra kết nối phần cứng. Khi phần mềm đọc và báo chuỗi nhận diện \texttt{ID: 1E : 94 : 03}, mạch nạp và vi điều khiển đã thông suốt hoàn toàn.
+    \item Nhấn nút RD (Read) trên giao diện để kiểm tra kết nối phần cứng; phần mềm đọc và báo chuỗi nhận diện \texttt{ID: 1E : 94 : 03}.
     \item Thiết lập cấu hình Fuse Bits: Nhập mã \texttt{0xD9E4} vào ô \textit{Program Fuse} (High Fuse = \texttt{0xD9}, Low Fuse = \texttt{0xE4}). Tích chọn ô vuông kiểm tra \textit{Program Fuse}.
-    \item Nạp file mã máy vào bộ đệm: Nhấn nút Load Flash, chọn đường dẫn tới file \texttt{src/tempsen.hex}. Đảm bảo thông số góc dưới bên trái thay đổi từ \texttt{Flash: 0 / 16384} sang giá trị dung lượng thực tế của file nạp.
+    \item Nạp file mã máy vào bộ đệm: Nhấn nút Load Flash, chọn đường dẫn tới file \texttt{src/tempsen.hex}.
     \item Nhấn nút Auto để thực thi tuần tự các bước: Xóa chip (Erase), Ghi Flash (Write Flash), Kiểm tra lại (Verify Flash) và Ghi cầu chì (Write Fuse). Khi phần mềm báo dòng chữ \textit{Successfully done}, vi điều khiển lập tức tự khởi động lại và bắt đầu chạy chương trình.
 \end{enumerate}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[height=5.0cm,keepaspectratio]{progisp_setup.png}
-    \caption{Giao diện phần mềm ProgISP khi nạp firmware và cấu hình Fuse Bits 0xD9E4 cho ATmega16}
+    \includegraphics[height=7.0cm,keepaspectratio]{progisp_setup.png}
+    \caption{Giao diện phần mềm ProgISP khi nạp firmware và cấu hình Fuse Bits 0xD9E4}
     \label{fig:progisp-setup}
 \end{figure}
