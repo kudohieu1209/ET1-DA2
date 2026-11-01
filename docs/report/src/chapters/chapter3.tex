@@ -50,24 +50,24 @@ Trong điều kiện nhiệt độ phòng thí nghiệm ổn định ở mức $
     \begin{subfigure}[b]{0.46\textwidth}
         \centering
         \includegraphics[height=7.0cm,keepaspectratio]{actual_system.png}
-        \caption{Cảnh báo quá nhiệt ($31.5^\circ\text{C}$)}
+        \caption{Màn hình LCD khi cảnh báo quá nhiệt ($31.5^\circ\text{C}$)}
         \label{fig:actual-overheat}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.46\textwidth}
         \centering
         \includegraphics[height=7.0cm,keepaspectratio]{sensor_disconnect.png}
-        \caption{Sự cố rút dây tín hiệu PA1}
+        \caption{Màn hình LCD khi không có tín hiệu từ cảm biến}
         \label{fig:actual-disconnect}
     \end{subfigure}
     \caption{Hình ảnh thực tế hệ thống vận hành trong các kịch bản thử nghiệm}
     \label{fig:actual-system}
 \end{figure}
 
-\subsection{Trạng thái sự cố cảm biến và cơ chế an toàn (Fail-safe)}
-Nhằm kiểm tra độ tin cậy và khả năng tự bảo vệ của hệ thống trước các sự cố ngoại vi, hai tình huống bất thường được thực nghiệm:
+\subsection{Thử nghiệm khi không có tín hiệu cảm biến và cơ chế an toàn (Fail-safe)}
+Nhằm kiểm tra độ tin cậy và khả năng tự bảo vệ của hệ thống khi mất kết nối ngoại vi, nhóm đã chủ động thực nghiệm hai tình huống:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Sự cố mất kết nối hoặc hở mạch: Khi chủ động rút chân tín hiệu DATA (PA1) hoặc ngắt nguồn nuôi cảm biến, hàm \texttt{DHT11\_Read} kích hoạt bộ đếm thời gian Timeout và thoát ra an toàn sau 10.000 chu kỳ lặp mà không gây treo vi điều khiển. Màn hình LCD lập tức hiển thị:
+    \item Thử nghiệm khi không có tín hiệu từ cảm biến: Khi chủ động rút chân tín hiệu DATA (PA1) hoặc ngắt nguồn nuôi cảm biến, hàm \texttt{DHT11\_Read} kích hoạt bộ đếm thời gian Timeout và thoát ra an toàn sau 10.000 chu kỳ lặp mà không gây treo vi điều khiển. Màn hình LCD lập tức hiển thị thông báo (minh chứng thực tế ở Hình \ref{fig:actual-disconnect}):
     \begin{center}
     \fbox{\parbox{7.5cm}{
     \texttt{Dòng 1: DHT11: No Signal}\\[0.1cm]

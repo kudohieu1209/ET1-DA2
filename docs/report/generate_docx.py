@@ -896,7 +896,7 @@ def create_report_docx(output_path):
         p10.paragraph_format.first_line_indent = Cm(0)
         p10.paragraph_format.space_before = Pt(2)
         p10.paragraph_format.space_after = Pt(6)
-        r10 = p10.add_run("(a) Cảnh báo quá nhiệt (31.5°C)")
+        r10 = p10.add_run("(a) Màn hình LCD khi cảnh báo quá nhiệt (31.5°C)")
         r10.font.name = 'Times New Roman'
         r10.font.size = Pt(11)
         r10.font.italic = True
@@ -907,7 +907,7 @@ def create_report_docx(output_path):
         p11.paragraph_format.first_line_indent = Cm(0)
         p11.paragraph_format.space_before = Pt(2)
         p11.paragraph_format.space_after = Pt(6)
-        r11 = p11.add_run("(b) Sự cố rút dây tín hiệu PA1")
+        r11 = p11.add_run("(b) Màn hình LCD khi không có tín hiệu từ cảm biến")
         r11.font.name = 'Times New Roman'
         r11.font.size = Pt(11)
         r11.font.italic = True
