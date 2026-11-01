@@ -13,50 +13,11 @@ Hệ thống đo nhiệt độ và cảnh báo ngưỡng được xây dựng tr
     \item \textbf{Khối cảnh báo}: Dàn 5 LED đơn nối với các chân PD0--PD4, tích cực mức thấp (Active Low) qua trở hạn dòng $330\Omega$.
 \end{enumerate}
 
-\begin{figure}[H]
-\centering
-\resizebox{0.90\textwidth}{!}{%
-\begin{tikzpicture}[
-    mcu/.style={rectangle, draw=blue!80!black, fill=blue!10, very thick, rounded corners=3pt, align=center, font=\bfseries\small, minimum width=3.2cm, minimum height=3.0cm},
-    sensor/.style={rectangle, draw=teal!80!black, fill=teal!10, thick, rounded corners=3pt, align=center, font=\small, minimum width=3.0cm, minimum height=1.6cm},
-    display/.style={rectangle, draw=cyan!80!black, fill=cyan!10, thick, rounded corners=3pt, align=center, font=\small, minimum width=3.4cm, minimum height=1.5cm},
-    alarm/.style={rectangle, draw=red!80!black, fill=red!10, thick, rounded corners=3pt, align=center, font=\small, minimum width=3.4cm, minimum height=1.5cm},
-    pwr/.style={rectangle, draw=orange!80!black, fill=orange!10, thick, rounded corners=3pt, align=center, font=\small, minimum width=4.0cm, minimum height=0.9cm},
-    line/.style={draw=black!80, thick, -Stealth},
-    bipath/.style={draw=black!80, thick, Stealth-Stealth}
-]
-    % Central MCU
-    \node[mcu] (mcu) at (0, 0) {\textbf{ATmega16}\\(MCU Trung tâm)\\[0.1cm]
-        \footnotesize \textit{DIP-40 / 8.0 MHz}};
-    
-    % Power on top
-    \node[pwr] (pwr) at (0, 2.3) {\textbf{Khối Nguồn Nuôi 5V}\\[-1pt]
-        \footnotesize LM7805 (9--12V) / USB 5V};
-    
-    % Sensor on the left
-    \node[sensor] (dht) at (-4.5, 0) {\textbf{Cảm biến DHT11}\\[-1pt]
-        \footnotesize Giao tiếp 1-Wire\\
-        \footnotesize Trở kéo $4.7\text{k}\Omega \rightarrow 5\text{V}$};
-    
-    % LCD on right top
-    \node[display] (lcd) at (4.7, 1.4) {\textbf{Màn hình LCD 1602}\\[-1pt]
-        \footnotesize Bus 4-bit (PC4--PC7)\\
-        \footnotesize Điều khiển: PD5--PD7};
-    
-    % LED alarm on right bottom
-    \node[alarm] (led) at (4.7, -1.4) {\textbf{Dàn 5 LED Cảnh Báo}\\[-1pt]
-        \footnotesize Chân điều khiển: PD0--PD4\\
-        \footnotesize Active-Low ($330\Omega \rightarrow 5\text{V}$)};
-
-    % Connections
-    \draw[bipath] (dht.east) -- node[above=2pt, font=\scriptsize, align=center] {Bus 1-Wire\\[-1pt](Chân PA1)} (mcu.west);
-    \draw[line] (pwr.south) -- node[right=2pt, font=\scriptsize] {+5V, GND} (mcu.north);
-    \draw[line] (mcu.east |- lcd.west) -- node[above=2pt, font=\scriptsize, align=center] {PC4--PC7 (Data 4-bit)\\[-1pt]PD5--PD7 (RS, RW, EN)} (lcd.west);
-    \draw[line] (mcu.east |- led.west) -- node[above=2pt, font=\scriptsize, align=center] {PD0--PD4 (Tín hiệu kích hoạt)\\[-1pt]Active-Low (0: Bật / 1: Tắt)} (led.west);
-\end{tikzpicture}%
-}
-\caption{Sơ đồ kết nối liên khối chi tiết của hệ thống đo nhiệt độ và cảnh báo}
-\label{fig:system-wiring}
+\begin{figure}[H]\vspace{-0.2cm}
+    \centering
+    \includegraphics[width=0.72\textwidth,keepaspectratio]{system_wiring.png}
+    \caption{Sơ đồ kết nối liên khối chi tiết của hệ thống đo nhiệt độ và cảnh báo}
+    \label{fig:system-wiring}
 \end{figure}
 
 Sơ đồ nguyên lý bo mạch Kit phát triển ATmega16 và mô hình không gian 3D hoàn thiện trên Altium Designer được thể hiện lần lượt trên Hình \ref{fig:schematic} và Hình \ref{fig:altium-3d}:

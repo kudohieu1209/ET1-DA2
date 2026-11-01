@@ -916,11 +916,13 @@ def create_report_docx(output_path):
 
         ("Hình 1.2", "Sơ đồ bố trí linh kiện trên Kit phát triển vi điều khiển AVR", "4"),
 
-        ("Hình 2.1", "Sơ đồ nguyên lý kết nối chi tiết giữa ATmega16, DHT11, LCD 1602 và khối LED", "11"),
+        ("Hình 2.1", "Sơ đồ kết nối liên khối chi tiết của hệ thống", "10"),
 
-        ("Hình 2.2", "Mô hình thiết kế 3D của bo mạch trên phần mềm Altium Designer", "12"),
+        ("Hình 2.2", "Sơ đồ nguyên lý mạch Kit vi điều khiển ATmega16", "11"),
 
-        ("Hình 2.3", "Giao diện phần mềm ProgISP khi nạp firmware và cấu hình Fuse Bits 0xD9E4", "17"),
+        ("Hình 2.3", "Mô hình thiết kế 3D của bo mạch Kit trên phần mềm Altium Designer", "12"),
+
+        ("Hình 2.4", "Giao diện phần mềm ProgISP khi nạp firmware và cấu hình Fuse Bits 0xD9E4", "17"),
 
         ("Hình 3.1", "Hình ảnh thực tế hệ thống vận hành trong các kịch bản thử nghiệm", "19"),
 
@@ -1508,6 +1510,22 @@ def create_report_docx(output_path):
 
     
 
+    img_wiring = os.path.join(os.path.dirname(output_path), "img", "system_wiring.png")
+
+    if os.path.exists(img_wiring):
+
+        p_wiring = doc.add_paragraph()
+
+        p_wiring.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        p_wiring.paragraph_format.first_line_indent = Cm(0)
+
+        p_wiring.add_run().add_picture(img_wiring, width=Cm(14.0))
+
+        add_figure_caption("Hình 2.1: Sơ đồ kết nối liên khối chi tiết của hệ thống")
+
+    
+
     img_sch = os.path.join(os.path.dirname(output_path), "img", "schematic.png")
 
     if os.path.exists(img_sch):
@@ -1520,7 +1538,7 @@ def create_report_docx(output_path):
 
         p_img.add_run().add_picture(img_sch, width=Cm(15.0))
 
-        add_figure_caption("Hình 2.1: Sơ đồ nguyên lý kết nối chi tiết giữa ATmega16, DHT11, LCD 1602 và khối LED")
+        add_figure_caption("Hình 2.2: Sơ đồ nguyên lý mạch Kit vi điều khiển ATmega16")
 
     
 
@@ -1542,7 +1560,7 @@ def create_report_docx(output_path):
 
         p_3d.add_run().add_picture(img_3d, width=Cm(11.5))
 
-        add_figure_caption("Hình 2.2: Mô hình thiết kế 3D của bo mạch trên phần mềm Altium Designer")
+        add_figure_caption("Hình 2.3: Mô hình thiết kế 3D của bo mạch Kit trên phần mềm Altium Designer")
 
     
 
@@ -1682,13 +1700,23 @@ def create_report_docx(output_path):
 
     add_para(
 
-        "Trên phần mềm ProgISP 1.72: Chọn chip ATMEGA16, bấm RD kiểm tra ID 1E : 94 : 03. "
-
-        "Nhập mã Program Fuse: 0xD9E4 (High Fuse 0xD9 tắt JTAG, Low Fuse 0xE4 chọn dao động nội 8MHz). "
-
-        "Nhấn Load Flash chọn file tempsen.hex, kiểm tra dung lượng bộ đệm và bấm Auto để nạp hoàn tất vào chip."
+        "Các bước nạp chương trình chuẩn hóa vào vi điều khiển ATmega16 trên Kit:"
 
     )
+
+    add_para("1. Kết nối mạch nạp USBasp giữa cổng USB của máy tính và cổng ISP trên Kit.")
+
+    add_para("2. Khởi chạy phần mềm ProgISP 1.72.")
+
+    add_para("3. Tại mục Select Chip, chọn chính xác tên vi điều khiển: ATMEGA16.")
+
+    add_para("4. Nhấn nút RD (Read) trên giao diện để kiểm tra kết nối phần cứng; phần mềm đọc và báo chuỗi nhận diện ID: 1E : 94 : 03.")
+
+    add_para("5. Thiết lập cấu hình Fuse Bits: Nhập mã 0xD9E4 vào ô Program Fuse (High Fuse = 0xD9, Low Fuse = 0xE4). Tích chọn ô vuông kiểm tra Program Fuse.")
+
+    add_para("6. Nạp file mã máy vào bộ đệm: Nhấn nút Load Flash, chọn đường dẫn tới file src/tempsen.hex.")
+
+    add_para("7. Nhấn nút Auto để thực thi tuần tự các bước: Xóa chip (Erase), Ghi Flash (Write Flash), Kiểm tra lại (Verify Flash) và Ghi cầu chì (Write Fuse). Khi phần mềm báo dòng chữ Successfully done, vi điều khiển lập tức khởi động lại và bắt đầu chạy chương trình.")
 
     
 
@@ -1704,7 +1732,7 @@ def create_report_docx(output_path):
 
         p_prg.add_run().add_picture(img_progisp, width=Cm(12.5))
 
-        add_figure_caption("Hình 2.3: Giao diện phần mềm ProgISP khi nạp firmware và cấu hình Fuse Bits 0xD9E4")
+        add_figure_caption("Hình 2.4: Giao diện phần mềm ProgISP khi nạp firmware và cấu hình Fuse Bits 0xD9E4")
 
 
 
