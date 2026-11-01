@@ -15,46 +15,44 @@ Hệ thống đo nhiệt độ và cảnh báo ngưỡng được xây dựng tr
 
 \begin{figure}[H]
 \centering
-\resizebox{0.92\textwidth}{!}{%
+\resizebox{0.90\textwidth}{!}{%
 \begin{tikzpicture}[
-    box/.style={rectangle, draw=blue!70!black, fill=blue!5, thick, rounded corners=2pt, align=center, font=\small},
-    mcu/.style={rectangle, draw=blue!80!black, fill=blue!10, very thick, rounded corners=3pt, align=center, font=\bfseries\small, minimum width=3.8cm, minimum height=3.2cm},
-    sensor/.style={rectangle, draw=teal!80!black, fill=teal!10, thick, rounded corners=2pt, align=center, font=\small, minimum width=3.0cm, minimum height=2.0cm},
-    display/.style={rectangle, draw=cyan!80!black, fill=cyan!10, thick, rounded corners=2pt, align=center, font=\small, minimum width=3.6cm, minimum height=1.9cm},
-    alarm/.style={rectangle, draw=red!80!black, fill=red!10, thick, rounded corners=2pt, align=center, font=\small, minimum width=3.6cm, minimum height=1.7cm},
-    pwr/.style={rectangle, draw=orange!80!black, fill=orange!10, thick, rounded corners=2pt, align=center, font=\small, minimum width=4.2cm, minimum height=1.1cm},
+    mcu/.style={rectangle, draw=blue!80!black, fill=blue!10, very thick, rounded corners=3pt, align=center, font=\bfseries\small, minimum width=3.2cm, minimum height=3.0cm},
+    sensor/.style={rectangle, draw=teal!80!black, fill=teal!10, thick, rounded corners=3pt, align=center, font=\small, minimum width=3.0cm, minimum height=1.6cm},
+    display/.style={rectangle, draw=cyan!80!black, fill=cyan!10, thick, rounded corners=3pt, align=center, font=\small, minimum width=3.4cm, minimum height=1.5cm},
+    alarm/.style={rectangle, draw=red!80!black, fill=red!10, thick, rounded corners=3pt, align=center, font=\small, minimum width=3.4cm, minimum height=1.5cm},
+    pwr/.style={rectangle, draw=orange!80!black, fill=orange!10, thick, rounded corners=3pt, align=center, font=\small, minimum width=4.0cm, minimum height=0.9cm},
     line/.style={draw=black!80, thick, -Stealth},
     bipath/.style={draw=black!80, thick, Stealth-Stealth}
 ]
     % Central MCU
-    \node[mcu] (mcu) {ATmega16\\(MCU Trung tâm)\\[0.15cm]
+    \node[mcu] (mcu) at (0, 0) {\textbf{ATmega16}\\(MCU Trung tâm)\\[0.1cm]
         \footnotesize \textit{DIP-40 / 8.0 MHz}};
     
-    % Sensor on the left
-    \node[sensor, left=1.8cm of mcu] (dht) {\textbf{Cảm biến DHT11}\\
-        \footnotesize VCC (+5V), GND\\
-        \footnotesize Chân DATA (Pin 2)\\
-        \footnotesize \color{teal!70!black}(Trở kéo $4.7\text{k}\Omega \rightarrow 5\text{V}$)};
-    
     % Power on top
-    \node[pwr, above=0.8cm of mcu] (pwr) {\textbf{Khối Nguồn Nuôi 5V}\\
-        \footnotesize LM7805 (Adapter 9--12V) / USB 5V};
+    \node[pwr] (pwr) at (0, 2.3) {\textbf{Khối Nguồn Nuôi 5V}\\[-1pt]
+        \footnotesize LM7805 (9--12V) / USB 5V};
+    
+    % Sensor on the left
+    \node[sensor] (dht) at (-4.5, 0) {\textbf{Cảm biến DHT11}\\[-1pt]
+        \footnotesize Giao tiếp 1-Wire\\
+        \footnotesize Trở kéo $4.7\text{k}\Omega \rightarrow 5\text{V}$};
     
     % LCD on right top
-    \node[display, right=1.6cm of mcu.north east, anchor=north west] (lcd) {\textbf{Màn hình LCD 1602}\\
-        \footnotesize Data: PC4--PC7 (4-bit)\\
-        \footnotesize Lệnh: PD5, PD6, PD7};
+    \node[display] (lcd) at (4.7, 1.4) {\textbf{Màn hình LCD 1602}\\[-1pt]
+        \footnotesize Bus 4-bit (PC4--PC7)\\
+        \footnotesize Điều khiển: PD5--PD7};
     
     % LED alarm on right bottom
-    \node[alarm, right=1.6cm of mcu.south east, anchor=south west] (led) {\textbf{Dàn 5 LED Cảnh Báo}\\
-        \footnotesize Chân PD0 -- PD4\\
-        \footnotesize Active Low ($330\Omega \rightarrow 5\text{V}$)};
+    \node[alarm] (led) at (4.7, -1.4) {\textbf{Dàn 5 LED Cảnh Báo}\\[-1pt]
+        \footnotesize Chân điều khiển: PD0--PD4\\
+        \footnotesize Active-Low ($330\Omega \rightarrow 5\text{V}$)};
 
     % Connections
-    \draw[bipath] (dht.east) -- node[above, font=\footnotesize] {1-Wire (PA1)} (mcu.west);
-    \draw[line] (pwr.south) -- node[right, font=\footnotesize] {+5V, GND} (mcu.north);
-    \draw[line] (mcu.east |- lcd.west) -- node[above, font=\footnotesize] {PC4--PC7, PD5--PD7} (lcd.west);
-    \draw[line] (mcu.east |- led.west) -- node[above, font=\footnotesize] {PD0--PD4} (led.west);
+    \draw[bipath] (dht.east) -- node[above=2pt, font=\scriptsize, align=center] {Bus 1-Wire\\[-1pt](Chân PA1)} (mcu.west);
+    \draw[line] (pwr.south) -- node[right=2pt, font=\scriptsize] {+5V, GND} (mcu.north);
+    \draw[line] (mcu.east |- lcd.west) -- node[above=2pt, font=\scriptsize, align=center] {PC4--PC7 (Data 4-bit)\\[-1pt]PD5--PD7 (RS, RW, EN)} (lcd.west);
+    \draw[line] (mcu.east |- led.west) -- node[above=2pt, font=\scriptsize, align=center] {PD0--PD4 (Tín hiệu kích hoạt)\\[-1pt]Active-Low (0: Bật / 1: Tắt)} (led.west);
 \end{tikzpicture}%
 }
 \caption{Sơ đồ kết nối liên khối chi tiết của hệ thống đo nhiệt độ và cảnh báo}
@@ -137,8 +135,8 @@ Quy trình vận hành của hệ thống được thực thi tuần tự và kh
                 \item Nếu $temp\_int < 30^\circ\text{C}$: In chuỗi \texttt{"HIGH Th: 30°C   "} (16 ký tự, xóa ký hiệu báo động cũ) và kéo các chân PD0--PD4 lên mức 1 (\texttt{PORTD |= 0x1F}) để tắt dàn LED.
             \end{itemize}
         \end{itemize}
-        \item \textbf{Nhánh 2 -- Lỗi sai mã Checksum (\texttt{status == -6})}: Dòng 1 in \texttt{"DHT11: Sum Error"}, dòng 2 in \texttt{"Checksum Invalid"}, đưa dàn 5 LED về mức tắt an toàn (\texttt{PORTD |= 0x1F}).
-        \item \textbf{Nhánh 3 -- Lỗi mất kết nối / Timeout (\texttt{status} từ -1 đến -5)}: Dòng 1 in \texttt{"DHT11: No Signal"}, dòng 2 in \texttt{"Check Pin PA1   "}, đưa dàn 5 LED về mức tắt an toàn (\texttt{PORTD |= 0x1F}).
+        \item \textbf{Nhánh 2 -- Lỗi sai mã Checksum (\texttt{status == -6})}: Dòng 1 in \texttt{"DHT11: Sum Error"}, dòng 2 in \texttt{"Checksum Invalid"}, đưa dàn 5 LED về trạng thái tắt xác định (\texttt{PORTD |= 0x1F}).
+        \item \textbf{Nhánh 3 -- Lỗi mất kết nối / Timeout (\texttt{status} từ -1 đến -5)}: Dòng 1 in \texttt{"DHT11: No Signal"}, dòng 2 in \texttt{"Check Pin PA1   "}, đưa dàn 5 LED về trạng thái tắt xác định (\texttt{PORTD |= 0x1F}).
         \item Tạo trễ phần mềm 2.0 giây (\texttt{\_delay\_ms(2000)}) trước khi bắt đầu chu kỳ đọc tiếp theo theo khuyến cáo từ tài liệu của Aosong.
     \end{itemize}
 \end{enumerate}

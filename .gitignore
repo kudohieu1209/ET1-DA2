@@ -37,6 +37,7 @@ $RECYCLE.BIN/
 *.bak
 *.tmp
 *.log
+~$*
 
 # ==========================================
 # VS Code local states (keep project configurations)

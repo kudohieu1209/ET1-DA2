@@ -6,11 +6,11 @@ Hệ thống đo nhiệt độ và cảnh báo ngưỡng sử dụng vi điều 
 
 \subsection{Giai đoạn khởi động và màn hình chào mừng}
 Khi vừa cấp nguồn nuôi 5V từ cổng nạp USB, vi điều khiển hoàn tất quá trình reset phần cứng, tắt cổng JTAG nội, thiết lập chiều cổng I/O và cấu hình màn hình LCD. Ngay lập tức, màn hình LCD 1602 hiển thị thông điệp chào mừng khởi động:
-\begin{center}
-\fbox{\parbox{7cm}{
-\texttt{Dòng 1: DA2: DO NHIET DO}\\[0.1cm]
+\begin{center}\vspace{-0.25cm}
+\fbox{\parbox{6.5cm}{
+\texttt{Dòng 1: DA2: DO NHIET DO}\\[0.04cm]
 \texttt{Dòng 2: DHT11 SENSOR}
-}}
+}}\vspace{-0.25cm}
 \end{center}
 Màn hình duy trì thông điệp này trong khoảng thời gian chính xác 1.5 giây. Trong suốt giai đoạn khởi động, toàn bộ 5 đèn LED cảnh báo trên các chân PD0 -- PD4 đều ở trạng thái tắt hoàn toàn nhờ lệnh khởi tạo kéo mức 1 (\texttt{PORTD |= 0x1F}). Sau 1.5 giây, lệnh xóa màn hình (\texttt{0x01}) được phát ra để chuẩn bị cho chu trình hiển thị dữ liệu đo lường.
 
@@ -19,11 +19,11 @@ Trong điều kiện nhiệt độ phòng thí nghiệm ổn định ở mức $
 \begin{itemize}[leftmargin=1.2cm]
     \item Cảm biến DHT11 thu thập dữ liệu và gửi gói tin 40-bit về MCU. Quá trình kiểm tra tính toàn vẹn dữ liệu bằng mã Checksum thành công, dữ liệu nhận được hợp lệ.
     \item Màn hình LCD 1602 hiển thị thông số:
-    \begin{center}
-    \fbox{\parbox{7cm}{
-    \texttt{Dòng 1: Temp: 26.5 }\textdegree\texttt{C}\\[0.1cm]
+    \begin{center}\vspace{-0.25cm}
+    \fbox{\parbox{6.5cm}{
+    \texttt{Dòng 1: Temp: 26.5 }\textdegree\texttt{C}\\[0.04cm]
     \texttt{Dòng 2: HIGH Th: 30}\textdegree\texttt{C}
-    }}
+    }}\vspace{-0.25cm}
     \end{center}
     \item Do nhiệt độ đo được nằm trong dải an toàn, dòng 2 hiển thị ngưỡng \texttt{"HIGH Th: 30°C"} mà không xuất hiện bất kỳ dấu hiệu cảnh báo nào.
     \item Dàn 5 LED cảnh báo nối với các chân PD0 -- PD4 tiếp tục được giữ ở mức logic 1, nghĩa là tắt hoàn toàn.
@@ -32,13 +32,13 @@ Trong điều kiện nhiệt độ phòng thí nghiệm ổn định ở mức $
 \subsection{Trạng thái cảnh báo vượt ngưỡng quá nhiệt ($T \ge 30^\circ\text{C}$)}
 Để kiểm thử phản ứng của hệ thống khi có sự cố quá nhiệt, người thực hiện sử dụng nguồn nhiệt gián tiếp (hơi ấm nhẹ áp gần bề mặt cảm biến DHT11). Khi nhiệt độ môi trường vượt qua $30.0^\circ\text{C}$:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Vi điều khiển lập tức phát hiện điều kiện $temp\_int \ge 30$ trong chu kỳ quét.
-    \item Màn hình LCD lập tức cập nhật trạng thái báo động:
-    \begin{center}
-    \fbox{\parbox{7.5cm}{
-    \texttt{Dòng 1: Temp: 31.5 }\textdegree\texttt{C}\\[0.1cm]
+    \item Vi điều khiển phát hiện điều kiện $temp\_int \ge 30^\circ\text{C}$ ở chu kỳ đọc hợp lệ tiếp theo (chu kỳ lấy mẫu 2,0 giây).
+    \item Màn hình LCD cập nhật trạng thái báo động tương ứng:
+    \begin{center}\vspace{-0.25cm}
+    \fbox{\parbox{6.5cm}{
+    \texttt{Dòng 1: Temp: 31.5 }\textdegree\texttt{C}\\[0.04cm]
     \texttt{Dòng 2: HIGH Th: 30}\textdegree\texttt{C *!}
-    }}
+    }}\vspace{-0.25cm}
     \end{center}
     Trên dòng 2 xuất hiện chuỗi ký hiệu báo động \texttt{"*!"} thu hút sự chú ý của người vận hành.
     \item Đồng thời, phép toán che mặt nạ \texttt{PORTD \&= 0xE0} kéo tức thì 5 chân PD0 -- PD4 xuống mức 0 (Active Low), làm cho dàn 5 đèn LED cảnh báo bật sáng đồng loạt.
@@ -49,14 +49,14 @@ Trong điều kiện nhiệt độ phòng thí nghiệm ổn định ở mức $
     \centering
     \begin{subfigure}[b]{0.46\textwidth}
         \centering
-        \includegraphics[height=6.0cm,keepaspectratio]{actual_system.png}
+        \includegraphics[height=4.6cm,keepaspectratio]{actual_system.png}
         \caption{Màn hình LCD khi cảnh báo quá nhiệt ($31.5^\circ\text{C}$)}
         \label{fig:actual-overheat}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.46\textwidth}
         \centering
-        \includegraphics[height=6.0cm,keepaspectratio]{sensor_disconnect.png}
+        \includegraphics[height=4.6cm,keepaspectratio]{sensor_disconnect.png}
         \caption{Màn hình LCD khi không có tín hiệu từ cảm biến}
         \label{fig:actual-disconnect}
     \end{subfigure}
@@ -66,8 +66,8 @@ Trong điều kiện nhiệt độ phòng thí nghiệm ổn định ở mức $
 
 \subsection{Kiểm tra phản hồi khi mất cảm biến và xử lý lỗi hệ thống}
 Nhằm kiểm tra độ tin cậy và khả năng tự bảo vệ của hệ thống trước các tình huống bất thường, nhóm đã tiến hành xác minh theo hai cấp độ:
-\begin{itemize}[leftmargin=1.2cm]
-    \item Thử nghiệm thực tế khi mất cảm biến (Kiểm chứng phần cứng): Để mô phỏng sự cố tuột dây tín hiệu, nhóm chủ động rút chân DATA (PA1). Hàm \texttt{DHT11\_Read} kích hoạt bộ đếm Timeout và thoát an toàn sau 10.000 chu kỳ mà không gây treo vi điều khiển. Màn hình LCD lập tức hiển thị chẩn đoán lỗi (Hình \ref{fig:actual-disconnect}):
+\begin{itemize}[leftmargin=1.2cm, topsep=0pt, itemsep=0.5pt, parsep=0pt]
+    \item Thử nghiệm thực tế khi mất cảm biến (Kiểm chứng phần cứng): Để mô phỏng sự cố tuột dây tín hiệu, nhóm chủ động rút chân DATA (PA1). Hàm \texttt{DHT11\_Read} kích hoạt bộ đếm Timeout và thoát an toàn sau tối đa 10.000 lần lặp kiểm tra của biến đếm phần mềm mà không gây treo vi điều khiển. Màn hình LCD cập nhật thông báo chẩn đoán lỗi ở lần đọc hợp lệ tiếp theo (Hình \ref{fig:actual-disconnect}):
     \begin{center}\vspace{-0.25cm}
     \fbox{\parbox{6.5cm}{
     \texttt{Dòng 1: DHT11: No Signal}\\[0.02cm]
@@ -84,34 +84,35 @@ Nhằm kiểm tra độ tin cậy và khả năng tự bảo vệ của hệ th�
     \item Trạng thái xử lý lỗi xác định: Trong cả hai tình huống, vi điều khiển chủ động đưa dàn 5 LED về mức tắt (\texttt{PORTD |= 0x1F}) nhằm loại bỏ báo động giả từ dữ liệu cũ lỗi thời, đồng thời dồn sự chú ý vào thông báo trên LCD.
 \end{itemize}
 
-\begin{table}[H]
+\begin{table}[H]\vspace{-0.25cm}
 \centering
 \footnotesize
-\caption{Bảng tổng hợp kết quả vận hành thực tế của hệ thống qua các kịch bản thử nghiệm}
+\setlength{\tabcolsep}{4pt}
+\caption{Bảng tổng hợp các kịch bản kiểm tra và kết quả đánh giá hệ thống}
 \label{tab:system-results}
-\renewcommand{\arraystretch}{1.05}
-\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.0cm} >{\centering\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}X >{\centering\arraybackslash}p{3.2cm}}
+\renewcommand{\arraystretch}{1.0}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{2.5cm} >{\centering\arraybackslash}p{1.3cm} >{\raggedright\arraybackslash}X >{\centering\arraybackslash}p{2.3cm}}
 \toprule
-\textbf{Kịch bản thử nghiệm} & \textbf{Nhiệt độ đo} & \textbf{Nội dung hiển thị trên LCD 1602} & \textbf{Trạng thái dàn LED} \\
+\textbf{Kịch bản kiểm tra} & \textbf{Phương pháp xác minh} & \textbf{Nhiệt độ} & \textbf{Nội dung hiển thị trên LCD 1602} & \textbf{Trạng thái dàn LED} \\
 \midrule
-Khởi động hệ thống & -- & Dòng 1: \mbox{\texttt{DA2: DO NHIET DO}}\newline Dòng 2: \mbox{\texttt{DHT11 SENSOR}} & Tắt toàn bộ \\
+Khởi động hệ thống & Thực nghiệm trên Kit phần cứng & -- & Dòng 1: \mbox{\texttt{DA2: DO NHIET DO}}\newline Dòng 2: \mbox{\texttt{DHT11 SENSOR}} & Tắt toàn bộ \\
 \midrule
-Nhiệt độ bình thường & $26.5^\circ\text{C}$ & Dòng 1: \mbox{\texttt{Temp: 26.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C}} & Tắt toàn bộ \\
+Nhiệt độ bình thường & Thực nghiệm trên Kit phần cứng & $26.5^\circ\text{C}$ & Dòng 1: \mbox{\texttt{Temp: 26.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C}} & Tắt toàn bộ \\
 \midrule
-Nhiệt độ vượt ngưỡng & $31.5^\circ\text{C}$ & Dòng 1: \mbox{\texttt{Temp: 31.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C *!}} & Bật sáng cả 5 LED \\
+Nhiệt độ vượt ngưỡng & Thực nghiệm trên Kit phần cứng & $31.5^\circ\text{C}$ & Dòng 1: \mbox{\texttt{Temp: 31.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C *!}} & Bật sáng cả 5 LED \\
 \midrule
-Mất tín hiệu cảm biến\newline \textnormal{\footnotesize(Thực nghiệm trên Kit)} & Không xác định & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Tắt toàn bộ (Xác định) \\
+Mất tín hiệu cảm biến & Thực nghiệm trên Kit (Rút chân PA1) & Không xác định & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Tắt toàn bộ (Xác định) \\
 \midrule
-Sai mã Checksum\newline \textnormal{\footnotesize(Kiểm chứng mã nguồn)} & Không xác định & Dòng 1: \mbox{\texttt{DHT11: Sum Error}}\newline Dòng 2: \mbox{\texttt{Checksum Invalid}} & Tắt toàn bộ (Xác định) \\
+Sai mã Checksum & Phân tích giải thuật mã nguồn & Không xác định & Dòng 1: \mbox{\texttt{DHT11: Sum Error}}\newline Dòng 2: \mbox{\texttt{Checksum Invalid}} & Tắt toàn bộ (Xác định) \\
 \bottomrule
 \end{tabularx}
-\end{table}
+\end{table}\vspace{-0.25cm}
 
 \section{Đánh giá kết quả thực nghiệm}
 
 Qua quá trình thử nghiệm thực tế trên Kit phần cứng, hệ thống đã đạt các kết quả đề ra:
-\begin{itemize}[leftmargin=1.2cm]
-    \item Độ ổn định và tính hợp lệ dữ liệu: DHT11 và ATmega16 giao tiếp ổn định qua bus 1-Wire chu kỳ 2.0 giây. Thuật toán Checksum phát hiện tin cậy gói tin lỗi do nhiễu, ngăn chặn hiển thị sai.
-    \item Khả năng hiển thị và minh chứng thực tế: Kết quả đo (Hình \ref{fig:actual-system}a) ghi nhận nhiệt độ $31.5^\circ\text{C}$ kèm cảnh báo \texttt{"*!"} và dàn LED sáng. Dù một số tài liệu Aosong ghi byte thập phân bằng 0, mô-đun thực tế của nhóm xuất giá trị thập phân tại byte 3 ($0.5^\circ\text{C}$), vi điều khiển đã giải mã trọn vẹn và hiển thị chuẩn 16 ký tự lên LCD 1602.
-    \item Trạng thái xử lý lỗi xác định: Khi mất cảm biến hoặc sai Checksum, cơ chế Timeout chống treo CPU, chủ động tắt 5 LED và hiển thị thông điệp chẩn đoán chi tiết trên LCD để hỗ trợ người vận hành.
+\begin{itemize}[leftmargin=1.2cm, topsep=0pt, itemsep=0.5pt, parsep=0pt]
+    \item Độ ổn định và tính hợp lệ dữ liệu: DHT11 và ATmega16 giao tiếp ổn định qua bus 1-Wire chu kỳ 2.0 giây. Thuật toán Checksum cộng 8-bit giúp phát hiện một số lỗi dữ liệu truyền do biến dạng tín hiệu hoặc xung nhiễu đường truyền, dù không bảo đảm phát hiện được mọi tổ hợp lỗi bit đồng thời.
+    \item Khả năng hiển thị và minh chứng thực tế: Kết quả thử nghiệm trên Kit (Hình \ref{fig:actual-system}a) cho thấy màn hình LCD ghi nhận giá trị $31.5^\circ\text{C}$ từ chương trình đọc cảm biến, đồng thời hiển thị ký hiệu cảnh báo \texttt{"*!"} và kích hoạt dàn 5 LED sáng rõ nét. Mặc dù chuẩn tài liệu cơ bản DHT11 thường chỉ định byte thập phân bằng 0, giá trị $31.5^\circ\text{C}$ phản ánh sự giải mã trực tiếp của vi điều khiển từ các byte dữ liệu nhận được trong thử nghiệm.
+    \item Trạng thái xử lý lỗi xác định: Khi mất cảm biến hoặc sai Checksum, cơ chế Timeout chống treo vi điều khiển, chủ động đưa dàn 5 LED về trạng thái tắt xác định (\texttt{PORTD |= 0x1F}) và hiển thị thông điệp chẩn đoán chi tiết trên LCD để hỗ trợ người vận hành.
 \end{itemize}
