@@ -73,11 +73,14 @@ Dự án Đồ án 2 (ĐA2) - Đại học Bách Khoa Hà Nội (HUST).
 
 ---
 
-## ⚙️ Cấu Hình Fuse Bits (Thạch anh ngoài 8MHz)
+## ⚙️ Cấu Hình Fuse Bits (Chuẩn Kit Không Thạch Anh Ngoài)
 
-Dự án cấu hình sử dụng dao động thạch anh ngoài tần số **8.0 MHz**:
-- **Low Fuse (LFUSE)**: `0xFF` (Ext. Crystal Osc. 8MHz, SUT1=1, SUT0=1)
-- **High Fuse (HFUSE)**: `0xD9` (Bật nạp ISP qua SPI, giữ JTAG tắt theo firmware)
+Dự án cấu hình sử dụng dao động nội tần số **8.0 MHz** (Calibrated Internal RC Oscillator), không cần hàn thêm thạch anh ngoài:
+- **High Fuse (HFUSE)**: `0xD9` (Tắt JTAG để giải phóng PORT C cho LCD, bật nạp SPI ISP).
+- **Low Fuse (LFUSE)**: `0xE4` (Dao động nội 8.0MHz, thời gian khởi động 64ms).
+👉 **Mã nhập nhanh trong ProgISP**: **`0xD9E4`** (Tích chọn ô *Program Fuse* trước khi bấm Auto).
+
+*(Ghi chú: Nếu Kit của bạn có hàn sẵn thạch anh ngoài 8MHz thì set Low Fuse = `0xFF` -> Mã `0xD9FF`).*
 
 ---
 

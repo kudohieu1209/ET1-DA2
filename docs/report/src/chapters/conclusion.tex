@@ -1,0 +1,37 @@
+\chapter{KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN}
+
+\section{Kết luận}
+
+Trải qua quá trình nghiên cứu lý thuyết, thiết kế sơ đồ, lập trình phần mềm nhúng và kiểm nghiệm thực tế trên Kit phát triển, đề tài ``Thiết kế hệ thống đo nhiệt độ và cảnh báo ngưỡng sử dụng ATmega16'' thuộc học phần Đồ án Thiết kế II đã hoàn thành đầy đủ và toàn diện các mục tiêu kỹ thuật đề ra ban đầu:
+\begin{enumerate}[leftmargin=1.2cm]
+    \item Về kiến thức và kỹ năng chuyên môn:
+    \begin{itemize}
+        \item Nắm vững sâu sắc kiến trúc vi điều khiển AVR RISC 8-bit (cụ thể là vi điều khiển ATmega16), hiểu rõ cấu trúc các thanh ghi chức năng đặc biệt (\texttt{DDRx}, \texttt{PORTx}, \texttt{PINx}, \texttt{MCUCSR}) và thành thạo kỹ thuật lập trình C nhúng trực tiếp trên thanh ghi (Bare-metal programming) với bộ công cụ chuẩn GNU \texttt{avr-gcc}.
+        \item Làm chủ hoàn toàn giao thức truyền thông đơn tuyến 1-Wire Single-Bus với cảm biến số DHT11: từ việc phát xung kích hoạt Start chính xác đến từng micro giây, giải mã xung nhị phân theo độ rộng thời gian (Pulse Width Modulation) đến việc kiểm tra toàn vẹn gói tin bằng thuật toán Checksum 8-bit.
+        \item Xây dựng và hoàn thiện thư viện điều khiển màn hình tinh thể lỏng LCD 1602 ở chế độ 4-bit bus (\texttt{hunget\_lcd.h}), giải quyết thành công bài toán chia sẻ và che mặt nạ bit (Bitmasking) trên cổng ngoại vi PORT D dùng chung giữa đường điều khiển LCD và dàn LED cảnh báo.
+        \item Làm chủ quy trình nạp chương trình, thiết lập cầu chì Fuse Bits (\texttt{0xD9E4}), xử lý triệt để bài toán xung đột phần cứng JTAG và tối ưu hóa hệ thống vi điều khiển.
+    \end{itemize}
+    \item Về sản phẩm và ứng dụng thực tiễn:
+    \begin{itemize}
+        \item Xây dựng thành công một hệ thống đo nhiệt độ thời gian thực hoạt động bền bỉ, độ tin cậy cao, hiển thị trực quan thông số nhiệt độ kèm phần thập phân và ngưỡng giám sát trên màn hình LCD 1602.
+        \item Cơ chế cảnh báo ngưỡng quá nhiệt ($30^\circ\text{C}$) vận hành nhanh nhạy, đồng thời có khả năng tự phục hồi khi nhiệt độ trở lại bình thường và thông báo lỗi rõ ràng khi có sự cố đứt kết nối cảm biến.
+    \end{itemize}
+\end{enumerate}
+
+\section{Hạn chế của đề tài}
+
+Mặc dù hệ thống đã đáp ứng tốt các yêu cầu kỹ thuật cơ bản, đồ án vẫn còn một số điểm hạn chế do giới hạn về mặt thời gian và trang thiết bị thực nghiệm:
+\begin{itemize}[leftmargin=1.2cm]
+    \item Cảm biến DHT11 có dải đo nhiệt độ hẹp ($0^\circ\text{C} - 50^\circ\text{C}$) và sai số tương đối lớn ($\pm 2.0^\circ\text{C}$), tần số lấy mẫu chậm (tối thiểu 1.5s -- 2.0s mỗi lần đo) nên chưa phù hợp cho các môi trường đòi hỏi đáp ứng thời gian thực cực nhanh.
+    \item Ngưỡng cảnh báo nhiệt độ ($30^\circ\text{C}$) hiện đang được cố định cứng trong mã nguồn (Hard-coded), người sử dụng chưa thể linh hoạt thay đổi ngưỡng trực tiếp từ bên ngoài bằng phím bấm mà phải biên dịch lại chương trình.
+    \item Hệ thống chưa có bộ nhớ lưu trữ lịch sử biến thiên nhiệt độ theo thời gian và chưa có khả năng truyền thông dữ liệu từ xa lên mạng máy tính.
+\end{itemize}
+
+\section{Hướng phát triển mở rộng}
+
+Từ nền tảng phần cứng và phần mềm đã được kiểm chứng của đồ án, hệ thống có thể tiếp tục được nghiên cứu và nâng cấp theo các hướng ứng dụng thực tế:
+\begin{enumerate}[leftmargin=1.2cm]
+    \item Nâng cấp cảm biến công nghiệp: Thay thế cảm biến DHT11 bằng các dòng cảm biến kỹ thuật số có độ chính xác cao hơn như DHT22 (sai số $\pm 0.5^\circ\text{C}$, dải đo $-40^\circ\text{C}$ đến $80^\circ\text{C}$) hoặc các dòng cảm biến giao tiếp I2C cao cấp như Sensirion SHT30/SHT35 hoặc Bosch BME280 (đo đồng thời nhiệt độ, độ ẩm và áp suất khí quyển).
+    \item Bổ sung giao diện người dùng tương tác linh hoạt: Tích hợp bàn phím ma trận $4 \times 4$ hoặc cụm nút bấm điều hướng (Up/Down/Set) kết hợp còi báo động Buzzer, cho phép người dùng tự do cài đặt ngưỡng nhiệt độ cảnh báo và lưu trữ giá trị cấu hình này vào bộ nhớ không biến động EEPROM của ATmega16.
+    \item Tích hợp kết nối không dây và phát triển ứng dụng IoT: Kết nối cổng giao tiếp nối tiếp USART của ATmega16 với các mô-đun truyền thông không dây như Wi-Fi ESP8266/ESP32, Bluetooth HC-05 hoặc chuẩn truyền xa LoRa để gửi dữ liệu nhiệt độ lên đám mây (Cloud Server) qua giao thức MQTT/HTTP. Qua đó, người quản lý có thể giám sát biểu đồ nhiệt độ môi trường và nhận thông báo cảnh báo khẩn cấp trực tiếp trên ứng dụng điện thoại thông minh (Blynk, ThingsBoard) ở bất kỳ đâu.
+\end{enumerate}

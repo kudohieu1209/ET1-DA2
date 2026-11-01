@@ -98,7 +98,7 @@ int main(void) {
     PORTD |= 0x1F; // Xuất mức 1 để TẮT hết LED ban đầu (Active Low)
 
     // --- MÀN HÌNH CHÀO MỪNG ---
-    LCD4_CUR_GOTO(1, 1);
+    LCD4_CUR_GOTO(1, 0);
     LCD4_OUT_STR("DA2: DO NHIET DO");
     LCD4_CUR_GOTO(2, 2);
     LCD4_OUT_STR("DHT11 SENSOR");
@@ -116,7 +116,7 @@ int main(void) {
 
         if (status == 0) {
             // --- ĐỌC THÀNH CÔNG TỪ DHT11 ---
-            // Dòng 1: "Temp: 28.0 C" hoặc "Temp: 28.5 °C"
+            // Dòng 1: "Temp: 31.5 °C" (16 ký tự chuẩn)
             LCD4_CUR_GOTO(1, 0);
             sprintf(buffer, "Temp: %u.%u \xDF""C    ", temp_int, temp_dec);
             LCD4_OUT_STR(buffer);
@@ -124,24 +124,32 @@ int main(void) {
             // Dòng 2: Hiển thị ngưỡng cảnh báo "HIGH Th: 30°C"
             LCD4_CUR_GOTO(2, 0);
             if (temp_int >= 30) {
-                // Nhiệt độ vượt ngưỡng 30 độ C: Báo WARNING và BẬT LED
-                LCD4_OUT_STR("HIGH Th: 30\xDF""C *!*");
+                // Nhiệt độ vượt ngưỡng 30 độ C: Báo WARNING và BẬT LED (đúng 16 ký tự)
+                LCD4_OUT_STR("HIGH Th: 30\xDF""C *!");
                 PORTD &= 0xE0; // Bật sáng 5 LED cảnh báo (Active LOW)
             } else {
-                // Nhiệt độ bình thường <= 30 độ C: TẮT LED
+                // Nhiệt độ bình thường <= 30 độ C: TẮT LED (đúng 16 ký tự)
                 LCD4_OUT_STR("HIGH Th: 30\xDF""C    ");
                 PORTD |= 0x1F; // Tắt 5 LED cảnh báo
             }
+        } else if (status == -6) {
+            // Lỗi kiểm tra toàn vẹn dữ liệu (Checksum Error)
+            LCD4_CUR_GOTO(1, 0);
+            LCD4_OUT_STR("DHT11: CRC Error");
+            LCD4_CUR_GOTO(2, 0);
+            LCD4_OUT_STR("Checksum Invalid");
+            PORTD |= 0x1F; // Cơ chế an toàn (Fail-safe): Tắt LED cảnh báo
         } else {
-            // Trường hợp chưa cắm chân tín hiệu PA1 hoặc sai chân nguồn
+            // Trường hợp mất tín hiệu, chưa cắm chân PA1 hoặc lỏng dây
             LCD4_CUR_GOTO(1, 0);
             LCD4_OUT_STR("DHT11: No Signal");
             LCD4_CUR_GOTO(2, 0);
             LCD4_OUT_STR("Check Pin PA1   ");
+            PORTD |= 0x1F; // Cơ chế an toàn (Fail-safe): Tắt LED cảnh báo
         }
 
-        // DHT11 cần chu kỳ đọc cách nhau 1.5 - 2s
-        _delay_ms(1500);
+        // Chu kỳ lấy mẫu khuyến nghị theo datasheet của Aosong (2 giây)
+        _delay_ms(2000);
     }
 
     return 0;

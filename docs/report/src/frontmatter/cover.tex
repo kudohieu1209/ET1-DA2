@@ -1,0 +1,51 @@
+% Trang bìa căn theo tâm vật lý của giấy A4; phần ruột dùng lề trái 3cm, phải 2cm.
+\newgeometry{top=2cm,bottom=2cm,left=2cm,right=2cm}
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+  \draw[line width=1.2pt]
+    ($(current page.north west)+(1.50cm,-1.30cm)$)
+    rectangle
+    ($(current page.south east)+(-1.50cm,1.30cm)$);
+  \draw[line width=0.5pt]
+    ($(current page.north west)+(1.58cm,-1.38cm)$)
+    rectangle
+    ($(current page.south east)+(-1.58cm,1.38cm)$);
+\end{tikzpicture}
+\begin{center}
+  {\bfseries\fontsize{19}{24}\selectfont
+  ĐẠI HỌC BÁCH KHOA HÀ NỘI\\
+  TRƯỜNG ĐIỆN -- ĐIỆN TỬ\par}
+
+  \vspace{0.15cm}
+  \rule{6cm}{0.5pt}
+
+  \vspace{0.8cm}
+  \includegraphics[height=4.2cm]{logo.png}
+
+  \vspace{0.8cm}
+  {\bfseries\fontsize{20}{25}\selectfont BÁO CÁO\\[0.25cm]
+  ĐỒ ÁN THIẾT KẾ II\par}
+
+  \vspace{0.7cm}
+  {\fontsize{14}{18}\selectfont\textbf{ĐỀ TÀI:}\par}
+  \vspace{0.25cm}
+  {\bfseries\fontsize{16}{22}\selectfont
+  THIẾT KẾ HỆ THỐNG ĐO NHIỆT ĐỘ\\
+  VÀ CẢNH BÁO NGƯỠNG SỬ DỤNG ATMEGA16\par}
+
+  \vfill
+
+  \begin{tabular}{@{}>{\bfseries}l@{\hspace{1.2em}}l@{\hspace{1.5em}}l@{}}
+    Giảng viên hướng dẫn: & \multicolumn{2}{@{}l@{}}{\UniversitySupervisor} \\
+    Sinh viên thực hiện:  & \StudentNameOne & \StudentIdOne \\
+                          & \StudentNameTwo & \StudentIdTwo \\
+    Mã lớp học:           & \multicolumn{2}{@{}l@{}}{\StudentClass} \\
+    Nhóm thực hiện:       & \multicolumn{2}{@{}l@{}}{\StudentGroup} \\
+  \end{tabular}
+
+  \vfill
+  {\bfseries Hà Nội, 11/2026}
+\end{center}
+\end{titlepage}
+\restoregeometry
