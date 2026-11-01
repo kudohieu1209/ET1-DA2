@@ -1,13 +1,13 @@
 # Hệ Thống Giám Sát Nhiệt Độ & Cảnh Báo Ngưỡng (ATmega16 + DHT11)
 
-Dự án Đồ án 2 (ĐA2) - Đại học Bách Khoa Hà Nội (HUST).  
+Dự án Đồ án 2 - Đại học Bách Khoa Hà Nội (HUST).  
 Ứng dụng vi điều khiển **ATmega16** thu thập dữ liệu nhiệt độ từ cảm biến **DHT11**, hiển thị trực quan lên màn hình **LCD 16x2** và kích hoạt cảnh báo thông qua dàn LED khi nhiệt độ vượt ngưỡng an toàn.
 
 ---
 
 ## 📌 Tính Năng Nổi Bật
 
-- **Đọc dữ liệu chính xác từ DHT11**: Giao tiếp 1-Wire thời gian thực, kiểm tra mã bù lỗi (Checksum).
+- **Đọc dữ liệu chính xác từ DHT11**
 - **Hiển thị trực quan qua LCD 16x2**:
   - **Dòng 1**: Hiển thị nhiệt độ hiện tại kèm phần thập phân (`Temp: 28.5 °C`).
   - **Dòng 2**: Hiển thị ngưỡng cảnh báo (`HIGH Th: 30°C`).
