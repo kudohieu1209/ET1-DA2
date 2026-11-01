@@ -643,7 +643,7 @@ def create_report_docx(output_path):
     add_heading_2("1.3 Cảm biến số nhiệt độ và độ ẩm DHT11")
     add_para(
         "DHT11 là cảm biến số tích hợp vi xử lý 8-bit bên trong để số hóa và hiệu chuẩn dữ liệu. "
-        "Cảm biến gồm một màng polymer điện dung để đo độ ẩm tương đối và một nhiệt điện trở NTC có hệ số nhiệt âm để đo nhiệt độ môi trường. "
+        "Cảm biến gồm một phần tử màng polymer nhạy ẩm kiểu điện trở (Resistive Humidity Sensor) để đo độ ẩm tương đối và một nhiệt điện trở NTC có hệ số nhiệt âm để đo nhiệt độ môi trường. "
         "Chuẩn giao tiếp 1-Wire Single-Bus yêu cầu một điện trở kéo lên nguồn 5V trên chân DATA."
     )
     
@@ -656,7 +656,7 @@ def create_report_docx(output_path):
         ("Dải đo độ ẩm", "20% – 90% RH"),
         ("Độ chính xác đo độ ẩm", "±5.0% RH"),
         ("Độ phân giải độ ẩm", "1% RH"),
-        ("Chu kỳ lấy mẫu tối thiểu", "≥ 1.0 giây (Khuyến nghị 1.5s – 2.0s để dữ liệu ổn định)"),
+        ("Chu kỳ lấy mẫu tối thiểu", "≥ 1.0 giây (Khuyến nghị 2.0 giây theo tài liệu của Aosong để đảm bảo ổn định)"),
         ("Dòng điện tiêu thụ", "0.5 mA – 2.5 mA khi đo; 100 µA – 150 µA khi chờ"),
         ("Chuẩn giao tiếp", "1-Wire Single-Bus (Đường truyền dữ liệu đơn tuyến số)")
     ]
@@ -748,7 +748,7 @@ def create_report_docx(output_path):
     
     add_heading_2("2.1 Thiết kế kiến trúc phần cứng và sơ đồ nguyên lý")
     add_para(
-        "Hệ thống phân tầng rõ ràng gồm 5 khối: Khối nguồn 5V (LM7805), Khối xử lý trung tâm (ATmega16), "
+        "Hệ thống phân tầng rõ ràng gồm 5 khối: Khối nguồn nuôi hỗ trợ 2 đường cấp nguồn độc lập (nguồn ngoài 9V–12V qua IC ổn áp LM7805 hoặc nguồn 5V trực tiếp từ cổng USB máy tính qua cáp nạp USBasp), Khối vi điều khiển trung tâm (ATmega16), "
         "Khối cảm biến số (DHT11 trên chân PA1), Khối hiển thị (LCD 1602 trên PC4–PC7 và PD5–PD7) và Khối cảnh báo (5 LED trên PD0–PD4)."
     )
     
@@ -867,7 +867,8 @@ def create_report_docx(output_path):
         ("Khởi động hệ thống", "–", "Dòng 1: DA2: DO NHIET DO\nDòng 2: DHT11 SENSOR", "Tắt toàn bộ"),
         ("Nhiệt độ bình thường", "26.5°C", "Dòng 1: Temp: 26.5 °C\nDòng 2: HIGH Th: 30°C", "Tắt toàn bộ"),
         ("Nhiệt độ vượt ngưỡng", "31.5°C", "Dòng 1: Temp: 31.5 °C\nDòng 2: HIGH Th: 30°C *!", "Bật sáng cả 5 LED"),
-        ("Mất kết nối cảm biến", "Không xác định", "Dòng 1: DHT11: No Signal\nDòng 2: Check Pin PA1", "Duy trì trạng thái an toàn")
+        ("Mất tín hiệu cảm biến", "Không xác định", "Dòng 1: DHT11: No Signal\nDòng 2: Check Pin PA1", "Chủ động tắt (Fail-safe)"),
+        ("Sai mã Checksum", "Không xác định", "Dòng 1: DHT11: CRC Error\nDòng 2: Checksum Invalid", "Chủ động tắt (Fail-safe)")
     ]
     t5 = doc.add_table(rows=len(t5_data)+1, cols=4)
     t5.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -944,9 +945,9 @@ def create_report_docx(output_path):
     add_heading_2("3.2 Đánh giá kết quả thực nghiệm")
     add_para(
         "Qua quá trình thử nghiệm thực tế trên phần cứng Kit vi điều khiển, hệ thống đã đạt được các kết quả kỹ thuật đề ra: "
-        "giao tiếp 1-Wire ổn định giữa ATmega16 và cảm biến DHT11; thuật toán kiểm tra mã Checksum hoạt động tin cậy; "
-        "cơ chế cảnh báo ngưỡng 30°C phản ứng nhanh nhạy và tự phục hồi khi nhiệt độ an toàn; "
-        "đồng thời cơ chế Timeout 10.000 chu kỳ lặp ngăn ngừa hiện tượng treo CPU khi mất kết nối cảm biến."
+        "giao tiếp 1-Wire ổn định giữa ATmega16 và cảm biến DHT11 với chu kỳ 2.0 giây; thuật toán kiểm tra mã Checksum phát hiện chính xác các gói tin lỗi do nhiễu môi trường; "
+        "hình ảnh minh chứng thực tế trên Kit (Hình 3.1) ghi nhận rõ mức nhiệt độ 31.5°C kèm cảnh báo, chứng minh mô-đun cảm biến thực tế xuất dữ liệu phần thập phân hợp lệ và LCD 1602 hiển thị trọn vẹn 16 ký tự; "
+        "đồng thời cơ chế Fail-safe chủ động tắt dàn LED cảnh báo và đưa ra thông báo chẩn đoán rõ ràng khi xảy ra sự cố mất cảm biến hoặc sai Checksum."
     )
 
     # ====================================================

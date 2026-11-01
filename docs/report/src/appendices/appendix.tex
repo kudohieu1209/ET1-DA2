@@ -131,11 +131,11 @@ int main(void) {
             // Dòng 2: Hiển thị ngưỡng cảnh báo "HIGH Th: 30°C"
             LCD4_CUR_GOTO(2, 0);
             if (temp_int >= 30) {
-                // Nhiệt độ vượt ngưỡng 30 độ C: Báo WARNING và BẬT LED (đúng 16 ký tự)
+                // Nhiệt độ >= 30 C: Báo WARNING và BẬT LED (16 ký tự)
                 LCD4_OUT_STR("HIGH Th: 30\xDF""C *!");
                 PORTD &= 0xE0; // Bật sáng 5 LED cảnh báo (Active LOW)
             } else {
-                // Nhiệt độ bình thường <= 30 độ C: TẮT LED (đúng 16 ký tự)
+                // Nhiệt độ bình thường <= 30 C: TẮT LED (16 ký tự)
                 LCD4_OUT_STR("HIGH Th: 30\xDF""C    ");
                 PORTD |= 0x1F; // Tắt 5 LED cảnh báo
             }
