@@ -64,32 +64,32 @@ Trong điều kiện nhiệt độ phòng thí nghiệm ổn định ở mức $
     \label{fig:actual-system}
 \end{figure}
 
-\subsection{Thử nghiệm khi không có tín hiệu cảm biến và cơ chế an toàn (Fail-safe)}
-Nhằm kiểm tra độ tin cậy và khả năng tự bảo vệ của hệ thống khi mất kết nối ngoại vi, nhóm đã chủ động thực nghiệm hai tình huống:
+\subsection{Kiểm tra phản hồi khi mất cảm biến và xử lý lỗi hệ thống}
+Nhằm kiểm tra độ tin cậy và khả năng tự bảo vệ của hệ thống trước các tình huống bất thường, nhóm đã tiến hành xác minh theo hai cấp độ:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Thử nghiệm khi không có tín hiệu từ cảm biến: Khi chủ động rút chân tín hiệu DATA (PA1) hoặc ngắt nguồn nuôi cảm biến, hàm \texttt{DHT11\_Read} kích hoạt bộ đếm thời gian Timeout và thoát ra an toàn sau 10.000 chu kỳ lặp mà không gây treo vi điều khiển. Màn hình LCD lập tức hiển thị thông báo (minh chứng thực tế ở Hình \ref{fig:actual-disconnect}):
-    \begin{center}
-    \fbox{\parbox{7.5cm}{
-    \texttt{Dòng 1: DHT11: No Signal}\\[0.1cm]
+    \item Thử nghiệm thực tế khi mất cảm biến (Kiểm chứng phần cứng): Để mô phỏng sự cố tuột dây tín hiệu, nhóm chủ động rút chân DATA (PA1). Hàm \texttt{DHT11\_Read} kích hoạt bộ đếm Timeout và thoát an toàn sau 10.000 chu kỳ mà không gây treo vi điều khiển. Màn hình LCD lập tức hiển thị chẩn đoán lỗi (Hình \ref{fig:actual-disconnect}):
+    \begin{center}\vspace{-0.25cm}
+    \fbox{\parbox{6.5cm}{
+    \texttt{Dòng 1: DHT11: No Signal}\\[0.02cm]
     \texttt{Dòng 2: Check Pin PA1}
-    }}
+    }}\vspace{-0.25cm}
     \end{center}
-    \item Thử nghiệm kiểm tra mã kiểm tra lỗi (Checksum Error): Trường hợp gói tin bị nhiễu làm sai lệch tổng kiểm tra được kiểm chứng thông qua logic thuật toán trong hàm đọc (trả về mã -6). Màn hình LCD thông báo rõ:
-    \begin{center}
-    \fbox{\parbox{7.5cm}{
-    \texttt{Dòng 1: DHT11: Sum Error}\\[0.1cm]
+    \item Kiểm chứng giải thuật xử lý Checksum (Phân tích mã nguồn): Đối với trường hợp đường truyền bị can nhiễu, do chưa có thiết bị tạo xung nhiễu chuyên dụng, kịch bản sai Checksum được xác minh qua luồng logic mã nguồn (nhánh \texttt{status == -6}). Thuật toán nhận diện sự sai lệch tổng kiểm tra và hiển thị thông báo chuẩn 16 ký tự:
+    \begin{center}\vspace{-0.25cm}
+    \fbox{\parbox{6.5cm}{
+    \texttt{Dòng 1: DHT11: Sum Error}\\[0.02cm]
     \texttt{Dòng 2: Checksum Invalid}
-    }}
+    }}\vspace{-0.25cm}
     \end{center}
-    \item Trạng thái xử lý lỗi xác định: Trong cả hai trường hợp lỗi, vi điều khiển chủ động thiết lập lệnh \texttt{PORTD |= 0x1F} để tắt hoàn toàn dàn 5 LED cảnh báo. Thiết kế này bảo đảm hệ thống luôn vận hành ở một trạng thái xác định (tránh duy trì báo động quá nhiệt dựa trên dữ liệu không còn hợp lệ), đồng thời dồn sự chú ý của người vận hành vào thông báo chẩn đoán lỗi trên LCD.
+    \item Trạng thái xử lý lỗi xác định: Trong cả hai tình huống, vi điều khiển chủ động đưa dàn 5 LED về mức tắt (\texttt{PORTD |= 0x1F}) nhằm loại bỏ báo động giả từ dữ liệu cũ lỗi thời, đồng thời dồn sự chú ý vào thông báo trên LCD.
 \end{itemize}
 
 \begin{table}[H]
 \centering
-\small
+\footnotesize
 \caption{Bảng tổng hợp kết quả vận hành thực tế của hệ thống qua các kịch bản thử nghiệm}
 \label{tab:system-results}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.05}
 \begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.0cm} >{\centering\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}X >{\centering\arraybackslash}p{3.2cm}}
 \toprule
 \textbf{Kịch bản thử nghiệm} & \textbf{Nhiệt độ đo} & \textbf{Nội dung hiển thị trên LCD 1602} & \textbf{Trạng thái dàn LED} \\
@@ -100,18 +100,18 @@ Nhiệt độ bình thường & $26.5^\circ\text{C}$ & Dòng 1: \mbox{\texttt{Te
 \midrule
 Nhiệt độ vượt ngưỡng & $31.5^\circ\text{C}$ & Dòng 1: \mbox{\texttt{Temp: 31.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C *!}} & Bật sáng cả 5 LED \\
 \midrule
-Mất tín hiệu cảm biến & Không xác định & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Tắt toàn bộ (Xác định) \\
+Mất tín hiệu cảm biến\newline \textnormal{\footnotesize(Thực nghiệm trên Kit)} & Không xác định & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Tắt toàn bộ (Xác định) \\
 \midrule
-Sai mã Checksum & Không xác định & Dòng 1: \mbox{\texttt{DHT11: Sum Error}}\newline Dòng 2: \mbox{\texttt{Checksum Invalid}} & Tắt toàn bộ (Xác định) \\
+Sai mã Checksum\newline \textnormal{\footnotesize(Kiểm chứng mã nguồn)} & Không xác định & Dòng 1: \mbox{\texttt{DHT11: Sum Error}}\newline Dòng 2: \mbox{\texttt{Checksum Invalid}} & Tắt toàn bộ (Xác định) \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \section{Đánh giá kết quả thực nghiệm}
 
-Qua quá trình thử nghiệm thực tế trên phần cứng Kit vi điều khiển, hệ thống đã đạt được các kết quả kỹ thuật đề ra:
+Qua quá trình thử nghiệm thực tế trên Kit phần cứng, hệ thống đã đạt các kết quả đề ra:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Độ ổn định và tính hợp lệ của dữ liệu: Cảm biến DHT11 và vi điều khiển ATmega16 giao tiếp ổn định qua giao thức 1-Wire với chu kỳ trích mẫu 2.0 giây. Thuật toán kiểm tra mã Checksum hoạt động tin cậy, giúp phát hiện kịp thời các gói tin bị lỗi do nhiễu môi trường và ngăn chặn hiển thị sai dữ liệu.
-    \item Khả năng hiển thị và minh chứng thực tế: Kết quả đo thực nghiệm (Hình \ref{fig:actual-system}a) ghi nhận rõ ràng nhiệt độ $31.5^\circ\text{C}$ kèm dấu cảnh báo \texttt{"*!"} và dàn LED bật sáng. Dù một số tài liệu DHT11 ghi byte thập phân bằng 0, mô-đun thực tế của nhóm xuất giá trị thập phân hợp lệ tại byte 3 ($0.5^\circ\text{C}$). Vi điều khiển đã giải mã trọn vẹn gói tin 5 byte và hiển thị chuẩn 16 ký tự lên LCD 1602.
-    \item Trạng thái xử lý lỗi xác định: Khi xảy ra sự cố mất cảm biến hoặc sai Checksum, vi điều khiển không bị treo nhờ cơ chế kiểm soát Timeout, đồng thời chủ động đưa dàn LED về trạng thái tắt xác định và hiển thị thông điệp chẩn đoán lỗi chi tiết để hỗ trợ người vận hành.
+    \item Độ ổn định và tính hợp lệ dữ liệu: DHT11 và ATmega16 giao tiếp ổn định qua bus 1-Wire chu kỳ 2.0 giây. Thuật toán Checksum phát hiện tin cậy gói tin lỗi do nhiễu, ngăn chặn hiển thị sai.
+    \item Khả năng hiển thị và minh chứng thực tế: Kết quả đo (Hình \ref{fig:actual-system}a) ghi nhận nhiệt độ $31.5^\circ\text{C}$ kèm cảnh báo \texttt{"*!"} và dàn LED sáng. Dù một số tài liệu Aosong ghi byte thập phân bằng 0, mô-đun thực tế của nhóm xuất giá trị thập phân tại byte 3 ($0.5^\circ\text{C}$), vi điều khiển đã giải mã trọn vẹn và hiển thị chuẩn 16 ký tự lên LCD 1602.
+    \item Trạng thái xử lý lỗi xác định: Khi mất cảm biến hoặc sai Checksum, cơ chế Timeout chống treo CPU, chủ động tắt 5 LED và hiển thị thông điệp chẩn đoán chi tiết trên LCD để hỗ trợ người vận hành.
 \end{itemize}

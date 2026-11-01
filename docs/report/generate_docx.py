@@ -811,10 +811,12 @@ def create_report_docx(output_path):
         "hiển thị màn hình chào mừng 'DA2: DO NHIET DO' / 'DHT11 SENSOR' trong 1.5 giây."
     )
     add_para(
-        "2. Vòng lặp chính: Gọi hàm DHT11_Read(). Nếu đọc thành công, hiển thị nhiệt độ 'Temp: XX.Y °C' lên dòng 1 LCD. "
+        "2. Vòng lặp chính (chu kỳ lấy mẫu 2.0 giây): Gọi hàm DHT11_Read(). "
+        "Nhánh 1 -- Đọc thành công (status == 0): Hiển thị nhiệt độ chuẩn 16 ký tự 'Temp: XX.Y °C   ' lên dòng 1 LCD. "
         "So sánh nhiệt độ với ngưỡng 30°C: nếu >= 30°C thì hiển thị 'HIGH Th: 30°C *!' và bật 5 LED (PORTD &= 0xE0); "
-        "nếu < 30°C thì hiển thị 'HIGH Th: 30°C    ' và tắt 5 LED (PORTD |= 0x1F). "
-        "Nếu lỗi mất kết nối, hiển thị 'DHT11: No Signal' / 'Check Pin PA1'. Trễ 1.5 giây giữa các chu kỳ đọc."
+        "nếu < 30°C thì hiển thị 'HIGH Th: 30°C   ' và tắt 5 LED (PORTD |= 0x1F). "
+        "Nhánh 2 -- Lỗi Checksum (status == -6): Hiển thị 'DHT11: Sum Error' / 'Checksum Invalid' và tắt dàn LED. "
+        "Nhánh 3 -- Lỗi mất kết nối / Timeout (status < 0): Hiển thị 'DHT11: No Signal' / 'Check Pin PA1   ' và tắt dàn LED theo trạng thái xác định."
     )
 
     add_heading_3("2.2.1 Cơ chế bảo vệ Timeout chống treo CPU")
@@ -925,8 +927,8 @@ def create_report_docx(output_path):
         ("Khởi động hệ thống", "–", "Dòng 1: DA2: DO NHIET DO\nDòng 2: DHT11 SENSOR", "Tắt toàn bộ"),
         ("Nhiệt độ bình thường", "26.5°C", "Dòng 1: Temp: 26.5 °C\nDòng 2: HIGH Th: 30°C", "Tắt toàn bộ"),
         ("Nhiệt độ vượt ngưỡng", "31.5°C", "Dòng 1: Temp: 31.5 °C\nDòng 2: HIGH Th: 30°C *!", "Bật sáng cả 5 LED"),
-        ("Mất tín hiệu cảm biến", "Không xác định", "Dòng 1: DHT11: No Signal\nDòng 2: Check Pin PA1", "Chủ động tắt (Trạng thái lỗi xác định)"),
-        ("Sai mã Checksum", "Không xác định", "Dòng 1: DHT11: Sum Error\nDòng 2: Checksum Invalid", "Chủ động tắt (Trạng thái lỗi xác định)")
+        ("Mất tín hiệu cảm biến\n(Thực nghiệm trên Kit)", "Không xác định", "Dòng 1: DHT11: No Signal\nDòng 2: Check Pin PA1", "Tắt toàn bộ (Xác định)"),
+        ("Sai mã Checksum\n(Kiểm chứng mã nguồn)", "Không xác định", "Dòng 1: DHT11: Sum Error\nDòng 2: Checksum Invalid", "Tắt toàn bộ (Xác định)")
     ]
     t5 = doc.add_table(rows=len(t5_data)+1, cols=4)
     t5.alignment = WD_TABLE_ALIGNMENT.CENTER
