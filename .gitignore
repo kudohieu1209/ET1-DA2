@@ -1,0 +1,48 @@
+# ==========================================
+# Compiled binaries & AVR build artifacts
+# ==========================================
+*.elf
+*.hex
+*.bin
+*.o
+*.obj
+*.s
+*.lss
+*.map
+*.sym
+*.eep
+
+# ==========================================
+# Clangd & Compiler Cache
+# ==========================================
+.cache/
+.clangd/
+*.idx
+
+# ==========================================
+# OS Generated Files
+# ==========================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# ==========================================
+# Editor / Backup / Log files
+# ==========================================
+*.swp
+*.swo
+*~
+*.bak
+*.tmp
+*.log
+
+# ==========================================
+# VS Code local states (keep project configurations)
+# ==========================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
+!.vscode/launch.json
+!.vscode/tasks.json

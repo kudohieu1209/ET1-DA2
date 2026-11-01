@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "name": "AVR-ATmega16",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "C:/Users/kudoh/AppData/Local/Microsoft/WinGet/Packages/ZakKemble.avr-gcc_Microsoft.Winget.Source_8wekyb3d8bbwe/avr-gcc-16.1.0-x64-windows/avr/include",
+        "C:/Users/kudoh/AppData/Local/Microsoft/WinGet/Packages/ZakKemble.avr-gcc_Microsoft.Winget.Source_8wekyb3d8bbwe/avr-gcc-16.1.0-x64-windows/lib/gcc/avr/16.1.0/include",
+        "C:/Users/kudoh/AppData/Local/Microsoft/WinGet/Packages/ZakKemble.avr-gcc_Microsoft.Winget.Source_8wekyb3d8bbwe/avr-gcc-16.1.0-x64-windows/lib/gcc/avr/16.1.0/include-fixed"
+      ],
+      "defines": [
+        "__AVR_ATmega16__",
+        "F_CPU=8000000UL"
+      ],
+      "compilerPath": "C:/Users/kudoh/AppData/Local/Microsoft/WinGet/Links/avr-gcc.exe",
+      "compilerArgs": [
+        "-mmcu=atmega16"
+      ],
+      "cStandard": "c11",
+      "intelliSenseMode": "gcc-x64"
+    }
+  ],
+  "version": 4
+}

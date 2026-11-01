@@ -1,0 +1,11 @@
+{
+  "C_Cpp.default.compilerPath": "C:/Users/kudoh/AppData/Local/Microsoft/WinGet/Links/avr-gcc.exe",
+  "C_Cpp.default.compilerArgs": [
+    "-mmcu=atmega16"
+  ],
+  "C_Cpp.default.defines": [
+    "__AVR_ATmega16__",
+    "F_CPU=8000000UL"
+  ],
+  "C_Cpp.errorSquiggles": "enabled"
+}
