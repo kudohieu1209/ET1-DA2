@@ -555,7 +555,7 @@ def create_report_docx(output_path):
     add_para(
         "ATmega16 là một trong những dòng vi điều khiển 8-bit họ AVR phổ biến nhất của hãng Atmel (nay thuộc Microchip Technology), "
         "được thiết kế dựa trên kiến trúc RISC (Reduced Instruction Set Computer) tiên tiến với tập lệnh rút gọn gồm 131 lệnh đa số thực thi "
-        "trong một chu kỳ xung nhịp nhịp tim đơn lẻ. Nhờ thông lượng xử lý đạt tới 1 MIPS trên mỗi MHz tần số hoạt động, vi điều khiển mang lại "
+        "trong một chu kỳ xung nhịp đơn lẻ. Nhờ thông lượng xử lý đạt tới 1 MIPS trên mỗi MHz tần số hoạt động, vi điều khiển mang lại "
         "hiệu suất tính toán tối ưu song song với khả năng tiết kiệm năng lượng vượt trội."
     )
     
@@ -812,7 +812,7 @@ def create_report_docx(output_path):
     )
     add_para(
         "2. Vòng lặp chính: Gọi hàm DHT11_Read(). Nếu đọc thành công, hiển thị nhiệt độ 'Temp: XX.Y °C' lên dòng 1 LCD. "
-        "So sánh nhiệt độ với ngưỡng 30°C: nếu >= 30°C thì hiển thị 'HIGH Th: 30°C *!*' và bật 5 LED (PORTD &= 0xE0); "
+        "So sánh nhiệt độ với ngưỡng 30°C: nếu >= 30°C thì hiển thị 'HIGH Th: 30°C *!' và bật 5 LED (PORTD &= 0xE0); "
         "nếu < 30°C thì hiển thị 'HIGH Th: 30°C    ' và tắt 5 LED (PORTD |= 0x1F). "
         "Nếu lỗi mất kết nối, hiển thị 'DHT11: No Signal' / 'Check Pin PA1'. Trễ 1.5 giây giữa các chu kỳ đọc."
     )
@@ -925,8 +925,8 @@ def create_report_docx(output_path):
         ("Khởi động hệ thống", "–", "Dòng 1: DA2: DO NHIET DO\nDòng 2: DHT11 SENSOR", "Tắt toàn bộ"),
         ("Nhiệt độ bình thường", "26.5°C", "Dòng 1: Temp: 26.5 °C\nDòng 2: HIGH Th: 30°C", "Tắt toàn bộ"),
         ("Nhiệt độ vượt ngưỡng", "31.5°C", "Dòng 1: Temp: 31.5 °C\nDòng 2: HIGH Th: 30°C *!", "Bật sáng cả 5 LED"),
-        ("Mất tín hiệu cảm biến", "Không xác định", "Dòng 1: DHT11: No Signal\nDòng 2: Check Pin PA1", "Chủ động tắt (Fail-safe)"),
-        ("Sai mã Checksum", "Không xác định", "Dòng 1: DHT11: CRC Error\nDòng 2: Checksum Invalid", "Chủ động tắt (Fail-safe)")
+        ("Mất tín hiệu cảm biến", "Không xác định", "Dòng 1: DHT11: No Signal\nDòng 2: Check Pin PA1", "Chủ động tắt (Trạng thái lỗi xác định)"),
+        ("Sai mã Checksum", "Không xác định", "Dòng 1: DHT11: Sum Error\nDòng 2: Checksum Invalid", "Chủ động tắt (Trạng thái lỗi xác định)")
     ]
     t5 = doc.add_table(rows=len(t5_data)+1, cols=4)
     t5.alignment = WD_TABLE_ALIGNMENT.CENTER

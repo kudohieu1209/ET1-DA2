@@ -22,8 +22,9 @@ Trải qua quá trình nghiên cứu lý thuyết, thiết kế sơ đồ, lập
 
 Mặc dù hệ thống đã đáp ứng tốt các yêu cầu kỹ thuật cơ bản, đồ án vẫn còn một số điểm hạn chế do giới hạn về mặt thời gian và trang thiết bị thực nghiệm:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Cảm biến DHT11 có dải đo nhiệt độ hẹp ($0^\circ\text{C} - 50^\circ\text{C}$) và sai số tương đối lớn ($\pm 2.0^\circ\text{C}$), tần số lấy mẫu chậm (tối thiểu 1.5s -- 2.0s mỗi lần đo) nên chưa phù hợp cho các môi trường đòi hỏi đáp ứng thời gian thực cực nhanh.
+    \item Cảm biến DHT11 có dải đo nhiệt độ hẹp ($0^\circ\text{C} - 50^\circ\text{C}$) và sai số tương đối lớn ($\pm 2.0^\circ\text{C}$), chu kỳ lấy mẫu tương đối chậm (khuyến nghị 2.0s mỗi lần đo theo tài liệu Aosong) nên chưa phù hợp cho các môi trường đòi hỏi đáp ứng thời gian thực cực nhanh.
     \item Ngưỡng cảnh báo nhiệt độ ($30^\circ\text{C}$) hiện đang được cố định cứng trong mã nguồn (Hard-coded), người sử dụng chưa thể linh hoạt thay đổi ngưỡng trực tiếp từ bên ngoài bằng phím bấm mà phải biên dịch lại chương trình.
+    \item Cơ chế xử lý khi mất cảm biến hiện đưa toàn bộ LED về trạng thái tắt để tránh báo động giả từ dữ liệu cũ lỗi thời, nhưng có nhược điểm là không tiếp tục cảnh báo bằng đèn nếu môi trường thực tế vẫn đang quá nhiệt.
     \item Hệ thống chưa có bộ nhớ lưu trữ lịch sử biến thiên nhiệt độ theo thời gian và chưa có khả năng truyền thông dữ liệu từ xa lên mạng máy tính.
 \end{itemize}
 
@@ -33,5 +34,6 @@ Từ nền tảng phần cứng và phần mềm đã được kiểm chứng c�
 \begin{enumerate}[leftmargin=1.2cm]
     \item Nâng cấp cảm biến công nghiệp: Thay thế cảm biến DHT11 bằng các dòng cảm biến kỹ thuật số có độ chính xác cao hơn như DHT22 (sai số $\pm 0.5^\circ\text{C}$, dải đo $-40^\circ\text{C}$ đến $80^\circ\text{C}$) hoặc các dòng cảm biến giao tiếp I2C cao cấp như Sensirion SHT30/SHT35 hoặc Bosch BME280 (đo đồng thời nhiệt độ, độ ẩm và áp suất khí quyển).
     \item Bổ sung giao diện người dùng tương tác linh hoạt: Tích hợp bàn phím ma trận $4 \times 4$ hoặc cụm nút bấm điều hướng (Up/Down/Set) kết hợp còi báo động Buzzer, cho phép người dùng tự do cài đặt ngưỡng nhiệt độ cảnh báo và lưu trữ giá trị cấu hình này vào bộ nhớ không biến động EEPROM của ATmega16.
+    \item Bổ sung chế độ cảnh báo lỗi cảm biến chuyên biệt: Lập trình cơ chế nhấp nháy toàn bộ dàn LED (tần số 2 Hz) hoặc còi buzzer ngắt quãng khi mất kết nối cảm biến để người vận hành phân biệt rõ ràng giữa trạng thái "Bình thường" (LED tắt), "Cảnh báo quá nhiệt" (LED sáng liên tục) và "Lỗi cảm biến" (LED nhấp nháy).
     \item Tích hợp kết nối không dây và phát triển ứng dụng IoT: Kết nối cổng giao tiếp nối tiếp USART của ATmega16 với các mô-đun truyền thông không dây như Wi-Fi ESP8266/ESP32, Bluetooth HC-05 hoặc chuẩn truyền xa LoRa để gửi dữ liệu nhiệt độ lên đám mây (Cloud Server) qua giao thức MQTT/HTTP. Qua đó, người quản lý có thể giám sát biểu đồ nhiệt độ môi trường và nhận thông báo cảnh báo khẩn cấp trực tiếp trên ứng dụng điện thoại thông minh (Blynk, ThingsBoard) ở bất kỳ đâu.
 \end{enumerate}

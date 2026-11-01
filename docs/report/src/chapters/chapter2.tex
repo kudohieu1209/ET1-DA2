@@ -85,7 +85,7 @@ Quy trình vận hành của hệ thống được thực thi tuần tự và kh
             \item Định vị con trỏ tới đầu dòng 1 (\texttt{LCD4\_CUR\_GOTO(1, 0)}). In chuỗi định dạng nhiệt độ có phần thập phân: \texttt{"Temp: XX.Y °C"}.
             \item Định vị con trỏ tới đầu dòng 2 (\texttt{LCD4\_CUR\_GOTO(2, 0)}). So sánh phần nguyên của nhiệt độ (\texttt{temp\_int}) với ngưỡng cài đặt $30^\circ\text{C}$:
             \begin{itemize}
-                \item Khi $temp\_int \ge 30^\circ\text{C}$: In chuỗi cảnh báo \texttt{"HIGH Th: 30°C *!*"} và kéo các chân PD0--PD4 xuống mức 0 (\texttt{PORTD \&= 0xE0}) để bật sáng đồng loạt 5 LED cảnh báo.
+                \item Khi $temp\_int \ge 30^\circ\text{C}$: In chuỗi cảnh báo \texttt{"HIGH Th: 30°C *!"} và kéo các chân PD0--PD4 xuống mức 0 (\texttt{PORTD \&= 0xE0}) để bật sáng đồng loạt 5 LED cảnh báo.
                 \item Khi $temp\_int < 30^\circ\text{C}$: In chuỗi trạng thái an toàn \texttt{"HIGH Th: 30°C    "} và kéo các chân PD0--PD4 lên mức 1 (\texttt{PORTD |= 0x1F}) để tắt dàn LED.
             \end{itemize}
         \end{itemize}
@@ -94,7 +94,7 @@ Quy trình vận hành của hệ thống được thực thi tuần tự và kh
             \item Dòng 1 LCD in chuỗi: \texttt{"DHT11: No Signal"}.
             \item Dòng 2 LCD in chuỗi: \texttt{"Check Pin PA1   "}.
         \end{itemize}
-        \item Tạo trễ phần mềm 1.5 giây (\texttt{\_delay\_ms(1500)}) trước khi bắt đầu chu kỳ đọc tiếp theo nhằm tuân thủ đặc tính định thì phần cứng của cảm biến DHT11.
+        \item Tạo trễ phần mềm 2.0 giây (\texttt{\_delay\_ms(2000)}) trước khi bắt đầu chu kỳ đọc tiếp theo nhằm tuân thủ đặc tính định thì phần cứng của cảm biến DHT11.
     \end{itemize}
 \end{enumerate}
 
@@ -129,8 +129,8 @@ Nếu kiểm tra thành công, các con trỏ nhận giá trị tương ứng v�
 Thuật toán trong hàm chính \texttt{main()} thực hiện phân loại lỗi một cách tường minh:
 \begin{itemize}[leftmargin=1.2cm]
     \item Khi xảy ra lỗi Timeout (mã lỗi từ -1 đến -5, tương ứng với sự cố đứt dây hoặc mất tín hiệu từ cảm biến): Màn hình LCD hiển thị thông báo \texttt{"DHT11: No Signal"} và hướng dẫn \texttt{"Check Pin PA1"}.
-    \item Khi xảy ra lỗi sai Checksum (mã lỗi -6, tương ứng với trường hợp gói dữ liệu bị méo dạng do nhiễu môi trường): Màn hình LCD hiển thị \texttt{"DHT11: CRC Error"} và \texttt{"Checksum Invalid"}.
-    \item Cơ chế an toàn chủ động (Fail-safe): Trong mọi trường hợp xảy ra lỗi cảm biến, hệ thống chủ động đưa dàn 5 LED cảnh báo về mức tắt hoàn toàn (\texttt{PORTD |= 0x1F}), loại bỏ nguy cơ duy trì báo động giả hoặc treo hệ thống.
+    \item Khi xảy ra lỗi sai Checksum (mã lỗi -6, tương ứng với trường hợp gói dữ liệu bị méo dạng do nhiễu môi trường): Màn hình LCD hiển thị \texttt{"DHT11: Sum Error"} và \texttt{"Checksum Invalid"}.
+    \item Trạng thái xử lý lỗi xác định (Deterministic Error Handling): Trong mọi trường hợp xảy ra lỗi cảm biến, vi điều khiển chủ động đưa dàn 5 LED cảnh báo về mức tắt hoàn toàn (\texttt{PORTD |= 0x1F}) nhằm loại bỏ nguy cơ lưu giữ báo động giả từ dữ liệu cũ lỗi thời, đồng thời tập trung hiển thị chẩn đoán lỗi trực quan trên LCD. Tuy nhiên, giải pháp này có sự đánh đổi kỹ thuật (Trade-off): nếu trước khi cảm biến gặp sự cố mà nhiệt độ thực tế đang ở mức cao (trên $30^\circ\text{C}$), việc tắt LED sẽ khiến hệ thống không còn cảnh báo quá nhiệt bằng ánh sáng. Đây là một điểm hạn chế cần được cải tiến bằng chế độ nhấp nháy đèn báo lỗi riêng biệt.
 \end{itemize}
 
 \subsection{Xây dựng thư viện điều khiển màn hình LCD 1602}
@@ -208,7 +208,7 @@ Các bước nạp chương trình chuẩn hóa vào vi điều khiển ATmega16
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.58\textwidth]{progisp_setup.png}
+    \includegraphics[width=0.46\textwidth]{progisp_setup.png}
     \caption{Giao diện phần mềm ProgISP khi nạp firmware và cấu hình Fuse Bits 0xD9E4 cho ATmega16}
     \label{fig:progisp-setup}
 \end{figure}

@@ -49,14 +49,14 @@ Trong điều kiện nhiệt độ phòng thí nghiệm ổn định ở mức $
     \centering
     \begin{subfigure}[b]{0.46\textwidth}
         \centering
-        \includegraphics[height=7.0cm,keepaspectratio]{actual_system.png}
+        \includegraphics[height=6.0cm,keepaspectratio]{actual_system.png}
         \caption{Màn hình LCD khi cảnh báo quá nhiệt ($31.5^\circ\text{C}$)}
         \label{fig:actual-overheat}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.46\textwidth}
         \centering
-        \includegraphics[height=7.0cm,keepaspectratio]{sensor_disconnect.png}
+        \includegraphics[height=6.0cm,keepaspectratio]{sensor_disconnect.png}
         \caption{Màn hình LCD khi không có tín hiệu từ cảm biến}
         \label{fig:actual-disconnect}
     \end{subfigure}
@@ -74,14 +74,14 @@ Nhằm kiểm tra độ tin cậy và khả năng tự bảo vệ của hệ th�
     \texttt{Dòng 2: Check Pin PA1}
     }}
     \end{center}
-    \item Sự cố sai mã kiểm tra lỗi (Checksum Error): Khi tín hiệu trên đường truyền bị nhiễu làm biến dạng các xung thời gian, hàm đọc phát hiện sai lệch tổng Checksum (trả về mã -6). Màn hình LCD thông báo rõ:
+    \item Thử nghiệm kiểm tra mã kiểm tra lỗi (Checksum Error): Trường hợp gói tin bị nhiễu làm sai lệch tổng kiểm tra được kiểm chứng thông qua logic thuật toán trong hàm đọc (trả về mã -6). Màn hình LCD thông báo rõ:
     \begin{center}
     \fbox{\parbox{7.5cm}{
-    \texttt{Dòng 1: DHT11: CRC Error}\\[0.1cm]
+    \texttt{Dòng 1: DHT11: Sum Error}\\[0.1cm]
     \texttt{Dòng 2: Checksum Invalid}
     }}
     \end{center}
-    \item Cơ chế an toàn chủ động (Fail-safe): Trong cả hai trường hợp lỗi, vi điều khiển chủ động thiết lập lệnh \texttt{PORTD |= 0x1F} để tắt hoàn toàn dàn 5 LED cảnh báo. Cơ chế này loại bỏ triệt để nguy cơ lưu giữ trạng thái bật LED từ chu kỳ đo trước, bảo đảm hệ thống luôn duy trì trạng thái an toàn xác định khi mất tín hiệu cảm biến.
+    \item Trạng thái xử lý lỗi xác định: Trong cả hai trường hợp lỗi, vi điều khiển chủ động thiết lập lệnh \texttt{PORTD |= 0x1F} để tắt hoàn toàn dàn 5 LED cảnh báo. Thiết kế này bảo đảm hệ thống luôn vận hành ở một trạng thái xác định (tránh duy trì báo động quá nhiệt dựa trên dữ liệu không còn hợp lệ), đồng thời dồn sự chú ý của người vận hành vào thông báo chẩn đoán lỗi trên LCD.
 \end{itemize}
 
 \begin{table}[H]
@@ -89,7 +89,7 @@ Nhằm kiểm tra độ tin cậy và khả năng tự bảo vệ của hệ th�
 \small
 \caption{Bảng tổng hợp kết quả vận hành thực tế của hệ thống qua các kịch bản thử nghiệm}
 \label{tab:system-results}
-\renewcommand{\arraystretch}{1.3}
+\renewcommand{\arraystretch}{1.15}
 \begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.0cm} >{\centering\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}X >{\centering\arraybackslash}p{3.2cm}}
 \toprule
 \textbf{Kịch bản thử nghiệm} & \textbf{Nhiệt độ đo} & \textbf{Nội dung hiển thị trên LCD 1602} & \textbf{Trạng thái dàn LED} \\
@@ -100,9 +100,9 @@ Nhiệt độ bình thường & $26.5^\circ\text{C}$ & Dòng 1: \mbox{\texttt{Te
 \midrule
 Nhiệt độ vượt ngưỡng & $31.5^\circ\text{C}$ & Dòng 1: \mbox{\texttt{Temp: 31.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C *!}} & Bật sáng cả 5 LED \\
 \midrule
-Mất tín hiệu cảm biến & Không xác định & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Chủ động tắt (Fail-safe) \\
+Mất tín hiệu cảm biến & Không xác định & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Tắt toàn bộ (Xác định) \\
 \midrule
-Sai mã Checksum & Không xác định & Dòng 1: \mbox{\texttt{DHT11: CRC Error}}\newline Dòng 2: \mbox{\texttt{Checksum Invalid}} & Chủ động tắt (Fail-safe) \\
+Sai mã Checksum & Không xác định & Dòng 1: \mbox{\texttt{DHT11: Sum Error}}\newline Dòng 2: \mbox{\texttt{Checksum Invalid}} & Tắt toàn bộ (Xác định) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -112,6 +112,6 @@ Sai mã Checksum & Không xác định & Dòng 1: \mbox{\texttt{DHT11: CRC Error
 Qua quá trình thử nghiệm thực tế trên phần cứng Kit vi điều khiển, hệ thống đã đạt được các kết quả kỹ thuật đề ra:
 \begin{itemize}[leftmargin=1.2cm]
     \item Độ ổn định và tính hợp lệ của dữ liệu: Cảm biến DHT11 và vi điều khiển ATmega16 giao tiếp ổn định qua giao thức 1-Wire với chu kỳ trích mẫu 2.0 giây. Thuật toán kiểm tra mã Checksum hoạt động tin cậy, giúp phát hiện kịp thời các gói tin bị lỗi do nhiễu môi trường và ngăn chặn hiển thị sai dữ liệu.
-    \item Khả năng hiển thị và minh chứng thực tế: Kết quả đo thực nghiệm trên phần cứng (Hình \ref{fig:actual-system}) ghi nhận rõ ràng mức nhiệt độ $31.5^\circ\text{C}$ kèm ký hiệu báo động \texttt{"*!"} và dàn LED bật sáng. Điều này minh chứng mô-đun cảm biến thực tế của nhóm xuất dữ liệu phần thập phân hợp lệ và vi điều khiển đã giải mã, hiển thị thành công lên màn hình LCD 1602 mà không bị tràn bộ nhớ hiển thị.
-    \item Cơ chế an toàn chủ động (Fail-safe): Khi xảy ra sự cố mất cảm biến hoặc sai Checksum, vi điều khiển không bị treo nhờ cơ chế kiểm soát Timeout, đồng thời chủ động đưa dàn LED về trạng thái tắt an toàn và hiển thị thông điệp chẩn đoán lỗi chi tiết để hỗ trợ người vận hành.
+    \item Khả năng hiển thị và minh chứng thực tế: Kết quả đo thực nghiệm (Hình \ref{fig:actual-system}a) ghi nhận rõ ràng nhiệt độ $31.5^\circ\text{C}$ kèm dấu cảnh báo \texttt{"*!"} và dàn LED bật sáng. Dù một số tài liệu DHT11 ghi byte thập phân bằng 0, mô-đun thực tế của nhóm xuất giá trị thập phân hợp lệ tại byte 3 ($0.5^\circ\text{C}$). Vi điều khiển đã giải mã trọn vẹn gói tin 5 byte và hiển thị chuẩn 16 ký tự lên LCD 1602.
+    \item Trạng thái xử lý lỗi xác định: Khi xảy ra sự cố mất cảm biến hoặc sai Checksum, vi điều khiển không bị treo nhờ cơ chế kiểm soát Timeout, đồng thời chủ động đưa dàn LED về trạng thái tắt xác định và hiển thị thông điệp chẩn đoán lỗi chi tiết để hỗ trợ người vận hành.
 \end{itemize}

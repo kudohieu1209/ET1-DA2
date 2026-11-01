@@ -22,12 +22,11 @@ int8_t DHT11_Read(uint8_t *temp_int, uint8_t *temp_dec, uint8_t *humi_int) {
     DHT_DDR |= (1 << DHT_BIT);     // Set PA1 là Output
     DHT_PORT &= ~(1 << DHT_BIT);   // Kéo xuống LOW
     _delay_ms(20);                 // Giữ mức LOW 20ms
-    DHT_PORT |= (1 << DHT_BIT);    // Kéo lên HIGH
-    _delay_us(30);
 
-    // 2. Chuyển chân sang Input để nhận phản hồi từ DHT11
-    DHT_DDR &= ~(1 << DHT_BIT);
+    // 2. Nhả bus sang Input và kích hoạt trở kéo lên để chờ DHT11 phản hồi (tránh xung đột bus)
+    DHT_DDR &= ~(1 << DHT_BIT);    // Chuyển PA1 thành Input
     DHT_PORT |= (1 << DHT_BIT);    // Bật điện trở kéo lên nội
+    _delay_us(30);                 // Chờ 20-40us cho DHT11 bắt đầu phản hồi
 
     // Đợi DHT11 kéo LOW (khoảng 20-40µs)
     timeout = 10000;
@@ -72,7 +71,7 @@ int8_t DHT11_Read(uint8_t *temp_int, uint8_t *temp_dec, uint8_t *humi_int) {
         }
     }
 
-    // 4. Kiểm tra mã kiểm tra lỗi (Checksum)
+    // 4. Kiểm tra mã kiểm tra lỗi (Checksum 8-bit)
     if ((uint8_t)(data[0] + data[1] + data[2] + data[3]) != data[4]) {
         return -6; // Sai checksum
     }
@@ -116,9 +115,9 @@ int main(void) {
 
         if (status == 0) {
             // --- ĐỌC THÀNH CÔNG TỪ DHT11 ---
-            // Dòng 1: "Temp: 31.5 °C" (16 ký tự chuẩn)
+            // Dòng 1: "Temp: 31.5 °C   " (đúng 16 ký tự chuẩn)
             LCD4_CUR_GOTO(1, 0);
-            sprintf(buffer, "Temp: %u.%u \xDF""C    ", temp_int, temp_dec);
+            sprintf(buffer, "Temp: %u.%u \xDF""C   ", temp_int, temp_dec);
             LCD4_OUT_STR(buffer);
 
             // Dòng 2: Hiển thị ngưỡng cảnh báo "HIGH Th: 30°C"
@@ -128,24 +127,24 @@ int main(void) {
                 LCD4_OUT_STR("HIGH Th: 30\xDF""C *!");
                 PORTD &= 0xE0; // Bật sáng 5 LED cảnh báo (Active LOW)
             } else {
-                // Nhiệt độ bình thường <= 30 độ C: TẮT LED (đúng 16 ký tự)
-                LCD4_OUT_STR("HIGH Th: 30\xDF""C    ");
+                // Nhiệt độ bình thường < 30 độ C: TẮT LED (đúng 16 ký tự, xóa dấu *!)
+                LCD4_OUT_STR("HIGH Th: 30\xDF""C   ");
                 PORTD |= 0x1F; // Tắt 5 LED cảnh báo
             }
         } else if (status == -6) {
             // Lỗi kiểm tra toàn vẹn dữ liệu (Checksum Error)
             LCD4_CUR_GOTO(1, 0);
-            LCD4_OUT_STR("DHT11: CRC Error");
+            LCD4_OUT_STR("DHT11: Sum Error");
             LCD4_CUR_GOTO(2, 0);
             LCD4_OUT_STR("Checksum Invalid");
-            PORTD |= 0x1F; // Cơ chế an toàn (Fail-safe): Tắt LED cảnh báo
+            PORTD |= 0x1F; // Trạng thái xác định: Tắt LED cảnh báo
         } else {
             // Trường hợp mất tín hiệu, chưa cắm chân PA1 hoặc lỏng dây
             LCD4_CUR_GOTO(1, 0);
             LCD4_OUT_STR("DHT11: No Signal");
             LCD4_CUR_GOTO(2, 0);
             LCD4_OUT_STR("Check Pin PA1   ");
-            PORTD |= 0x1F; // Cơ chế an toàn (Fail-safe): Tắt LED cảnh báo
+            PORTD |= 0x1F; // Trạng thái xác định: Tắt LED cảnh báo
         }
 
         // Chu kỳ lấy mẫu khuyến nghị theo datasheet của Aosong (2 giây)

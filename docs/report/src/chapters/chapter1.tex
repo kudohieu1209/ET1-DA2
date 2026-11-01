@@ -4,7 +4,7 @@
 
 \subsection{Tổng quan kiến trúc và đặc tính kỹ thuật}
 
-ATmega16 là một trong những dòng vi điều khiển 8-bit họ AVR phổ biến nhất của hãng Atmel (nay thuộc Microchip Technology), được thiết kế dựa trên kiến trúc RISC (Reduced Instruction Set Computer) tiên tiến với tập lệnh rút gọn gồm 131 lệnh đa số thực thi trong một chu kỳ xung nhịp nhịp tim đơn lẻ \cite{atmega16-datasheet}. Nhờ thông lượng xử lý đạt tới 1 MIPS trên mỗi MHz tần số hoạt động, vi điều khiển mang lại hiệu suất tính toán tối ưu song song với khả năng tiết kiệm năng lượng vượt trội.
+ATmega16 là một trong những dòng vi điều khiển 8-bit họ AVR phổ biến nhất của hãng Atmel (nay thuộc Microchip Technology), được thiết kế dựa trên kiến trúc RISC (Reduced Instruction Set Computer) tiên tiến với tập lệnh rút gọn gồm 131 lệnh đa số thực thi trong một chu kỳ xung nhịp đơn lẻ \cite{atmega16-datasheet}. Nhờ thông lượng xử lý đạt tới 1 MIPS trên mỗi MHz tần số hoạt động, vi điều khiển mang lại hiệu suất tính toán tối ưu song song với khả năng tiết kiệm năng lượng vượt trội.
 
 \begin{figure}[H]
     \centering
@@ -150,7 +150,7 @@ Toàn bộ quy trình trao đổi dữ liệu một lần đọc (gồm 40 bit) 
 Vi điều khiển phát tín hiệu khởi động:
 \begin{itemize}[leftmargin=1.2cm]
     \item MCU cấu hình chân PA1 thành Output và kéo đường bus xuống mức LOW trong thời gian tối thiểu 18 ms (trong chương trình chọn trễ an toàn là \texttt{\_delay\_ms(20)}).
-    \item MCU kéo đường bus lên mức HIGH trong khoảng thời gian từ 20 $\mu$s đến 40 $\mu$s (chọn \texttt{\_delay\_us(30)}), sau đó đổi hướng chân PA1 thành Input để lắng nghe phản hồi từ cảm biến.
+    \item MCU sau đó giải phóng quyền điều khiển bus bằng cách chuyển chân PA1 sang chế độ Input và kích hoạt điện trở kéo lên nội, tạo khoảng trễ 30 $\mu$s để đường tín hiệu được kéo lên mức HIGH an toàn trước khi cảm biến bắt đầu phản hồi. Trình tự này bảo đảm tránh triệt để hiện tượng xung đột mức logic (Bus Contention) trên đường truyền chung.
 \end{itemize}
 
 \subsubsection{2. Tín hiệu phản hồi từ cảm biến}
@@ -183,7 +183,7 @@ Byte cuối cùng là byte kiểm tra lỗi Checksum được tạo bởi tổng
     Checksum_{valid} = (RH_{int} + RH_{dec} + T_{int} + T_{dec}) \ \& \ \text{0xFF}
 \end{equation}
 
-Nếu giá trị tính toán trùng khớp với Byte 4 nhận được từ cảm biến, gói dữ liệu được xác nhận là hợp lệ và toàn vẹn, bảo đảm không bị lỗi truyền dẫn trong quá trình thu nhận.
+Nếu giá trị tính toán trùng khớp với Byte 4 nhận được từ cảm biến, gói dữ liệu được xác nhận là hợp lệ. Thuật toán Checksum 8-bit giúp phát hiện hiệu quả các trường hợp méo dạng xung hoặc sai lệch bit đơn lẻ trên đường truyền; tuy nhiên, phương pháp tổng kiểm tra cộng 8-bit không hỗ trợ tự sửa sai (Error Correction) và không thể loại trừ hoàn toàn các lỗi đảo bit bù trừ đa điểm.
 
 \section{Màn hình hiển thị tinh thể lỏng LCD 1602}
 
