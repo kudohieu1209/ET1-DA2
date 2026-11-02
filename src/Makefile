@@ -16,10 +16,10 @@ AVRDUDE = avrdude
 PROGRAMMER = usbasp
 AVRDUDE_MCU = m16
 
-# Fuse bits as configured in report (Page 41):
-# Low Fuse = 0xFF (Ext Crystal 8MHz, SUT1=1, SUT0=1)
-# High Fuse = 0xD9 (SPIEN=0, BOOTSZ=00, etc.)
-LFUSE = 0xFF
+# Fuse bits matching the report: calibrated internal RC, 8 MHz.
+# Low Fuse = 0xE4 (CKSEL=0100, SUT=10).
+# High Fuse = 0xD9 (JTAGEN=1: disabled, SPIEN=0: ISP enabled).
+LFUSE = 0xE4
 HFUSE = 0xD9
 
 CFLAGS = -Wall -Os -mmcu=$(MCU) -DF_CPU=$(F_CPU) -I.
@@ -40,7 +40,7 @@ $(TARGET).hex: $(TARGET).elf
 flash: $(TARGET).hex
 	$(AVRDUDE) -c $(PROGRAMMER) -p $(AVRDUDE_MCU) -U flash:w:$(TARGET).hex:i
 
-# Write Fuse bits to ATmega16 (8MHz external crystal)
+# Write Fuse bits to ATmega16 (8 MHz internal RC oscillator)
 fuse:
 	$(AVRDUDE) -c $(PROGRAMMER) -p $(AVRDUDE_MCU) -U lfuse:w:$(LFUSE):m -U hfuse:w:$(HFUSE):m
 

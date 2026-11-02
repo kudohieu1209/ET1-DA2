@@ -1,30 +1,28 @@
 \chapter*{LỜI NÓI ĐẦU}
 \addcontentsline{toc}{chapter}{LỜI NÓI ĐẦU}
 
-Trong bối cảnh phát triển mạnh mẽ của khoa học kỹ thuật và cuộc cách mạng công nghiệp 4.0, các hệ thống nhúng thông minh, đo lường tự động và giám sát môi trường ngày càng đóng vai trò thiết yếu trong đời sống và sản xuất. Đặc biệt, thông số nhiệt độ và độ ẩm là hai yếu tố vật lý cơ bản, ảnh hưởng trực tiếp đến sự vận hành ổn định của hệ thống máy chủ dữ liệu (Data Center), quy trình ấp nở và bảo quản nông sản, nhà kính nông nghiệp công nghệ cao, cũng như an toàn lao động trong nhà xưởng công nghiệp. Việc xây dựng một hệ thống giám sát nhiệt độ tin cậy, có khả năng hiển thị thời gian thực và tự động đưa ra cảnh báo khi vượt ngưỡng cho phép là bài toán kỹ thuật mang tính thực tiễn rất cao.
+Đề tài ``Thiết kế hệ thống đo nhiệt độ và cảnh báo ngưỡng sử dụng ATmega16'' thuộc học phần Đồ án Thiết kế II. Hệ thống đọc cảm biến DHT11, hiển thị dữ liệu lên LCD 1602 và bật 5 LED khi giá trị nhiệt độ nhận được đạt hoặc vượt ngưỡng cài đặt.
 
-Học phần Đồ án Thiết kế II là cơ hội quan trọng giúp sinh viên ngành Kỹ thuật Điện tử -- Viễn thông củng cố, liên kết các kiến thức nền tảng về cấu trúc máy tính, kỹ thuật vi xử lý, kỹ thuật lập trình C nhúng và thiết kế giao tiếp ngoại vi để giải quyết một bài toán kỹ thuật trọn vẹn từ thiết kế sơ đồ, lập trình phần mềm cho tới thử nghiệm trên kit thực tế. 
+Nhóm vẽ lại sơ đồ nguyên lý từ tài liệu giảng viên cung cấp và thiết kế PCB trên cơ sở sơ đồ đó. Phần mềm gồm giao tiếp DHT11, cấu hình xung nhịp, vô hiệu hóa JTAG và điều khiển LCD, LED trên các cổng dùng chung. Thư viện \texttt{hunget\_lcd.h} được xây dựng với hỗ trợ của công cụ sinh mã.
 
-Đề tài ``Thiết kế hệ thống đo nhiệt độ và cảnh báo ngưỡng sử dụng ATmega16'' được thực hiện nhằm xây dựng một mô hình đo lường số hoàn chỉnh. Hệ thống sử dụng vi điều khiển AVR ATmega16 làm trung tâm xử lý, giao tiếp trực tiếp với cảm biến số DHT11 qua đường truyền 1-Wire Single-Bus, xuất dữ liệu trực quan lên màn hình tinh thể lỏng LCD 1602 (chế độ 4-bit bus) và kích hoạt dàn đèn LED cảnh báo khi nhiệt độ đo được vượt ngưỡng an toàn ($30^\circ\text{C}$). 
-
-So với các giải pháp đo nhiệt độ sử dụng cảm biến tương tự truyền thống (như LM35), việc sử dụng cảm biến số DHT11 mang lại nhiều ưu điểm vượt trội: khả năng chống nhiễu cao trên đường truyền tín hiệu số, tích hợp đo đồng thời nhiệt độ và độ ẩm môi trường, kiểm tra mã kiểm tra lỗi (Checksum 8-bit) giúp xác thực tính toàn vẹn của gói dữ liệu thu thập. Đồng thời, đồ án cũng giải quyết triệt để các bài toán kỹ thuật thực tế trên Kit phần cứng như xử lý xung đột chân ngoại vi JTAG trên PORT C, cấu hình nguồn xung nhịp dao động nội 8.0 MHz bằng Fuse Bits và tối ưu hóa tài nguyên chân xuất nhập GPIO.
+Ngưỡng $30^\circ\text{C}$ được chọn làm mốc kiểm thử chức năng của mô hình; kết quả thực nghiệm tập trung vào hiển thị, cảnh báo ngưỡng và xử lý mất tín hiệu cảm biến.
 
 Báo cáo đồ án được kết cấu thành 4 chương chính như sau:
 \begin{itemize}[leftmargin=1.5cm]
-    \item \textbf{Chương 1: Giới thiệu tổng quan phần cứng và linh kiện}: Trình bày kiến trúc vi điều khiển ATmega16, Kit thực hành AVR chuẩn Bách Khoa, nguyên lý cảm biến số DHT11, màn hình LCD 1602 và khối chỉ thị LED.
-    \item \textbf{Chương 2: Thiết kế và triển khai hệ thống}: Trình bày thiết kế sơ đồ nguyên lý kết nối, lưu đồ thuật toán tổng thể, giải thuật giao tiếp 1-Wire, thư viện điều khiển LCD 1602 chế độ 4-bit, xử lý mặt nạ bit điều khiển cảnh báo và quy trình tự động hóa biên dịch, nạp firmware.
-    \item \textbf{Chương 3: Kết quả thực nghiệm}: Trình bày kết quả thử nghiệm thực tế của hệ thống qua các kịch bản: khởi động, đo lường nhiệt độ bình thường, cảnh báo quá nhiệt và phản ứng an toàn khi mất tín hiệu cảm biến.
-    \item \textbf{Chương 4: Kết luận và hướng phát triển}: Tổng kết các kết quả đạt được, chỉ ra những điểm còn hạn chế và đề xuất giải pháp phát triển mở rộng hệ thống lên nền tảng IoT.
+    \item \textbf{Chương 1}: Giới thiệu ATmega16, kit AVR, cảm biến DHT11, LCD 1602 và khối LED.
+    \item \textbf{Chương 2}: Trình bày yêu cầu thiết kế, lựa chọn linh kiện, sơ đồ, thiết kế PCB, kết nối phần cứng, lưu đồ và các thuật toán điều khiển, quy trình biên dịch và nạp firmware.
+    \item \textbf{Chương 3}: Tổng hợp kết quả chức năng và giới hạn kiểm chứng thực nghiệm.
+    \item \textbf{Chương 4}: Nêu kết luận, hạn chế và hướng phát triển.
 \end{itemize}
 
-Chúng em xin bày tỏ lòng biết ơn chân thành và sâu sắc nhất tới thầy \UniversitySupervisor, giảng viên Trường Điện -- Điện tử, Đại học Bách khoa Hà Nội, người đã tận tình định hướng, chỉ bảo và tạo mọi điều kiện thuận lợi nhất giúp chúng em hoàn thành tốt đồ án này. Chúng em cũng xin trân trọng cảm ơn các thầy cô giáo trong Trường Điện -- Điện tử đã trang bị cho chúng em những nền tảng kiến thức quý báu trong suốt quá trình học tập.
+Chúng em trân trọng cảm ơn thầy \UniversitySupervisor\ đã hướng dẫn thực hiện đồ án, cùng các thầy cô Trường Điện -- Điện tử đã giảng dạy những kiến thức nền tảng. Nhóm mong nhận được góp ý để tiếp tục hoàn thiện mô hình và báo cáo.
 
-Do thời gian thực hiện có hạn và kinh nghiệm thực tế của bản thân còn hạn chế, báo cáo chắc chắn không tránh khỏi những thiếu sót nhất định. Chúng em rất mong nhận được những lời nhận xét, góp ý quý báu của thầy cô và các bạn để đề tài được hoàn thiện hơn nữa.
-
-\vspace{0.8cm}
+\vspace{0.4cm}
+\begin{samepage}
 \begin{flushright}
   \textit{Hà Nội, tháng 11 năm 2026}\\[0.15cm]
   \textbf{Sinh viên thực hiện}\\[0.4cm]
   \textbf{\StudentNameOne}\\[0.2cm]
   \textbf{\StudentNameTwo}
 \end{flushright}
+\end{samepage}

@@ -3,12 +3,12 @@
 \usepackage[fontsize=13pt]{fontsize}
 
 \usepackage{amsmath}
-\usepackage{amssymb}
 \usepackage{fontspec}
+\usepackage{unicode-math}
 \usepackage{polyglossia}
 \setdefaultlanguage{vietnamese}
 \setmainfont{Times New Roman}
-\DeclareMathSizes{13}{12}{9}{6}
+\setmathfont{texgyretermes-math.otf}
 
 \usepackage[
   a4paper,
@@ -32,9 +32,10 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{float}
+\usepackage{fvextra}
 \usepackage{xcolor}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,calc}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
 \usepackage{titlesec}
 \usepackage{indentfirst}
 \setlength{\parindent}{1cm}
@@ -98,6 +99,20 @@
 \newcommand{\StudentClass}{772642}
 \newcommand{\StudentGroup}{Nhóm 4}
 \newcommand{\UniversitySupervisor}{ThS. Vũ Hồng Vinh}
+% Khung mô phỏng LCD 16x2: nhãn dòng nằm ngoài khung, khung rộng đúng 16 ký tự.
+\newlength{\LCDwidth}
+\AtBeginDocument{\settowidth{\LCDwidth}{\ttfamily 0000000000000000}\addtolength{\LCDwidth}{1em}}
+\newcommand{\LCDbox}[2]{%
+  \begin{center}\vspace{-0.2cm}
+  \renewcommand{\arraystretch}{1.15}%
+  \begin{tabular}{@{}r@{\hspace{0.5em}}|@{\hspace{0.4em}}>{\ttfamily\raggedright\arraybackslash}p{\LCDwidth}@{\hspace{0.4em}}|@{}}
+  \cline{2-2}
+  {\small Dòng 1} & #1 \\
+  {\small Dòng 2} & #2 \\
+  \cline{2-2}
+  \end{tabular}\vspace{-0.2cm}
+  \end{center}}
+
 \newcommand{\ReportTopic}{Thiết kế hệ thống đo nhiệt độ và cảnh báo ngưỡng sử dụng ATmega16}
 
 \begin{document}
@@ -119,6 +134,8 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{\listtablename}
 \listoftables
+\clearpage
+\input{frontmatter/abbreviations}
 \clearpage
 
 \pagenumbering{arabic}

@@ -4,7 +4,7 @@
 
 \subsection{Tổng quan kiến trúc và đặc tính kỹ thuật}
 
-ATmega16 là một trong những dòng vi điều khiển 8-bit họ AVR phổ biến nhất của hãng Atmel (nay thuộc Microchip Technology), được thiết kế dựa trên kiến trúc RISC (Reduced Instruction Set Computer) tiên tiến với tập lệnh rút gọn gồm 131 lệnh đa số thực thi trong một chu kỳ xung nhịp đơn lẻ \cite{atmega16-datasheet}. Nhờ thông lượng xử lý đạt tới 1 MIPS trên mỗi MHz tần số hoạt động, vi điều khiển mang lại hiệu suất tính toán tối ưu song song với khả năng tiết kiệm năng lượng vượt trội.
+ATmega16 là vi điều khiển 8-bit họ AVR của Atmel (nay thuộc Microchip Technology), sử dụng kiến trúc RISC với 131 lệnh, phần lớn thực thi trong một chu kỳ clock \cite{atmega16-datasheet}. Thông lượng xử lý có thể đạt gần 1 MIPS trên mỗi MHz, phù hợp với yêu cầu đọc cảm biến và điều khiển hiển thị của mô hình.
 
 \begin{figure}[H]
     \centering
@@ -30,16 +30,16 @@ Bộ nhớ EEPROM nội & 512 Bytes (Lưu trữ dữ liệu không mất khi m�
 Tần số xung nhịp tối đa & 0 -- 16 MHz (Điện áp 4.5V -- 5.5V) \\
 Số chân I/O khả trình & 32 chân chia làm 4 cổng 8-bit (PORT A, PORT B, PORT C, PORT D) \\
 Bộ định thời / Bộ đếm (Timer) & 2 bộ Timer/Counter 8-bit và 1 bộ Timer/Counter 16-bit đa chức năng \\
-Các kênh PWM & 4 kênh điều chế độ rộng xung phần cứng (Pulse Width Modulation) \\
+Các kênh PWM & 4 kênh điều chế độ rộng xung phần cứng \\
 Bộ chuyển đổi ADC & 8 kênh ADC 10-bit tích hợp sẵn trên PORT A \\
-Giao tiếp truyền thông & USART lập trình được, SPI (Serial Peripheral Interface), I2C/TWI \\
+Giao tiếp truyền thông & USART, SPI, I2C/TWI \\
 Giao diện gỡ lỗi phần cứng & Chuẩn JTAG (IEEE std. 1149.1) hỗ trợ On-Chip Debug \\
 Điện áp hoạt động & 4.5V -- 5.5V đối với ATmega16 chuẩn (2.7V -- 5.5V đối với ATmega16L) \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\subsection{Cấu trúc các cổng vào/ra (I/O Ports) và chức năng trong đồ án}
+\subsection{Cấu trúc các cổng vào/ra và chức năng trong đồ án}
 
 Vi điều khiển ATmega16 trang bị 32 chân vào ra hai chiều, được phân bổ đều cho 4 cổng ngoại vi ký hiệu từ A đến D. Mỗi cổng được kiểm soát độc lập bởi 3 thanh ghi điều khiển địa chỉ bộ nhớ:
 \begin{itemize}[leftmargin=1.2cm]
@@ -48,22 +48,16 @@ Vi điều khiển ATmega16 trang bị 32 chân vào ra hai chiều, được ph
     \item Thanh ghi PINx (đọc dữ liệu vào): Đọc trạng thái logic điện áp thực tế tại các chân cổng.
 \end{itemize}
 
-Trong phạm vi đề tài, các chân I/O được phân công đảm nhiệm các chức năng cụ thể như sau:
-\begin{itemize}[leftmargin=1.2cm]
-    \item Chân PA1 (cổng A): Đường truyền giao tiếp 1-Wire hai chiều với cảm biến số DHT11. Chân này liên tục chuyển đổi trạng thái giữa Output (khi MCU phát xung kích) và Input (khi MCU đọc chuỗi xung phản hồi từ cảm biến).
-    \item Các chân PC4 -- PC7 (cổng C): Bus truyền dữ liệu 4-bit (tương ứng các chân D4, D5, D6, D7) tới màn hình LCD 1602.
-    \item Các chân PD5, PD6, PD7 (cổng D): Các đường tín hiệu điều khiển màn hình LCD 1602, lần lượt ứng với các tín hiệu RW, RS và EN.
-    \item Các chân PD0 -- PD4 (cổng D): Điều khiển dàn 5 đèn LED cảnh báo ngưỡng theo chế độ tích cực mức thấp.
-\end{itemize}
+Trong đề tài, PA1 nối với chân dữ liệu của DHT11, PC4 -- PC7 và PD5 -- PD7 dùng cho LCD 1602, PD0 -- PD4 điều khiển 5 LED cảnh báo; bảng kết nối đầy đủ ở Bảng \ref{tab:hardware-wiring}.
 
 \subsection{Xung nhịp hệ thống và phân tích xung đột ngoại vi JTAG}
 
 \subsubsection{Cấu hình nguồn xung nhịp 8.0 MHz bằng Fuse Bits}
-ATmega16 tích hợp sẵn mạch dao động RC nội (Calibrated Internal RC Oscillator) có khả năng tạo ra các tần số xung nhịp cố định gồm 1.0 MHz, 2.0 MHz, 4.0 MHz và 8.0 MHz mà không đòi hỏi phải gắn thêm thạch anh dao động ngoài hay tụ lọc phụ trợ. 
+ATmega16 tích hợp sẵn mạch dao động RC nội đã hiệu chuẩn, có khả năng tạo ra các tần số xung nhịp cố định gồm 1.0 MHz, 2.0 MHz, 4.0 MHz và 8.0 MHz mà không đòi hỏi phải gắn thêm thạch anh dao động ngoài hay tụ lọc phụ trợ.
 
-Trên Kit thực hành vi điều khiển của Trường Điện -- Điện tử (ĐHBK Hà Nội), vị trí thạch anh ngoài \texttt{XT1} để trống và không hàn tụ hồi tiếp. Do đó, việc cấu hình vi điều khiển chạy bằng dao động RC nội tần số 8.0 MHz là bắt buộc để hệ thống đạt tốc độ xử lý nhanh, đồng thời triệt tiêu rủi ro chip bị khóa xung nhịp. Cấu hình này được xác lập thông qua thanh ghi cầu chì (Fuse Bits) với giá trị:
+Sơ đồ kit có bố trí thạch anh ngoài \texttt{XT1} và hai tụ tải. Cấu hình phần mềm của đồ án chọn dao động RC nội 8.0 MHz, do đó không sử dụng khối thạch anh ngoài. Giá trị \texttt{F\_CPU = 8000000UL} chỉ phục vụ tính toán trễ khi biên dịch; tần số phần cứng được chọn bằng Fuse Bits. Fuse được ghi ở bước nạp chương trình bằng ProgISP (mục \ref{sec:progisp}, Hình \ref{fig:progisp-setup}) với cấu hình:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Low Fuse Byte = \texttt{0xE4}: Thiết lập các bit \texttt{CKSEL3..0 = 0100} chọn mạch dao động RC nội 8.0 MHz, thời gian khởi động ổn định nguồn xung là 64 ms (\texttt{SUT1..0 = 10}).
+    \item Low Fuse Byte = \texttt{0xE4}: Thiết lập các bit \texttt{CKSEL3..0 = 0100} chọn mạch dao động RC nội 8.0 MHz, thời gian khởi động là 6 chu kỳ clock cộng trễ bổ sung điển hình 65 ms ở 5V (\texttt{SUT1..0 = 10}, Bảng 10 của datasheet).
 \end{itemize}
 
 \subsubsection{Phân tích xung đột phần cứng JTAG trên PORT C}
@@ -75,9 +69,9 @@ Mặc định khi xuất xưởng từ nhà sản xuất, bit cầu chì \texttt
     \item Chân PC5 = TDI (Test Data Input)
 \end{itemize}
 
-Do bus dữ liệu 4-bit của màn hình LCD 1602 được nối vào các chân PC4 -- PC7, việc tính năng JTAG bị bật sẽ khiến hai chân PC4 và PC5 bị treo cưỡng bức ở mức logic của khối gỡ lỗi, làm vô hiệu hóa khả năng xuất dữ liệu GPIO của CPU. Hệ quả là màn hình LCD không thể nhận được các byte lệnh khởi tạo, dẫn tới hiện tượng lỗi kinh điển: hàng 1 màn hình nổi toàn bộ khối đen và hàng 2 trắng tinh.
+Bus dữ liệu 4 bit của LCD 1602 nối vào PC4 -- PC7. Khi JTAG còn bật, hai chân PC4 và PC5 do khối gỡ lỗi điều khiển và không còn hoạt động như GPIO, nên LCD không nhận được chuỗi lệnh khởi tạo. Triệu chứng thường gặp là dòng 1 hiện toàn ô đen, dòng 2 để trống.
 
-Để giải phóng hoàn toàn PORT C cho giao tiếp LCD, đề tài áp dụng giải pháp kép:
+Để dùng PC4, PC5 cho LCD, đề tài tắt JTAG theo hai cách:
 \begin{enumerate}[leftmargin=1.2cm]
     \item Tắt JTAG ở mức phần cứng: Cấu hình High Fuse Byte = \texttt{0xD9}. Tại giá trị này, bit 6 (\texttt{JTAGEN}) mang giá trị 1 (vô hiệu hóa JTAG), bit 5 (\texttt{SPIEN}) mang giá trị 0 (duy trì cổng nạp SPI để nạp code qua USBasp).
     \item Tắt JTAG ở mức phần mềm: Ghi bit \texttt{JTD} trên thanh ghi \texttt{MCUCSR} hai lần liên tiếp trong vòng 4 chu kỳ máy ngay ở đầu hàm \texttt{main()}:
@@ -89,22 +83,22 @@ Do bus dữ liệu 4-bit của màn hình LCD 1602 được nối vào các châ
 
 \section{Mạch Kit thực hành vi điều khiển họ AVR}
 
-Mạch Kit thực hành vi điều khiển AVR sử dụng trong đề tài là module chuẩn được nghiên cứu và thiết kế phục vụ công tác giảng dạy, thí nghiệm tại Trường Điện -- Điện tử, Đại học Bách khoa Hà Nội (Hình \ref{fig:atmega-kit}).
+Kit AVR sử dụng trong đồ án được triển khai từ sơ đồ nguyên lý do giảng viên cung cấp \cite{hust-kit-manual}. Nhóm vẽ lại sơ đồ và thiết kế PCB trên Altium Designer; bố trí linh kiện được thể hiện ở Hình \ref{fig:atmega-kit}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.78\textwidth]{atmega_kit_2d.png}
-    \caption{Sơ đồ bố trí linh kiện trên Kit phát triển vi điều khiển AVR}
+    \caption{Mô hình 3D bố trí linh kiện trên Kit phát triển vi điều khiển AVR}
     \label{fig:atmega-kit}
 \end{figure}
 
 Kit phát triển tích hợp đầy đủ các khối chức năng ngoại vi cơ bản:
 \begin{enumerate}[leftmargin=1.2cm]
-    \item Đế cắm vi điều khiển DIP-40 (ZIF Socket): Giúp việc tháo lắp IC vi điều khiển dễ dàng, an toàn, tránh cong gãy chân cắm.
+    \item Đế cắm vi điều khiển DIP-40: Cho phép lắp và thay thế vi điều khiển trong quá trình thực hành.
     \item Khối nguồn nuôi và ổn áp 5V: Tích hợp IC ổn áp tuyến tính LM7805 hạ áp từ nguồn Adapter ngoài DC 9V--12V, đồng thời hỗ trợ nhận nguồn 5V trực tiếp từ cổng USB qua mạch nạp USBasp, kết hợp hệ thống tụ lọc nguồn và đèn LED chỉ thị nguồn VCC.
     \item Giao diện nạp chương trình chuẩn ISP 10 chân (IDC-10): Kết nối trực tiếp với mạch nạp USBasp qua các đường tín hiệu MOSI (PB5), MISO (PB6), SCK (PB7), RESET và GND.
     \item Hàng rào cắm mở rộng J7 cho LCD 1602: Chuẩn cắm hàng đơn 16 chân tương thích với các màn hình chuẩn HD44780, tích hợp sẵn biến trở vi chỉnh VR1 dùng để điều chỉnh độ tương phản.
-    \item Dàn LED đơn và phím bấm chức năng: Hệ thống 8 LED đơn nối về PORT D và ma trận nút bấm điều khiển nối về PORT B phục vụ các bài toán thực hành giao tiếp vào ra cơ bản.
+    \item Dàn LED đơn và phím bấm chức năng: Hệ thống 8 LED đơn nối về PORT D và ma trận nút bấm điều khiển nối về PORT B phục vụ các bài toán thực hành giao tiếp vào ra cơ bản. Đồ án dùng 5 LED trên PD0--PD4 để cảnh báo; 3 LED còn lại trên PD5--PD7 nằm chung đường với tín hiệu điều khiển LCD nên sẽ sáng theo mức logic của RW, RS, EN.
 \end{enumerate}
 
 \section{Cảm biến số nhiệt độ và độ ẩm DHT11}
@@ -113,7 +107,7 @@ Kit phát triển tích hợp đầy đủ các khối chức năng ngoại vi c
 
 DHT11 là cảm biến số đo nhiệt độ và độ ẩm môi trường tích hợp vi xử lý 8-bit hiệu năng cao bên trong để số hóa và hiệu chuẩn dữ liệu trước khi truyền ra ngoài \cite{dht11-datasheet}. Cấu tạo cảm biến bao gồm hai thành phần cảm nhận vật lý:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Cảm biến độ ẩm kiểu điện trở (Resistive Humidity Sensor): Sử dụng một phần tử màng polymer nhạy ẩm có các điện cực xen kẽ. Khi độ ẩm môi trường biến thiên, các phân tử hơi nước được hấp thụ vào bề mặt làm phân ly các ion dẫn, dẫn đến biến đổi điện trở của màng. Vi điều khiển 8-bit tích hợp bên trong DHT11 sẽ đo đạc sự thay đổi điện trở này và tính toán quy đổi thành giá trị độ ẩm tương đối (\%RH).
+    \item Cảm biến độ ẩm kiểu điện trở: Sử dụng một phần tử màng polymer nhạy ẩm có các điện cực xen kẽ. Khi độ ẩm môi trường biến thiên, các phân tử hơi nước được hấp thụ vào bề mặt làm phân ly các ion dẫn, dẫn đến biến đổi điện trở của màng. Vi điều khiển 8-bit tích hợp bên trong DHT11 sẽ đo đạc sự thay đổi điện trở này và tính toán quy đổi thành giá trị độ ẩm tương đối (\%RH).
     \item Cảm biến nhiệt độ NTC: Là một điện trở nhiệt bán dẫn có hệ số nhiệt điện trở âm. Khi nhiệt độ môi trường tăng lên, điện trở của linh kiện giảm xuống theo một hàm phi tuyến được định trước. Vi điều khiển chuyển đổi giá trị điện trở này thành nhiệt độ thực tế theo thang đo độ Celsius ($^\circ\text{C}$).
 \end{itemize}
 
@@ -126,25 +120,28 @@ DHT11 là cảm biến số đo nhiệt độ và độ ẩm môi trường tíc
 \toprule
 Thông số kỹ thuật & Giá trị danh định \\
 \midrule
-Điện áp hoạt động & 3.3V -- 5.5V DC \\
+Điện áp hoạt động & 3.0V -- 5.5V DC (theo bản tài liệu tham chiếu) \\
 Dải đo nhiệt độ & $0^\circ\text{C}$ -- $50^\circ\text{C}$ \\
 Độ chính xác đo nhiệt độ & $\pm 2.0^\circ\text{C}$ \\
-Độ phân giải nhiệt độ & $1.0^\circ\text{C}$ (hoặc $0.1^\circ\text{C}$ ở một số bản nâng cấp) \\
+Độ phân giải nhiệt độ & $1.0^\circ\text{C}$ (bản DHT11 trong tài liệu tham chiếu) \\
 Dải đo độ ẩm & 20\% -- 90\% RH \\
 Độ chính xác đo độ ẩm & $\pm 5.0\%$ RH \\
 Độ phân giải độ ẩm & 1\% RH \\
-Chu kỳ lấy mẫu tối thiểu & $\ge 1.0$ giây (Khuyến nghị $2.0$ giây theo tài liệu của Aosong để đảm bảo ổn định) \\
+Khoảng cách giữa các lần đọc & Tối thiểu 1 giây theo bản tài liệu tham chiếu; chương trình chọn trễ 2 giây mỗi vòng lặp \\
 Dòng điện tiêu thụ & $0.5\text{ mA} - 2.5\text{ mA}$ khi đo; $100\text{ }\mu\text{A} - 150\text{ }\mu\text{A}$ khi chờ \\
 Chuẩn giao tiếp & Aosong 1-Wire Single-Bus (Đường truyền đơn tuyến chuyên biệt) \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
+Module sử dụng trong mô hình là loại DHT11 gắn trên PCB, đầu nối 3 chân, mã bán hàng \texttt{LK\_02463}. Mã này không xác định phiên bản chip hoặc bản datasheet. Khi đấu nối cần dựa trên nhãn VCC, DATA (hoặc S) và GND trên module, không áp dụng trực tiếp số chân của cảm biến rời 4 chân. Bảng \ref{tab:dht11-specs} dùng làm cơ sở tham chiếu cho DHT11. Chương trình hiển thị trực tiếp Byte 2 ($T_{int}$) và Byte 3 ($T_{dec}$) lên LCD, nên các giá trị $26.5^\circ\text{C}$ và $31.5^\circ\text{C}$ ghi nhận ở Chương 3 cho thấy module thực tế trả về byte thập phân khác 0, khác với mức phân giải $1^\circ\text{C}$ của bản tài liệu tham chiếu.
+
 \subsection{Giao thức truyền thông đơn tuyến Aosong 1-Wire}
+\label{sec:dht11-protocol}
 
-\textbf{Phân định chuẩn giao thức}: Cần nhấn mạnh rằng giao thức truyền thông một dây (Single-Bus) của DHT11 do nhà sản xuất Aosong thiết kế là giao thức điểm--điểm chuyên biệt, \textbf{hoàn toàn không tương thích} với chuẩn công nghiệp Dallas/Maxim 1-Wire (vốn sử dụng mã định danh ROM 64-bit, khe thời gian do Master chủ động điều khiển và hỗ trợ kết nối đa điểm trên cùng một bus). Giao thức của DHT11 hoạt động theo nguyên tắc Master phát xung khởi động kích hoạt một lần, sau đó Slave (cảm biến) tự động phát liên tục chuỗi 40 bit dữ liệu theo các mốc thời gian quy ước.
+\textbf{Phân định chuẩn giao thức}: Giao thức truyền thông một dây (Single-Bus) của DHT11 do nhà sản xuất Aosong thiết kế là giao thức điểm--điểm chuyên biệt, \textbf{không tương thích} với chuẩn công nghiệp Dallas/Maxim 1-Wire (vốn sử dụng mã định danh ROM 64-bit, khe thời gian do Master chủ động điều khiển và hỗ trợ kết nối đa điểm trên cùng một bus). Giao thức của DHT11 hoạt động theo nguyên tắc Master phát xung khởi động kích hoạt một lần, sau đó Slave (cảm biến) tự động phát liên tục chuỗi 40 bit dữ liệu theo các mốc thời gian quy ước.
 
-Cảm biến DHT11 giao tiếp với vi điều khiển chỉ thông qua một chân dữ liệu DATA duy nhất. Đường tín hiệu này đòi hỏi phải có một điện trở kéo lên nguồn 5V (giá trị từ 4.7 k$\Omega$ đến 10 k$\Omega$) để duy trì mức cao khi đường truyền ở trạng thái rảnh rỗi. 
+Cảm biến DHT11 giao tiếp với vi điều khiển chỉ thông qua một chân dữ liệu DATA duy nhất. Đường tín hiệu này đòi hỏi phải có một điện trở kéo lên nguồn 5V (giá trị từ 4.7 k$\Omega$ đến 10 k$\Omega$) để duy trì mức cao khi đường truyền ở trạng thái rảnh rỗi.
 
 Toàn bộ quy trình trao đổi dữ liệu một lần đọc (gồm 40 bit) tuân theo trình tự định thì thời gian nghiêm ngặt được mô tả dưới đây:
 
@@ -152,7 +149,7 @@ Toàn bộ quy trình trao đổi dữ liệu một lần đọc (gồm 40 bit) 
 Vi điều khiển phát tín hiệu khởi động:
 \begin{itemize}[leftmargin=1.2cm]
     \item MCU cấu hình chân PA1 thành Output và kéo đường bus xuống mức LOW trong thời gian tối thiểu 18 ms (trong chương trình chọn trễ an toàn là \texttt{\_delay\_ms(20)}).
-    \item MCU sau đó giải phóng quyền điều khiển bus bằng cách chuyển chân PA1 sang chế độ Input và kích hoạt điện trở kéo lên nội, tạo khoảng trễ 30 $\mu$s để đường tín hiệu được kéo lên mức HIGH an toàn trước khi cảm biến bắt đầu phản hồi. Trình tự này bảo đảm tránh triệt để hiện tượng xung đột mức logic (Bus Contention) trên đường truyền chung.
+    \item MCU sau đó giải phóng quyền điều khiển bus bằng cách chuyển chân PA1 sang chế độ Input và kích hoạt điện trở kéo lên nội, tạo khoảng trễ 30 $\mu$s để đường tín hiệu được kéo lên mức HIGH an toàn trước khi cảm biến bắt đầu phản hồi. Việc chuyển sang đầu vào cho phép cảm biến điều khiển đường DATA mà không bị MCU chủ động giữ mức cao.
 \end{itemize}
 
 \subsubsection{2. Tín hiệu phản hồi từ cảm biến}
@@ -165,11 +162,7 @@ Sau khi gửi tín hiệu phản hồi, DHT11 bắt đầu tuần tự phát ra 
     \item Bit '1': Xung mức HIGH tồn tại kéo dài trong khoảng 70 $\mu$s.
 \end{itemize}
 
-Dựa vào sự chênh lệch thời gian rõ rệt này, vi điều khiển áp dụng kỹ thuật lấy mẫu: Sau khi phát hiện kết thúc xung LOW 50 $\mu$s, MCU thực hiện trễ phần mềm một khoảng thời gian trung gian bằng 38 $\mu$s rồi đọc trạng thái logic chân PA1:
-\begin{itemize}[leftmargin=1.2cm]
-    \item Nếu chân PA1 vẫn còn ở mức HIGH $\rightarrow$ Độ rộng xung lớn hơn 38 $\mu$s, đây là bit '1'.
-    \item Nếu chân PA1 đã rơi xuống mức LOW $\rightarrow$ Xung đã kết thúc trước thời điểm 38 $\mu$s, đây là bit '0'.
-\end{itemize}
+Cách vi điều khiển phân biệt hai độ rộng xung này được trình bày ở mục \ref{sec:dht11-read}.
 
 \subsubsection{4. Cấu trúc gói tin và cơ chế kiểm tra lỗi}
 Gói dữ liệu hoàn chỉnh gồm 5 byte (40 bit) truyền đi theo thứ tự:
@@ -185,11 +178,11 @@ Byte cuối cùng là byte kiểm tra lỗi Checksum được tạo bởi tổng
     Checksum_{valid} = (RH_{int} + RH_{dec} + T_{int} + T_{dec}) \ \& \ \text{0xFF}
 \end{equation}
 
-Nếu giá trị tính toán trùng khớp với Byte 4 nhận được từ cảm biến, gói dữ liệu được xác nhận là hợp lệ. Thuật toán Checksum 8-bit giúp phát hiện hiệu quả các trường hợp méo dạng xung hoặc sai lệch bit đơn lẻ trên đường truyền; tuy nhiên, phương pháp tổng kiểm tra cộng 8-bit không hỗ trợ tự sửa sai (Error Correction) và không thể loại trừ hoàn toàn các lỗi đảo bit bù trừ đa điểm.
+Nếu giá trị tính toán trùng khớp với Byte 4 nhận được từ cảm biến, gói dữ liệu được xác nhận là hợp lệ. Thuật toán Checksum 8-bit giúp phát hiện hiệu quả các trường hợp méo dạng xung hoặc sai lệch bit đơn lẻ trên đường truyền; tuy nhiên, phương pháp tổng kiểm tra cộng 8-bit không có khả năng sửa lỗi và không thể loại trừ hoàn toàn các lỗi đảo bit bù trừ đa điểm.
 
 \section{Màn hình hiển thị tinh thể lỏng LCD 1602}
 
-Màn hình LCD 1602 là mô-đun hiển thị ký tự (Character LCD) gồm 2 hàng, mỗi hàng có khả năng hiển thị tối đa 16 ký tự ma trận điểm $5 \times 8$ pixels, sử dụng vi mạch điều khiển tiêu chuẩn công nghiệp Hitachi HD44780 \cite{hd44780-datasheet}.
+Màn hình LCD 1602 là mô-đun hiển thị ký tự gồm 2 hàng, mỗi hàng có khả năng hiển thị tối đa 16 ký tự ma trận điểm $5 \times 8$ pixels, sử dụng vi mạch điều khiển tiêu chuẩn công nghiệp Hitachi HD44780 \cite{hd44780-datasheet}.
 
 \begin{table}[H]
 \centering
@@ -206,12 +199,12 @@ Chân J7 & Chân LCD & Tên chân & Chân MCU & Chức năng kỹ thuật \\
 5 & 5 & RW & PD5 & Chọn chiều Đọc/Ghi (0: Ghi dữ liệu vào LCD; 1: Đọc từ LCD) \\
 6 & 6 & E & PD7 & Chốt xung kích hoạt (Enable Strobe, tích cực sườn âm) \\
 7 -- 10 & 7 -- 10 & D0 -- D3 & PC0 -- PC3 & 4 bit dữ liệu thấp (Không dùng ở chế độ 4-bit bus) \\
-11 & 11 & D4 & PC4 & Bit dữ liệu số 4 (Data line 4) \\
-12 & 12 & D5 & PC5 & Bit dữ liệu số 5 (Data line 5) \\
-13 & 13 & D6 & PC6 & Bit dữ liệu số 6 (Data line 6) \\
-14 & 14 & D7 & PC7 & Bit dữ liệu số 7 (Data line 7) \\
-15 & 15 & A (LED+) & VCC & Cực Anot đèn nền LED nền màn hình (Backlight) \\
-16 & 16 & K (LED-) & GND & Cực Katot đèn nền LED nền màn hình (Backlight) \\
+11 & 11 & D4 & PC4 & Bit dữ liệu D4 \\
+12 & 12 & D5 & PC5 & Bit dữ liệu D5 \\
+13 & 13 & D6 & PC6 & Bit dữ liệu D6 \\
+14 & 14 & D7 & PC7 & Bit dữ liệu D7 \\
+15 & 15 & A (LED+) & VCC & Cực anot đèn nền \\
+16 & 16 & K (LED-) & GND & Cực katot đèn nền \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -219,15 +212,15 @@ Chân J7 & Chân LCD & Tên chân & Chân MCU & Chức năng kỹ thuật \\
 Để tối ưu hóa số lượng chân vi điều khiển, đồ án áp dụng chế độ truyền thông 4-bit bus:
 \begin{itemize}[leftmargin=1.2cm]
     \item Vi điều khiển chỉ cần dùng 4 chân GPIO (PC4 -- PC7) nối tới các chân dữ liệu D4 -- D7 của LCD, tiết kiệm được 4 chân so với chế độ 8-bit truyền thống.
-    \item Mỗi byte dữ liệu hoặc mã lệnh 8-bit sẽ được tách làm hai nửa byte (Nibble): 4 bit cao được truyền trước kèm theo một xung chốt Enable trên chân PD7, tiếp theo 4 bit thấp được dịch sang và truyền kèm theo một xung chốt Enable thứ hai.
+    \item Mỗi byte dữ liệu hoặc mã lệnh 8-bit sẽ được tách làm hai nửa byte: 4 bit cao được truyền trước kèm theo một xung chốt Enable trên chân PD7, tiếp theo 4 bit thấp được dịch sang và truyền kèm theo một xung chốt Enable thứ hai.
 \end{itemize}
 
 \section{Khối cảnh báo và chỉ thị LED}
 
 Dàn 5 đèn LED cảnh báo trên Kit thí nghiệm được nối trực tiếp vào các chân từ PD0 đến PD4 của cổng D. Mạch được thiết kế theo cấu hình tích cực mức thấp (Active Low):
 \begin{itemize}[leftmargin=1.2cm]
-    \item Cực Anot của các đèn LED được cấp nguồn dương VCC thông qua điện trở hạn dòng $330\text{ }\Omega$.
+    \item Cực Anot của các đèn LED được cấp nguồn dương VCC qua mạng điện trở hạn dòng R4 và jumper JP1. Trên sơ đồ kit, R4 được ghi giá trị 10 k$\Omega$.
     \item Cực Katot của các đèn LED nối về các chân vi điều khiển PD0 -- PD4.
     \item Khi vi điều khiển xuất mức 0 (mức thấp): Dòng điện chạy từ VCC qua LED xuống chân vi điều khiển khép mạch, LED bật sáng (báo động vượt ngưỡng).
-    \item Khi vi điều khiển xuất mức 1 (mức cao): Không có chênh lệch điện áp qua diode, LED tắt (trạng thái nhiệt độ an toàn).
+    \item Khi vi điều khiển xuất mức 1 (mức cao): Không có chênh lệch điện áp qua diode, LED tắt (trạng thái không cảnh báo quá nhiệt).
 \end{itemize}

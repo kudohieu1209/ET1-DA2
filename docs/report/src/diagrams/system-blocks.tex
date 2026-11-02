@@ -1,0 +1,14 @@
+\begin{tikzpicture}[
+    font=\small, >=Latex, line width=0.7pt,
+    block/.style={draw, rounded corners=3pt, align=center, minimum height=1.5cm, text width=3.6cm, inner sep=6pt, fill=gray!4}
+]
+\node[block,text width=4.1cm] (power) at (0,0) {\textbf{Nguồn 5V}\\LM7805 (đầu vào 9--12V)\\hoặc 5V từ USBasp};
+\node[block,text width=3.3cm,minimum height=2cm] (mcu) at (0,-3.0) {\textbf{ATmega16}\\DIP-40\\RC nội 8 MHz};
+\node[block] (dht) at (-5.0,-3.0) {\textbf{Module DHT11 3 chân}\\DATA: PA1\\VCC: 5V; GND chung};
+\node[block] (lcd) at (5.0,-1.7) {\textbf{LCD 1602, bus 4-bit}\\D4--D7: PC4--PC7\\RW: PD5; RS: PD6\\EN: PD7};
+\node[block] (led) at (5.0,-5.1) {\textbf{5 LED cảnh báo}\\PD0--PD4, Active Low\\Qua mạng điện trở R4};
+\draw[->] (power.south) -- node[right]{VCC, GND} (mcu.north);
+\draw[<->] (dht.east) -- node[above]{DATA} (mcu.west);
+\draw[->] (mcu.east) -- (2.6,-3.0) |- (lcd.west);
+\draw[->] (mcu.south) -- (0,-5.1) -- (led.west);
+\end{tikzpicture}

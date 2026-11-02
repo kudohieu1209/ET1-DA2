@@ -14,7 +14,7 @@ Dự án Đồ án 2 - Đại học Bách Khoa Hà Nội (HUST).
   - Tự động hiển thị thông báo lỗi `DHT11: No Signal - Check Pin PA1` khi mất kết nối hoặc cảm biến lỗi.
 - **Hệ thống cảnh báo tự động**:
   - Tự động so sánh nhiệt độ đo được với ngưỡng **High Threshold (30°C)**.
-  - Khi $T \ge 30^\circ\text{C}$: Kích hoạt dấu cảnh báo `*!*` trên LCD và bật sáng 5 LED cảnh báo.
+  - Khi $T \ge 30^\circ\text{C}$: Kích hoạt dấu cảnh báo `*!` trên LCD và bật sáng 5 LED cảnh báo.
   - Khi $T < 30^\circ\text{C}$: Trạng thái bình thường, dàn LED tắt.
 - **Tối ưu phần cứng**: Tắt JTAG để tái sử dụng PORT C điều khiển LCD 4-bit; hỗ trợ Makefile tự động hóa toàn bộ quy trình biên dịch và nạp firmware.
 
@@ -48,7 +48,7 @@ Dự án Đồ án 2 - Đại học Bách Khoa Hà Nội (HUST).
 | :--- | :--- | :--- |
 | **VCC** | 5V | Nguồn cấp 5V |
 | **GND** | GND | Mass hệ thống |
-| **DATA** | **PA1** (PORT A, Pin 1) | Giao tiếp 1-wire (cần trở kéo lên 4.7kΩ - 10kΩ nếu module chưa tích hợp) |
+| **DATA** | **PA1** (PORT A, chân 39 trên DIP-40) | Giao tiếp 1-wire (cần trở kéo lên 4.7kΩ - 10kΩ nếu module chưa tích hợp) |
 
 ### 2. Màn hình LCD 16x2 (Chế độ 4-bit)
 > [!IMPORTANT]
@@ -77,7 +77,7 @@ Dự án Đồ án 2 - Đại học Bách Khoa Hà Nội (HUST).
 
 Dự án cấu hình sử dụng dao động nội tần số **8.0 MHz** (Calibrated Internal RC Oscillator), không cần hàn thêm thạch anh ngoài:
 - **High Fuse (HFUSE)**: `0xD9` (Tắt JTAG để giải phóng PORT C cho LCD, bật nạp SPI ISP).
-- **Low Fuse (LFUSE)**: `0xE4` (Dao động nội 8.0MHz, thời gian khởi động 64ms).
+- **Low Fuse (LFUSE)**: `0xE4` (Dao động nội 8.0MHz, thời gian khởi động 6 CK + 65 ms (giá trị điển hình ở 5V)).
 👉 **Mã nhập nhanh trong ProgISP**: **`0xD9E4`** (Tích chọn ô *Program Fuse* trước khi bấm Auto).
 
 *(Ghi chú: Nếu Kit của bạn có hàn sẵn thạch anh ngoài 8MHz thì set Low Fuse = `0xFF` -> Mã `0xD9FF`).*
@@ -111,7 +111,7 @@ Dự án cấu hình sử dụng dao động nội tần số **8.0 MHz** (Calib
    make flash
    ```
 
-4. Nạp Fuse bits (nếu vi điều khiển chưa cấu hình thạch anh ngoài 8MHz):
+4. Nạp Fuse bits cho cấu hình dao động RC nội 8 MHz của báo cáo:
    ```bash
    make fuse
    ```
