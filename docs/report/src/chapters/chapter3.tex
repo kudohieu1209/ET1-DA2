@@ -1,110 +1,297 @@
-\chapter{KẾT QUẢ THỰC NGHIỆM}
+\chapter{THIẾT KẾ VÀ TRIỂN KHAI HỆ THỐNG}
+\begingroup
+\clubpenalty=10000
+\widowpenalty=10000
+\setlength{\parskip}{4pt}
+\setlist{itemsep=2pt,parsep=0pt,topsep=3pt}
 
-\section{Kết quả thực nghiệm trên phần cứng}
-\label{sec:hw-results}
+\section{Thiết kế kiến trúc phần cứng và sơ đồ nguyên lý}
 
-Hệ thống đo nhiệt độ và cảnh báo ngưỡng sử dụng vi điều khiển ATmega16 và cảm biến DHT11 đã được lắp ráp, nạp mã thực thi và kiểm thử thực tế trên Kit phát triển AVR tại phòng thí nghiệm Trường Điện -- Điện tử, Đại học Bách khoa Hà Nội. Các trạng thái chức năng ghi nhận trong quá trình thử nghiệm được tổng hợp dưới đây; phạm vi và giới hạn của phép kiểm chứng được trình bày ở mục \ref{sec:limitations}.
+\subsection{Sơ đồ khối chức năng và kết nối liên khối hệ thống}
 
-\subsection{Giai đoạn khởi động và màn hình chào mừng}
-Khi vừa cấp nguồn nuôi 5V từ cổng nạp USB, vi điều khiển hoàn tất quá trình reset phần cứng, tắt cổng JTAG nội, thiết lập chiều cổng I/O và cấu hình màn hình LCD. Sau khi khởi tạo, màn hình LCD 1602 hiển thị thông điệp chào mừng khởi động:
-\LCDbox{DA2: DO NHIET DO}{DHT11 SENSOR}
-Màn hình duy trì thông điệp này trong khoảng 1,5 giây theo trễ phần mềm. Trong suốt giai đoạn khởi động, toàn bộ 5 đèn LED cảnh báo trên các chân PD0 -- PD4 đều tắt nhờ lệnh khởi tạo kéo mức 1 (\texttt{PORTD |= 0x1F}). Sau 1,5 giây, lệnh xóa màn hình (\texttt{0x01}) được phát ra để chuẩn bị cho chu trình hiển thị dữ liệu đo lường.
+Nhóm vẽ lại sơ đồ giảng viên cung cấp (Hình \ref{fig:schematic}) \cite{hust-kit-manual} và thiết kế PCB trên Altium Designer (Hình \ref{fig:altium-3d}). DHT11 nối ngoài kit theo Hình \ref{fig:system-wiring}. Hệ thống gồm 5 khối chức năng:
+\begin{enumerate}[leftmargin=1.2cm, topsep=0pt, itemsep=0.5pt, parsep=0pt]
+    \item \textbf{Khối nguồn 5\,V}: Cấp điện áp 5\,V cho toàn mạch qua IC LM7805 hoặc từ cổng USB máy tính.
+    \item \textbf{Khối MCU trung tâm}: ATmega16 (DIP-40, dao động RC nội 8\,MHz) điều khiển toàn bộ hoạt động của hệ thống.
+    \item \textbf{Khối cảm biến}: DHT11 đo nhiệt độ và độ ẩm, giao tiếp một dây với vi điều khiển qua chân PA1.
+    \item \textbf{Khối hiển thị}: LCD 1602 giao tiếp 4 bit qua các chân dữ liệu PC4--PC7 và chân điều khiển PD5--PD7.
+    \item \textbf{Khối cảnh báo}: 5 LED đơn nối với chân PD0--PD4, tích cực mức thấp qua mạng điện trở R4 trên kit.
+\end{enumerate}
 
-\subsection{\texorpdfstring{Trạng thái đo lường bình thường ($T < 30^\circ\text{C}$)}{Trạng thái đo lường bình thường (T < 30 °C)}}
-Ở trạng thái không cảnh báo, giá trị được ghi nhận trên LCD là $26.5^\circ\text{C}$ (nhỏ hơn ngưỡng cài đặt $30^\circ\text{C}$):
-\begin{itemize}[leftmargin=1.2cm]
-    \item Cảm biến DHT11 thu thập dữ liệu và gửi gói tin 40-bit về MCU. Quá trình kiểm tra tính toàn vẹn dữ liệu bằng mã Checksum thành công, dữ liệu nhận được hợp lệ.
-    \item \begin{samepage}Màn hình LCD 1602 hiển thị thông số:
-    \LCDbox{Temp: 26.5 \textdegree C}{HIGH Th: 30\textdegree C}
-    \end{samepage}
-    \item Do giá trị nhiệt độ nhận được nhỏ hơn ngưỡng cài đặt, dòng 2 hiển thị ngưỡng \texttt{"HIGH Th: 30°C"} mà không xuất hiện bất kỳ dấu hiệu cảnh báo nào.
-    \item Dàn 5 LED cảnh báo nối với các chân PD0 -- PD4 tiếp tục được giữ ở mức logic 1, nghĩa là tắt.
-\end{itemize}
-
-\subsection{\texorpdfstring{Trạng thái cảnh báo vượt ngưỡng quá nhiệt ($T \ge 30^\circ\text{C}$)}{Trạng thái cảnh báo vượt ngưỡng quá nhiệt (T ≥ 30 °C)}}
-Để kiểm thử phản ứng của hệ thống khi có sự cố quá nhiệt, người thực hiện sử dụng nguồn nhiệt gián tiếp (hơi ấm nhẹ áp gần bề mặt cảm biến DHT11). Khi giá trị nhiệt độ nhận được đạt hoặc vượt $30.0^\circ\text{C}$:
-\begin{itemize}[leftmargin=1.2cm]
-    \item Vi điều khiển phát hiện điều kiện $temp\_int \ge 30^\circ\text{C}$ ở chu kỳ đọc hợp lệ tiếp theo (mỗi vòng lặp có trễ phần mềm 2 giây, cộng thời gian đọc và hiển thị).
-    \item Màn hình LCD cập nhật trạng thái báo động tương ứng:
-    \LCDbox{Temp: 31.5 \textdegree C}{HIGH Th: 30\textdegree C *!}
-    Trên dòng 2 xuất hiện chuỗi ký hiệu báo động \texttt{"*!"} để báo cho người vận hành.
-    \item Đồng thời, phép toán che mặt nạ \texttt{PORTD \&= 0xE0} kéo 5 chân PD0 -- PD4 xuống mức 0, làm 5 LED cảnh báo cùng sáng.
-    \item Khi nguồn nhiệt được rút ra và giá trị nhiệt độ nhận được giảm trở lại dưới $30.0^\circ\text{C}$, màn hình tự động xóa ký hiệu \texttt{"*!"} và dàn đèn LED tự động tắt, trả hệ thống về trạng thái giám sát bình thường mà không cần thao tác reset thủ công.
-\end{itemize}
-
-\begin{figure}[H]
+\begin{figure}[H]\vspace{-0.25cm}
     \centering
-    \begin{subfigure}[b]{0.46\textwidth}
-        \centering
-        \includegraphics[height=7.5cm,keepaspectratio]{actual_system.jpg}
-        \caption{Màn hình LCD khi cảnh báo quá nhiệt ($31.5^\circ\text{C}$)}
-        \label{fig:actual-overheat}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.46\textwidth}
-        \centering
-        \includegraphics[height=7.5cm,keepaspectratio]{sensor_disconnect.jpg}
-        \caption{Màn hình LCD khi không có tín hiệu từ cảm biến}
-        \label{fig:actual-disconnect}
-    \end{subfigure}
-    \caption{Hình ảnh thực tế hệ thống vận hành trong các kịch bản thử nghiệm}
-    \label{fig:actual-system}
-    \vspace{0.1cm}
-    {\small\textit{Ghi chú:} Dãy LED trên kit gồm 8 LED nối PD0--PD7 (từ D3 ở dưới lên D10 ở trên). Ba LED trên cùng (PD5--PD7) dùng chung đường RW, RS, EN của LCD nên sáng theo mức logic của các tín hiệu này, không thuộc khối cảnh báo. Ở (a), 5 LED cảnh báo PD0--PD4 sáng; ở (b), 5 LED này tắt.\par}
+    \input{diagrams/system-blocks}\vspace{-0.2cm}
+    \caption{Sơ đồ kết nối liên khối chi tiết của hệ thống đo nhiệt độ và cảnh báo}
+    \label{fig:system-wiring}
 \end{figure}
 
-\subsection{Kiểm tra phản hồi khi mất cảm biến và xử lý lỗi hệ thống}
-Nhằm kiểm tra độ tin cậy và khả năng tự bảo vệ của hệ thống trước các tình huống bất thường, nhóm đã tiến hành xác minh theo hai cấp độ:
-\begin{itemize}[leftmargin=1.2cm, topsep=0pt, itemsep=0.5pt, parsep=0pt]
-    \item Thử nghiệm thực tế khi mất cảm biến (Kiểm chứng phần cứng): Để mô phỏng sự cố tuột dây tín hiệu, nhóm chủ động rút chân DATA (PA1). Vòng chờ đầu tiên của \texttt{DHT11\_Read} hết hạn và hàm trả về $-1$ sau khoảng 29\,ms (Bảng \ref{tab:timeout}); vi điều khiển không bị treo. Màn hình LCD cập nhật thông báo chẩn đoán lỗi sau khi hàm đọc cảm biến phát hiện timeout (Hình \ref{fig:actual-disconnect}):
-    \LCDbox{DHT11: No Signal}{Check Pin PA1}
-    \item Kiểm chứng giải thuật xử lý Checksum (Phân tích mã nguồn): Đối với trường hợp đường truyền bị can nhiễu, do chưa có thiết bị tạo xung nhiễu chuyên dụng, nhánh xử lý sai Checksum hiện chỉ được đối chiếu với luồng logic mã nguồn (nhánh \texttt{status == -6}). Thuật toán nhận diện sự sai lệch tổng kiểm tra và hiển thị thông báo chuẩn 16 ký tự:
-    \LCDbox{DHT11: Sum Error}{Checksum Invalid}
-    \item Trạng thái xử lý lỗi xác định: Trong cả hai tình huống, dàn 5 LED được đưa về trạng thái tắt (\texttt{PORTD |= 0x1F}) như phân tích ở mục \ref{sec:main-algo}.
-\end{itemize}
+% Sơ đồ gốc (img/schematic.png) được tách tại khoảng trống dọc giữa khối MCU và
+% ba khối bên phải; các khối nối với nhau qua nhãn mạng nên không cắt qua dây nối.
+\begin{figure}[p]
+    \centering
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{schematic_main.png}
+        \caption{Khối nguồn, vi điều khiển ATmega16, nút bấm, cổng nạp ISP (J2) và các giắc mở rộng cổng}
+        \label{fig:schematic-main}
+    \end{subfigure}
 
-\begin{table}[H]
+    \vspace{0.5cm}
+    \begin{subfigure}[b]{5.36cm}
+        \centering
+        \includegraphics[width=\linewidth]{schematic_lcd.png}
+        \caption{Giắc J7 nối LCD 1602}
+        \label{fig:schematic-lcd}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{4.31cm}
+        \centering
+        \includegraphics[width=\linewidth]{schematic_led.png}
+        \caption{Dãy LED đơn}
+        \label{fig:schematic-led}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{5.71cm}
+        \centering
+        \includegraphics[width=\linewidth]{schematic_7seg.png}
+        \caption{LED 7 thanh}
+        \label{fig:schematic-7seg}
+    \end{subfigure}
+
+    \vspace{0.3cm}
+    \caption{Sơ đồ nguyên lý kit AVR được nhóm vẽ lại từ tài liệu giảng viên cung cấp}
+    \label{fig:schematic}
+    \vspace{0.1cm}
+    {\small\textit{Ghi chú:} Các khối (a)--(d) nối với nhau qua nhãn mạng (PA0--PD7, VCC, GND). Trong đồ án, LCD dùng PC4--PC7 và PD5--PD7; 5 LED cảnh báo dùng PD0--PD4. Khối thạch anh XT1 có trên sơ đồ nhưng chương trình chọn dao động RC nội 8 MHz. Cảm biến DHT11 là module nối ngoài, không nằm trong sơ đồ kit này.\par}
+\end{figure}
+
+\subsection{Bảng kết nối dây chi tiết giữa các linh kiện}
+
+Bảng \ref{tab:hardware-wiring} liệt kê kết nối giữa từng khối chức năng và chân của ATmega16; số chân tính theo vỏ DIP-40 (Hình \ref{fig:atmega16-pinout}). Tên tín hiệu sau dấu ``/'' là chức năng thay thế của chân, không được dùng trong đồ án.
+
+\begin{table}[tb]
 \centering
 \small
+\caption{Bảng tổng hợp kết nối tín hiệu phần cứng của hệ thống}
+\label{tab:hardware-wiring}
+\renewcommand{\arraystretch}{1.08}
 \setlength{\tabcolsep}{3pt}
-\caption{Bảng tổng hợp các kịch bản kiểm tra và kết quả đánh giá hệ thống}
-\label{tab:system-results}
-\renewcommand{\arraystretch}{1.15}
-\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.6cm} >{\centering\arraybackslash}p{1.5cm} >{\raggedright\arraybackslash}X >{\centering\arraybackslash}p{1.8cm}}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}p{2.5cm} >{\centering\arraybackslash}p{1.7cm} >{\bfseries\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}X}
 \toprule
-\textbf{Kịch bản kiểm tra} & \textbf{Phương pháp xác minh} & \textbf{Giá trị LCD} & \textbf{Nội dung hiển thị trên LCD 1602} & \textbf{Trạng thái dàn LED} \\
+Khối chức năng & Chân linh kiện & Chân MCU & Tên tín hiệu MCU & Chức năng kỹ thuật \\
 \midrule
-Khởi động hệ thống & Thực nghiệm trên kit & -- & Dòng 1: \mbox{\texttt{DA2: DO NHIET DO}}\newline Dòng 2: \mbox{\texttt{DHT11 SENSOR}} & Tắt toàn bộ \\
+Cảm biến DHT11 & DATA / S & Chân 39 & PA1 / ADC1 & Giao tiếp Single-Bus hai chiều \\
+               & VCC & -- & +5\,V của kit & Nguồn nuôi 5\,V DC \\
+               & GND & -- & GND của kit & Nối đất chung \\
 \midrule
-Nhiệt độ bình thường & Thực nghiệm trên kit & $26.5^\circ\text{C}$ & Dòng 1: \mbox{\texttt{Temp: 26.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C}} & Tắt toàn bộ \\
+Màn hình LCD   & RS (Chân 4)  & Chân 20 & PD6 / ICP1 & Chọn thanh ghi (0: lệnh, 1: dữ liệu) \\
+               & RW (Chân 5)  & Chân 19 & PD5 / OC1A & Chọn đọc/ghi (0: ghi) \\
+               & EN (Chân 6)  & Chân 21 & PD7 / OC2 & Xung kích hoạt chốt dữ liệu \\
+               & D4 (Chân 11) & Chân 26 & PC4 / TDO & Đường truyền dữ liệu bit 4 \\
+               & D5 (Chân 12) & Chân 27 & PC5 / TDI & Đường truyền dữ liệu bit 5 \\
+               & D6 (Chân 13) & Chân 28 & PC6 / TOSC1 & Đường truyền dữ liệu bit 6 \\
+               & D7 (Chân 14) & Chân 29 & PC7 / TOSC2 & Đường truyền dữ liệu bit 7 \\
 \midrule
-Nhiệt độ vượt ngưỡng & Thực nghiệm trên kit & $31.5^\circ\text{C}$ & Dòng 1: \mbox{\texttt{Temp: 31.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C *!}} & Bật sáng cả 5 LED \\
-\midrule
-Mất tín hiệu cảm biến & Thực nghiệm trên Kit (Rút chân PA1) & -- & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Tắt toàn bộ (Xác định) \\
-\midrule
-Sai mã Checksum & Phân tích giải thuật mã nguồn & -- & Dòng 1: \mbox{\texttt{DHT11: Sum Error}}\newline Dòng 2: \mbox{\texttt{Checksum Invalid}} & Tắt toàn bộ (Xác định) \\
+Dãy LED cảnh báo & Katot LED 1 & Chân 14 & PD0 / RXD & Cảnh báo, sáng khi mức 0 \\
+               & Katot LED 2 & Chân 15 & PD1 / TXD & Cảnh báo, sáng khi mức 0 \\
+               & Katot LED 3 & Chân 16 & PD2 / INT0 & Cảnh báo, sáng khi mức 0 \\
+               & Katot LED 4 & Chân 17 & PD3 / INT1 & Cảnh báo, sáng khi mức 0 \\
+               & Katot LED 5 & Chân 18 & PD4 / OC1B & Cảnh báo, sáng khi mức 0 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\section{Đánh giá kết quả và phạm vi kiểm chứng}
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=0.48\textwidth]{atmega_kit_3d.png}
+    \caption{Mô hình 3D PCB do nhóm thiết kế trên Altium Designer}
+    \label{fig:altium-3d}
+\end{figure}
 
-\subsection{Kết quả chức năng đã ghi nhận}
-Các mô tả và ảnh ở mục \ref{sec:hw-results} cho thấy chương trình có thể hiển thị giá trị nhiệt độ, báo vượt ngưỡng bằng LCD và LED, đồng thời hiển thị thông báo khi mất tín hiệu cảm biến. Bảng \ref{tab:system-results} phân biệt kịch bản thử trên phần cứng với nhánh checksum mới được xem xét qua mã nguồn. Phân tích mã nguồn cho thấy điều kiện \texttt{temp\_int >= 30} bao gồm cả trường hợp đúng ngưỡng; báo cáo hiện chưa có kết quả thử riêng tại $30^\circ\text{C}$.
+\section{Xây dựng thuật toán và phần mềm điều khiển}
 
-Hình \ref{fig:actual-system}a ghi nhận LCD hiển thị $31.5^\circ\text{C}$ cùng ký hiệu \texttt{*!} và 5 LED cảnh báo sáng. Vì chương trình in trực tiếp $T_{int}$ và $T_{dec}$ nhận từ cảm biến, phần thập phân \texttt{.5} trên LCD chính là giá trị Byte 3 của gói tin: module đang dùng trả về byte thập phân khác 0, khác với bản tài liệu tham chiếu ghi độ phân giải $1^\circ\text{C}$ \cite{dht11-datasheet}. Các giá trị này phản ánh dữ liệu cảm biến gửi về; độ chính xác so với nhiệt độ môi trường cần được đối chiếu thêm với nhiệt kế tham chiếu.
+\subsection{Thuật toán điều khiển tổng quát chương trình}
+\label{sec:main-algo}
 
-\begin{samepage}
-Checksum chỉ xác nhận gói tin được truyền đúng, không xác nhận độ chính xác vật lý của phép đo. Khi có lỗi, chương trình tắt 5 LED và hiển thị chẩn đoán; vì vậy LED tắt không đủ để kết luận môi trường đang dưới ngưỡng.
+Chương trình vận hành tuần tự theo các bước dưới đây. Lưu đồ ở Hình \ref{fig:main-flowchart} thể hiện cùng các nhánh xử lý; mã nguồn đầy đủ nằm ở Phụ lục A.
+
+\begin{enumerate}[leftmargin=0.8cm,itemsep=6pt,parsep=0pt,topsep=4pt]
+    \item \textbf{Khởi tạo hệ thống.} Ghi hai lần bit JTD trong \texttt{MCUCSR} để tắt JTAG và giải phóng PC4, PC5. Khởi tạo LCD bằng \texttt{LCD4\_INIT}; đặt PD0--PD4 làm đầu ra (\texttt{DDRD |= 0x1F}) và xuất mức cao để tắt LED (\texttt{PORTD |= 0x1F}). LCD hiện \texttt{DA2: DO NHIET DO} và \texttt{DHT11 SENSOR} khoảng 1,5 giây, sau đó được xóa.
+    \item \textbf{Đọc cảm biến.} Gọi \texttt{DHT11\_Read} để nhận dữ liệu nhiệt độ cùng mã trả về \texttt{status}. Chương trình chỉ so sánh ngưỡng và hiển thị nhiệt độ khi \texttt{status == 0}.
+    \item \textbf{Xử lý dữ liệu hợp lệ.} Dòng 1 LCD hiển thị nhiệt độ theo định dạng \texttt{Temp: XX.Y °C}. Dòng 2 hiển thị ngưỡng; các khoảng trắng cuối chuỗi được dùng để ghi đè nội dung cũ trong 16 vị trí:
+    \begin{itemize}[leftmargin=0.6cm,itemsep=3pt,topsep=3pt]
+        \item Nếu \texttt{temp\_int >= 30}: hiện \texttt{HIGH Th: 30°C *!}; dùng \texttt{PORTD \&= 0xE0} kéo PD0--PD4 xuống mức thấp, bật 5 LED.
+        \item Nếu \texttt{temp\_int < 30}: hiện \texttt{HIGH Th: 30°C}, xóa dấu \texttt{*!}; dùng \texttt{PORTD |= 0x1F} tắt 5 LED.
+    \end{itemize}
+    \item \textbf{Xử lý lỗi.} Không dùng lại dữ liệu cũ để so sánh ngưỡng. Cả hai nhánh lỗi đều tắt 5 LED bằng \texttt{PORTD |= 0x1F}:
+    \begin{itemize}[leftmargin=0.6cm,itemsep=3pt,topsep=3pt]
+        \item \texttt{status == -6}: hiện \texttt{DHT11: Sum Error} và \texttt{Checksum Invalid} trên hai dòng LCD.
+        \item \texttt{status} từ -1 đến -5: hiện \texttt{DHT11: No Signal} và \texttt{Check Pin PA1}, tương ứng với timeout khi chờ tín hiệu.
+    \end{itemize}
+    Việc tắt LED khi lỗi tránh cảnh báo dựa trên dữ liệu cũ, nhưng cũng làm hệ thống không cảnh báo được nếu môi trường đang quá nhiệt; hạn chế này được nêu ở mục \ref{sec:conclusion-limits}.
+    \item \textbf{Lặp lại.} Thực hiện \texttt{\_delay\_ms(2000)}, rồi quay lại bước đọc cảm biến. Thời gian giữa hai lượt đọc còn bao gồm giao tiếp và cập nhật LCD, như phân tích ở mục \ref{sec:threshold}.
+\end{enumerate}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth,height=0.88\textheight,keepaspectratio]{diagrams/main-flowchart.pdf}
+\caption{Lưu đồ thuật toán đo nhiệt độ, cảnh báo và xử lý lỗi}
+\label{fig:main-flowchart}
+\end{figure}
+
+\subsection{Thuật toán giao tiếp và giải mã cảm biến DHT11}
+\label{sec:dht11-read}
+
+Hàm \texttt{DHT11\_Read(uint8\_t *temp\_int, uint8\_t *temp\_dec, uint8\_t *humi\_int)} được viết trực tiếp bằng thao tác thanh ghi để tạo và lấy mẫu xung theo các mốc thời gian của giao thức, kèm cơ chế timeout chống treo vi điều khiển.
+
+\subsubsection{Cơ chế chống treo bằng timeout}
+Nếu chân DATA bị hở mạch hoặc cảm biến hỏng, các vòng chờ sườn xung như \texttt{while(DHT\_PIN\_R \& (1 << DHT\_BIT))} sẽ lặp vô hạn và vi điều khiển bị treo. Vì vậy mỗi vòng chờ được gắn một biến đếm giảm dần \texttt{timeout = 10000}; khi biến đếm về 0 mà trạng thái chân chưa đổi, hàm thoát và trả về mã lỗi âm ứng với vòng chờ đó.
+
+Thời gian timeout được xác định từ mã máy do \texttt{avr-gcc} sinh ra với tùy chọn \texttt{-Os} (xem bằng \texttt{avr-objdump -d}). Mỗi lần lặp của bốn vòng chờ đầu gồm lệnh kiểm tra bit \texttt{sbic}/\texttt{sbis} (1 chu kỳ), \texttt{rjmp} (2), \texttt{sbiw} (2) và \texttt{brne} (2), tổng cộng 7 chu kỳ. Ở vòng chờ thứ năm, lệnh \texttt{sbis} nhảy qua \texttt{rjmp} (2 chu kỳ) nên mỗi lần lặp tốn 6 chu kỳ. Kết quả ở 8\,MHz được tổng hợp trong Bảng \ref{tab:timeout}.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Thời gian timeout của các vòng chờ trong \texttt{DHT11\_Read} ở 8 MHz}
+\label{tab:timeout}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{c X c c}
+\toprule
+\textbf{Mã lỗi} & \textbf{Vòng chờ} & \textbf{Chu kỳ/lần lặp} & \textbf{Timeout} \\
+\midrule
+$-1$ & DHT11 kéo đường DATA xuống mức thấp sau xung khởi động & 7 & 8,75\,ms \\
+$-2$ & DHT11 kéo đường DATA lên mức cao (tín hiệu phản hồi) & 7 & 8,75\,ms \\
+$-3$ & DHT11 kéo đường DATA xuống mức thấp trước bit đầu tiên & 7 & 8,75\,ms \\
+$-4$ & Kết thúc mức thấp 50\,$\mu$s ở đầu mỗi bit & 7 & 8,75\,ms \\
+$-5$ & Kết thúc mức cao của bit `1' & 6 & 7,5\,ms \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Khi rút dây DATA, điện trở kéo lên giữ PA1 ở mức cao, vòng chờ đầu tiên hết hạn và hàm trả về $-1$ sau khoảng 20\,ms (xung khởi động) + 8,75\,ms $\approx$ 29\,ms, không đáng kể so với chu kỳ 2 giây. Các giá trị trên tỷ lệ nghịch với tần số thực của dao động RC nội. Cũng từ mã máy, \texttt{\_delay\_us(38)} được biên dịch thành vòng trễ 304 chu kỳ, đúng 38\,$\mu$s ở 8\,MHz.
+
+\subsubsection{Giải mã bit dữ liệu}
+Bit `0' có mức cao kéo dài 26--28\,$\mu$s, bit `1' khoảng 70\,$\mu$s (mục \ref{sec:dht11-protocol}). Thời điểm lấy mẫu 38\,$\mu$s nằm giữa hai giá trị này: nếu PA1 còn ở mức cao thì bit là `1', nếu đã về mức thấp thì bit là `0'. Sau xung khởi động và tín hiệu phản hồi, vòng lặp lồng nhau quét 5 byte (40 bit); mỗi bit được giải mã theo các bước:
+\begin{enumerate}[leftmargin=1.2cm]
+    \item Đợi hết mức thấp 50\,$\mu$s ở đầu bit đang truyền.
+    \item Chờ 38\,$\mu$s (\texttt{\_delay\_us(38)}).
+    \item Đọc thanh ghi \texttt{PINA}: nếu PA1 đang ở mức cao thì bit nhận được là `1' và được ghi vào byte tương ứng:
+    \begin{samepage}
+\begin{verbatim}
+    data[i] |= (1 << j);
+    \end{verbatim}
 \par\end{samepage}
+    Sau đó chờ mức cao kết thúc rồi mới đọc bit tiếp theo.
+\end{enumerate}
 
-\subsection{Giới hạn của kết quả thực nghiệm}
-\label{sec:limitations}
-Báo cáo hiện chưa có các dữ liệu sau để đánh giá định lượng:
+\subsubsection{Kiểm tra checksum và mã trả về}
+Cuối hàm \texttt{DHT11\_Read}, tổng của 4 byte đầu được so sánh với byte thứ 5 (byte checksum):
+\begin{verbatim}
+if ((uint8_t)(data[0] + data[1] + data[2] + data[3]) != data[4]) {
+    return -6; // Lỗi sai Checksum
+}
+\end{verbatim}
+Nếu khớp, các con trỏ nhận giá trị tương ứng và hàm trả về 0. Như vậy hàm có ba nhóm mã trả về: 0 khi đọc thành công; $-1$ đến $-5$ khi hết thời gian ở một trong năm vòng chờ của Bảng \ref{tab:timeout}; $-6$ khi sai checksum. Cách \texttt{main()} xử lý từng nhóm mã được trình bày ở bước 4 của mục \ref{sec:main-algo}.
+
+\subsection{Xây dựng thư viện điều khiển màn hình LCD 1602}
+
+Thư viện \texttt{hunget\_lcd.h} điều khiển LCD ở chế độ 4 bit, được cấu hình theo cách nối chân của kit và kiểm tra trên phần cứng. Các mục dưới đây trình bày cách truyền dữ liệu, tạo xung Enable và giữ nguyên các bit không dùng cho LCD.
+
+\subsubsection{Hàm tạo xung chốt dữ liệu (\texttt{LCD\_Enable})}
+Theo datasheet HD44780, dữ liệu trên bus 4 bit được LCD chốt tại sườn xuống của chân Enable (PD7). Ở 8\,MHz, mỗi chu kỳ clock chỉ dài 0,125\,$\mu$s, nên hàm tạo xung phải chèn trễ để bảo đảm độ rộng xung Enable và thời gian LCD xử lý lệnh:
+\begin{verbatim}
+static inline void LCD_Enable(void) {
+    LCD_CTRL_PORT |= (1 << LCD_EN);
+    _delay_us(5);
+    LCD_CTRL_PORT &= ~(1 << LCD_EN);
+    _delay_us(100);
+}
+\end{verbatim}
+
+\subsubsection{Hàm truyền 4 bit dữ liệu (\texttt{LCD\_Send4Bit})}
+LCD chỉ dùng 4 chân cao của PORT C (PC4--PC7), nên khi ghi dữ liệu không được làm thay đổi 4 chân thấp (PC0--PC3). Chương trình dùng phép AND/OR với mặt nạ bit:
+\begin{verbatim}
+static inline void LCD_Send4Bit(unsigned char Data) {
+    unsigned char current_port_c = LCD_DATA_PORT & 0x0F;
+    LCD_DATA_PORT = current_port_c | (Data & 0xF0);
+    LCD_Enable();
+}
+\end{verbatim}
+
+\subsubsection{Trình tự khởi tạo chế độ 4-bit (\texttt{LCD4\_INIT})}
+Khi mới cấp điện, HD44780 có thể chưa ở chế độ giao tiếp mong muốn. Sau khi chờ 50\,ms cho LCD ổn định, chương trình gửi mã \texttt{0x30} ba lần (cách nhau 5\,ms, 2\,ms và 2\,ms) để đưa HD44780 về trạng thái xác định, sau đó chuyển sang chế độ 4 bit (\texttt{0x20}) và cấu hình 2 dòng, ma trận $5 \times 8$ (\texttt{0x28}).
+
+\subsection{Thuật toán so sánh ngưỡng cảnh báo và điều khiển LED}
+\label{sec:threshold}
+
+Ngưỡng cảnh báo được cố định ở 30\,$^\circ$C (\texttt{HIGH Th: 30°C}). Đây là mốc kiểm thử để quan sát sự chuyển trạng thái của mô hình trong điều kiện phòng và gia nhiệt nhẹ, không phải ngưỡng an toàn được suy ra từ yêu cầu của một ứng dụng cụ thể. Với dữ liệu nhiệt độ không âm theo định dạng đang dùng, phép so sánh \texttt{temp\_int >= 30} cũng kích hoạt cảnh báo tại đúng 30\,$^\circ$C.
+
+Hệ thống chưa có vùng trễ (hysteresis): cùng một ngưỡng được dùng để bật và tắt cảnh báo. Nếu số đo dao động quanh 30\,$^\circ$C, LED có thể đổi trạng thái qua các lần đọc. Đây là hạn chế cần khảo sát ở các điểm sát ngưỡng.
+
+Khi điều khiển LED trên PORT D cần lưu ý rằng PD5, PD6, PD7 đang dùng cho các tín hiệu RW, RS, EN của LCD. Nếu ghi trực tiếp một giá trị vào cả thanh ghi \texttt{PORTD}, các tín hiệu này sẽ bị ghi đè và LCD có thể nhận sai lệnh hoặc dữ liệu. Vì vậy chương trình dùng mặt nạ bit:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Các cặp số đo đồng thời giữa hệ thống và nhiệt kế tham chiếu tại nhiều mức nhiệt, nên chưa xác định được sai lệch trung bình hoặc sai lệch lớn nhất.
-    \item Nhật ký chạy liên tục gồm tổng số lần đọc, số lần hợp lệ, số lỗi timeout và checksum, nên chưa tính được tỷ lệ đọc thành công hoặc độ ổn định dài hạn.
-    \item Thời gian từ khi số đo chạm ngưỡng đến khi LED đổi trạng thái; trễ 2 giây trong mã nguồn không thể thay thế phép đo độ trễ toàn hệ thống.
-    \item Thử lặp lại tại dưới ngưỡng, đúng ngưỡng và trên ngưỡng, cũng như thao tác rút rồi nối lại cảm biến khi hệ thống đang cảnh báo.
+    \item Khi \texttt{temp\_int >= 30}: \texttt{PORTD \&= 0xE0} (mặt nạ \texttt{1110 0000}) đưa PD0--PD4 về 0 để bật LED, giữ nguyên PD5--PD7.
+    \item Khi \texttt{temp\_int < 30}: \texttt{PORTD |= 0x1F} (mặt nạ \texttt{0001 1111}) đưa PD0--PD4 lên 1 để tắt LED, giữ nguyên PD5--PD7.
 \end{itemize}
-Kết quả hiện có hỗ trợ đánh giá chức năng cơ bản, chưa xác nhận độ chính xác đo hoặc độ tin cậy dài hạn.
+
+Nhờ mặt nạ bit, khối LED và khối LCD cập nhật các nhóm chân riêng trên cùng PORT D. Chuỗi cảnh báo \texttt{HIGH Th: 30°C *!} trên dòng 2 dài đúng 16 ký tự, vừa một dòng của LCD 1602. Sau mỗi vòng lặp, chương trình thực hiện \texttt{\_delay\_ms(2000)}. Chu kỳ giữa hai lần bắt đầu đọc liên tiếp còn bao gồm thời gian giao tiếp DHT11 và cập nhật LCD:
+\begin{equation}
+T_{\text{chu kỳ}} \approx 2{,}0\,\text{s} + T_{\text{đọc}} + T_{\text{LCD}} + T_{\text{xử lý}}.
+\end{equation}
+Do đó chu kỳ thực tế lớn hơn 2 giây ở tần số danh định, không phải bộ định thời lấy mẫu chính xác 2 giây. Các khoảng trễ phụ thuộc tần số RC nội thực tế và cấu hình \texttt{F\_CPU} \cite{avrgcc-manual}.
+
+\section{Quy trình biên dịch và nạp firmware}
+
+\subsection{Quy trình tự động hóa với Makefile}
+\label{sec:makefile}
+
+Mã nguồn được biên dịch tự động bằng GNU Make và trình biên dịch \texttt{avr-gcc} \cite{avrgcc-manual}. Tệp \texttt{Makefile} gồm các quy tắc:
+\begin{itemize}[leftmargin=1.2cm]
+    \item Cờ biên dịch: \texttt{-Wall -Os -mmcu=atmega16} \texttt{-DF\_CPU=8000000UL} (tối ưu mã máy \texttt{-Os}, tần số 8\,MHz).
+    \item Quy tắc tạo \texttt{tempsen.elf} từ tệp nguồn \texttt{tempsen.c} và tệp tiêu đề \texttt{hunget\_lcd.h}.
+    \item Quy tắc tạo \texttt{tempsen.hex}: lệnh \texttt{avr-objcopy -O ihex -R .eeprom} chuyển \texttt{tempsen.elf} thành tệp Intel HEX để nạp vào bộ nhớ Flash.
+    \item Lệnh \texttt{avr-size tempsen.elf} báo dung lượng bộ nhớ mà chương trình sử dụng; kết quả ở Bảng \ref{tab:memory}.
+\end{itemize}
+
+Makefile khai báo \texttt{LFUSE = 0xE4} và \texttt{HFUSE = 0xD9}; lệnh \texttt{make fuse} ghi các giá trị này qua avrdude, chọn dao động RC nội 8\,MHz và tắt JTAG ở mức fuse (mục \ref{sec:jtag}). Lần nạp ghi nhận trong báo cáo được thực hiện bằng ProgISP với fuse \texttt{0x99E4} (mục \ref{sec:progisp}). Việc biên dịch với \texttt{F\_CPU} không tự thay đổi fuse phần cứng.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Dung lượng bộ nhớ của chương trình (\texttt{avr-size}, avr-gcc 16.1.0, \texttt{-Os})}
+\label{tab:memory}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{>{\bfseries}l X r r r}
+\toprule
+Vùng nhớ & Thành phần & Sử dụng & Dung lượng chip & Tỷ lệ \\
+\midrule
+Flash & \texttt{.text} (2674 B) + \texttt{.data} (156 B) & 2830 B & 16384 B & 17,3\,\% \\
+SRAM & \texttt{.data} (156 B) + \texttt{.bss} (0 B), chưa tính ngăn xếp & 156 B & 1024 B & 15,2\,\% \\
+EEPROM & Không sử dụng & 0 B & 512 B & 0\,\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Toàn bộ 156 B của vùng \texttt{.data} là các chuỗi hằng hiển thị trên LCD (cùng chuỗi định dạng \texttt{"\%05u"} của thư viện LCD); chúng được chép từ Flash sang SRAM khi khởi động. Biến cục bộ như \texttt{buffer[32]} trong \texttt{main()} và vùng nhớ tạm của \texttt{sprintf} nằm trên ngăn xếp nên không có trong số liệu này. Chương trình còn nhiều dư địa bộ nhớ cho các hướng mở rộng ở mục \ref{sec:future}.
+
+\subsection{Quy trình nạp chương trình bằng phần mềm ProgISP}
+\label{sec:progisp}
+
+Các bước nạp chương trình vào ATmega16 được trình bày dưới đây; giao diện tham khảo ở Hình \ref{fig:progisp-setup}.
+
+\begin{enumerate}[leftmargin=1.2cm]
+    \item Kết nối USBasp giữa máy tính và cổng ISP trên kit.
+    \item Mở ProgISP 1.72.
+    \item Tại \textit{Select Chip}, chọn \texttt{ATMEGA16}.
+    \item Nhấn RD (Read) để kiểm tra kết nối; mã nhận diện dự kiến là \texttt{1E : 94 : 03}.
+    \item Bật tùy chọn \textit{Program Fuse} và nhập giá trị fuse. Ở lần nạp trong Hình \ref{fig:progisp-setup}, giá trị là \texttt{0x99E4} (High Fuse \texttt{0x99}, Low Fuse \texttt{0xE4}): Low Fuse chọn dao động RC nội 8\,MHz, High Fuse giữ giá trị xuất xưởng nên JTAG được tắt bằng phần mềm (mục \ref{sec:jtag}). Để tắt JTAG cả ở mức fuse, nhập \texttt{0xD9E4}.
+    \item Nhấn \textit{Load Flash}, chọn tệp \texttt{src/tempsen.hex}.
+    \item Nhấn \textit{Auto} để xóa chip, ghi và kiểm tra Flash, ghi fuse. Khi báo \textit{Successfully done}, vi điều khiển khởi động lại và chạy chương trình.
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\textwidth,keepaspectratio]{progisp_setup.png}
+\caption{Giao diện ProgISP khi nạp firmware cho mô hình (fuse \texttt{0x99E4})}
+\label{fig:progisp-setup}
+\end{figure}
+
+\endgroup

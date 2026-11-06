@@ -3,16 +3,17 @@
 
 Đề tài ``Thiết kế hệ thống đo nhiệt độ và cảnh báo ngưỡng sử dụng ATmega16'' thuộc học phần Đồ án Thiết kế II. Hệ thống đọc cảm biến DHT11, hiển thị dữ liệu lên LCD 1602 và bật 5 LED khi giá trị nhiệt độ nhận được đạt hoặc vượt ngưỡng cài đặt.
 
-Nhóm vẽ lại sơ đồ nguyên lý từ tài liệu giảng viên cung cấp và thiết kế PCB trên cơ sở sơ đồ đó. Phần mềm gồm giao tiếp DHT11, cấu hình xung nhịp, vô hiệu hóa JTAG và điều khiển LCD, LED trên các cổng dùng chung. Thư viện \texttt{hunget\_lcd.h} được xây dựng với hỗ trợ của công cụ sinh mã.
+Nhóm vẽ lại sơ đồ nguyên lý từ tài liệu giảng viên cung cấp và thiết kế PCB trên cơ sở sơ đồ đó. Phần mềm gồm giao tiếp DHT11, cấu hình xung nhịp, vô hiệu hóa JTAG và điều khiển LCD, LED trên các cổng dùng chung.
 
-Ngưỡng $30^\circ\text{C}$ được chọn làm mốc kiểm thử chức năng của mô hình; kết quả thực nghiệm tập trung vào hiển thị, cảnh báo ngưỡng và xử lý mất tín hiệu cảm biến.
+Ngưỡng 30\,$^\circ$C được chọn làm mốc kiểm thử chức năng của mô hình; kết quả thực nghiệm tập trung vào hiển thị, cảnh báo ngưỡng và xử lý mất tín hiệu cảm biến.
 
-Báo cáo đồ án được kết cấu thành 4 chương chính như sau:
+Báo cáo gồm 5 chương:
 \begin{itemize}[leftmargin=1.5cm]
-    \item \textbf{Chương 1}: Giới thiệu ATmega16, kit AVR, cảm biến DHT11, LCD 1602 và khối LED.
-    \item \textbf{Chương 2}: Trình bày yêu cầu thiết kế, lựa chọn linh kiện, sơ đồ, thiết kế PCB, kết nối phần cứng, lưu đồ và các thuật toán điều khiển, quy trình biên dịch và nạp firmware.
-    \item \textbf{Chương 3}: Tổng hợp kết quả chức năng và giới hạn kiểm chứng thực nghiệm.
-    \item \textbf{Chương 4}: Nêu kết luận, hạn chế và hướng phát triển.
+    \item \textbf{Chương 1}: Tổng quan đề tài: đặt vấn đề, mục tiêu, phạm vi, yêu cầu thiết kế và lựa chọn linh kiện.
+    \item \textbf{Chương 2}: Cơ sở lý thuyết về ATmega16, kit AVR, cảm biến DHT11, LCD 1602 và khối LED.
+    \item \textbf{Chương 3}: Thiết kế sơ đồ khối, sơ đồ nguyên lý, PCB và kết nối phần cứng; lưu đồ và các thuật toán điều khiển; quy trình biên dịch và nạp firmware.
+    \item \textbf{Chương 4}: Kết quả thực nghiệm và giới hạn kiểm chứng.
+    \item \textbf{Chương 5}: Kết luận, hạn chế và hướng phát triển.
 \end{itemize}
 
 Chúng em trân trọng cảm ơn thầy \UniversitySupervisor\ đã hướng dẫn thực hiện đồ án, cùng các thầy cô Trường Điện -- Điện tử đã giảng dạy những kiến thức nền tảng. Nhóm mong nhận được góp ý để tiếp tục hoàn thiện mô hình và báo cáo.

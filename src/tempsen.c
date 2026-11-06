@@ -2,7 +2,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdio.h>
-#include "hunget_lcd.h" // Thư viện LCD chuẩn Kit BK
+#include "hunget_lcd.h" // Thư viện điều khiển LCD 16x2 chế độ 4 bit
 
 // =======================================================
 // CẤU HÌNH CHÂN DHT11 NỐI VÀO CHÂN PA1 TRÊN PORT A

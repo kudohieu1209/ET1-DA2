@@ -2,37 +2,37 @@
 
 \section{Kết luận}
 
-Đề tài đã triển khai mô hình đo nhiệt độ và cảnh báo ngưỡng trên nền tảng ATmega16, DHT11 và LCD 1602. Các kết quả chính gồm:
+Đề tài đã xây dựng mô hình đo nhiệt độ và cảnh báo ngưỡng dùng ATmega16, DHT11 và LCD 1602. Các kết quả chính gồm:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Vẽ lại sơ đồ nguyên lý từ tài liệu giảng viên cung cấp và thiết kế PCB trên Altium Designer; xác định kết nối cảm biến ngoài kit và các nhóm chân dùng cho LCD, LED.
-    \item Triển khai chương trình C đọc gói dữ liệu 40-bit từ DHT11, kiểm tra checksum, giới hạn mỗi vòng chờ bằng timeout 7,5--8,75\,ms và phân loại thông báo lỗi. Chương trình chiếm 2830 B (17,3\,\%) bộ nhớ Flash.
-    \item Cấu hình thư viện LCD giao tiếp 4-bit và mặt nạ bit để cập nhật LCD, LED trên các nhóm chân dùng chung cổng D.
-    \item Thống nhất cấu hình RC nội 8 MHz, fuse \texttt{0xD9E4}, giá trị \texttt{F\_CPU} và thao tác vô hiệu hóa JTAG nhằm sử dụng PC4, PC5 cho LCD.
-    \item Ghi nhận các trạng thái hiển thị nhiệt độ, cảnh báo ngưỡng và báo mất tín hiệu cảm biến như Chương 3. Nhánh lỗi checksum hiện được đối chiếu bằng phân tích mã nguồn.
+    \item Vẽ lại sơ đồ nguyên lý từ tài liệu giảng viên cung cấp và thiết kế PCB trên Altium Designer; xác định cách nối cảm biến ngoài kit và các nhóm chân dùng cho LCD, LED.
+    \item Viết chương trình C đọc gói dữ liệu 40 bit từ DHT11, kiểm tra checksum, giới hạn mỗi vòng chờ bằng timeout 7,5--8,75\,ms và hiển thị thông báo lỗi theo từng loại. Chương trình chiếm 2830\,B (17,3\,\%) bộ nhớ Flash.
+    \item Cấu hình thư viện LCD giao tiếp 4 bit và dùng mặt nạ bit để LCD và LED dùng chung PORT D mà không ảnh hưởng nhau.
+    \item Cấu hình dao động RC nội 8\,MHz bằng fuse (Low Fuse \texttt{0xE4}), thống nhất với giá trị \texttt{F\_CPU}; tắt JTAG bằng lệnh ghi \texttt{JTD} để dùng PC4, PC5 cho LCD.
+    \item Ghi nhận trên phần cứng các trạng thái hiển thị nhiệt độ, cảnh báo vượt ngưỡng và báo mất tín hiệu cảm biến (Chương \ref{chap:results}). Nhánh lỗi checksum hiện mới được kiểm tra bằng phân tích mã nguồn.
 \end{itemize}
-Mô hình đã thực hiện đúng các chức năng đề ra trong phạm vi thử nghiệm đã trình bày; các hạn chế còn lại được tổng hợp ở mục \ref{sec:conclusion-limits}.
+Mô hình thực hiện đúng các chức năng đề ra trong phạm vi thử nghiệm đã trình bày; các hạn chế còn lại được tổng hợp ở mục \ref{sec:conclusion-limits}.
 
 \section{Hạn chế của đề tài}
 \label{sec:conclusion-limits}
 
 Các hạn chế hiện tại của mô hình gồm:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Cảm biến DHT11 có dải đo nhiệt độ hẹp ($0^\circ\text{C} - 50^\circ\text{C}$) và sai số tương đối lớn ($\pm 2.0^\circ\text{C}$), chu kỳ lấy mẫu tương đối chậm (chương trình chèn trễ 2 giây sau mỗi vòng lặp) nên chưa phù hợp cho các môi trường đòi hỏi đáp ứng thời gian thực cực nhanh.
-    \item Chưa có phép đo đối chiếu với nhiệt kế tham chiếu, nhật ký chạy dài hạn và phép đo độ trễ cảnh báo, nên độ chính xác và độ ổn định của hệ thống mới được đánh giá ở mức chức năng (mục \ref{sec:limitations}).
-    \item Chưa có hysteresis, nên cảnh báo có thể đổi trạng thái nhiều lần khi số đo dao động quanh ngưỡng.
-    \item Ngưỡng cảnh báo nhiệt độ ($30^\circ\text{C}$) hiện đang được cố định cứng trong mã nguồn, người sử dụng chưa thể linh hoạt thay đổi ngưỡng trực tiếp từ bên ngoài bằng phím bấm mà phải biên dịch lại chương trình.
-    \item Cơ chế xử lý khi mất cảm biến hiện đưa toàn bộ LED về trạng thái tắt để tránh báo động giả từ dữ liệu cũ lỗi thời, nhưng có nhược điểm là không tiếp tục cảnh báo bằng đèn nếu môi trường thực tế vẫn đang quá nhiệt.
-    \item Hệ thống chưa có bộ nhớ lưu trữ lịch sử biến thiên nhiệt độ theo thời gian và chưa có khả năng truyền thông dữ liệu từ xa lên mạng máy tính.
+    \item DHT11 có dải đo hẹp (0--50\,$^\circ$C), sai số $\pm$2\,$^\circ$C và chu kỳ đọc khoảng 2 giây, nên không phù hợp với ứng dụng cần độ chính xác cao hoặc đáp ứng nhanh.
+    \item Chưa có phép đo đối chiếu với nhiệt kế tham chiếu, nhật ký chạy dài hạn và phép đo độ trễ cảnh báo, nên độ chính xác và độ ổn định mới được đánh giá ở mức chức năng (mục \ref{sec:limitations}).
+    \item Chưa có vùng trễ (hysteresis), nên cảnh báo có thể bật/tắt liên tục khi số đo dao động quanh ngưỡng.
+    \item Ngưỡng 30\,$^\circ$C được cố định trong mã nguồn; muốn đổi ngưỡng phải biên dịch và nạp lại chương trình.
+    \item Khi mất cảm biến, chương trình tắt toàn bộ LED để tránh cảnh báo dựa trên dữ liệu cũ; nhược điểm là hệ thống không còn cảnh báo nếu môi trường vẫn đang quá nhiệt.
+    \item Hệ thống chưa lưu lịch sử nhiệt độ và chưa truyền dữ liệu từ xa.
 \end{itemize}
 
-\section{Hướng phát triển mở rộng}
+\section{Hướng phát triển}
 \label{sec:future}
 
-Từ mô hình phần cứng và phần mềm hiện có, hệ thống có thể tiếp tục được nghiên cứu và nâng cấp theo các hướng ứng dụng thực tế:
+Từ mô hình hiện có, hệ thống có thể phát triển theo các hướng sau:
 \begin{enumerate}[leftmargin=1.2cm]
-    \item Hoàn thiện kiểm chứng: thu log dữ liệu thô, đối chiếu nhiệt kế tham chiếu, thống kê lỗi khi chạy liên tục và đo độ trễ. Bổ sung hysteresis với ngưỡng bật/tắt riêng theo yêu cầu ứng dụng và độ biến động của số đo.
-    \item Nâng cấp cảm biến: Thay thế cảm biến DHT11 bằng các dòng cảm biến kỹ thuật số có độ chính xác cao hơn phù hợp với yêu cầu ứng dụng; các phương án có thể khảo sát gồm DHT22, cảm biến I2C như Sensirion SHT30/SHT35 hoặc Bosch BME280 (đo đồng thời nhiệt độ, độ ẩm và áp suất khí quyển).
-    \item Bổ sung giao diện người dùng tương tác linh hoạt: Tích hợp bàn phím ma trận $4 \times 4$ hoặc cụm nút bấm tăng/giảm/cài đặt kết hợp còi báo, cho phép người dùng tự do cài đặt ngưỡng nhiệt độ cảnh báo và lưu trữ giá trị cấu hình này vào bộ nhớ không biến động EEPROM của ATmega16.
-    \item Bổ sung chế độ cảnh báo lỗi cảm biến chuyên biệt: Lập trình cơ chế nhấp nháy toàn bộ dàn LED (tần số 2 Hz) hoặc còi buzzer ngắt quãng khi mất kết nối cảm biến để người vận hành phân biệt rõ ràng giữa trạng thái "Bình thường" (LED tắt), "Cảnh báo quá nhiệt" (LED sáng liên tục) và "Lỗi cảm biến" (LED nhấp nháy).
-    \item Tích hợp kết nối không dây và phát triển ứng dụng IoT: Kết nối cổng giao tiếp nối tiếp USART của ATmega16 với các mô-đun truyền thông không dây như Wi-Fi ESP8266/ESP32, Bluetooth HC-05 hoặc chuẩn truyền xa LoRa để gửi dữ liệu nhiệt độ lên máy chủ đám mây qua giao thức MQTT/HTTP. Qua đó, người quản lý có thể giám sát biểu đồ nhiệt độ môi trường và nhận thông báo cảnh báo khẩn cấp trực tiếp trên ứng dụng điện thoại thông minh (Blynk, ThingsBoard) qua kết nối mạng. Khi dùng USART phần cứng, cần bố trí lại LED trên PD0/RXD và PD1/TXD để tránh xung đột chức năng, đồng thời kiểm tra mức điện áp giao tiếp của module.
+    \item Hoàn thiện kiểm chứng: ghi dữ liệu đo, đối chiếu với nhiệt kế tham chiếu, thống kê lỗi khi chạy liên tục và đo độ trễ cảnh báo. Bổ sung hysteresis với ngưỡng bật và tắt riêng, chọn theo yêu cầu ứng dụng và độ dao động của số đo.
+    \item Nâng cấp cảm biến: thay DHT11 bằng cảm biến số chính xác hơn tùy yêu cầu ứng dụng, ví dụ DHT22 hoặc các cảm biến I2C như Sensirion SHT30/SHT35, Bosch BME280 (đo thêm áp suất khí quyển).
+    \item Cài đặt ngưỡng: dùng các nút bấm trên PORT B của kit hoặc bàn phím ma trận $4 \times 4$ để chỉnh ngưỡng, lưu giá trị vào EEPROM của ATmega16 để giữ lại khi mất điện; bổ sung còi báo.
+    \item Phân biệt lỗi cảm biến: cho LED nhấp nháy (ví dụ 2\,Hz) hoặc còi kêu ngắt quãng khi mất cảm biến, để người vận hành phân biệt ba trạng thái: bình thường (LED tắt), quá nhiệt (LED sáng liên tục) và lỗi cảm biến (LED nhấp nháy).
+    \item Giám sát từ xa: dùng USART của ATmega16 giao tiếp với module Wi-Fi (ESP8266/ESP32), Bluetooth (HC-05) hoặc LoRa để gửi dữ liệu lên máy chủ qua MQTT/HTTP, cho phép theo dõi và nhận cảnh báo trên điện thoại. Khi dùng USART phần cứng cần chuyển LED khỏi PD0/RXD và PD1/TXD, đồng thời kiểm tra mức điện áp giao tiếp của module (ESP8266/ESP32 dùng mức 3,3\,V).
 \end{enumerate}

@@ -1,0 +1,112 @@
+\chapter{KẾT QUẢ THỰC NGHIỆM}
+\label{chap:results}
+
+\section{Kết quả thực nghiệm trên phần cứng}
+\label{sec:hw-results}
+
+Hệ thống được lắp ráp, nạp chương trình và kiểm thử trên kit AVR tại phòng thí nghiệm Trường Điện -- Điện tử, Đại học Bách khoa Hà Nội. Các trạng thái ghi nhận trong quá trình thử nghiệm được trình bày dưới đây; phạm vi và giới hạn của phép kiểm chứng ở mục \ref{sec:limitations}.
+
+\subsection{Giai đoạn khởi động}
+Khi cấp nguồn 5\,V từ cổng USB, vi điều khiển khởi động, tắt JTAG, khởi tạo LCD và các chân LED. LCD sau đó hiển thị màn hình chào:
+\LCDbox{DA2: DO NHIET DO}{DHT11 SENSOR}
+Màn hình chào được giữ khoảng 1,5 giây theo trễ phần mềm. Trong giai đoạn này, 5 LED cảnh báo tắt do PD0--PD4 được đặt mức 1 khi khởi tạo (\texttt{PORTD |= 0x1F}). Sau đó chương trình gửi lệnh xóa màn hình (\texttt{0x01}) trước khi bắt đầu vòng lặp đo.
+
+\subsection{\texorpdfstring{Trạng thái bình thường ($T < 30\,^\circ\text{C}$)}{Trạng thái bình thường (T < 30 °C)}}
+Ở trạng thái không cảnh báo, LCD hiển thị nhiệt độ 26,5\,$^\circ$C, nhỏ hơn ngưỡng 30\,$^\circ$C:
+\begin{itemize}[leftmargin=1.2cm]
+    \item DHT11 gửi gói tin 40 bit về vi điều khiển; checksum khớp nên dữ liệu được chấp nhận.
+    \item \begin{samepage}LCD 1602 hiển thị:
+    \LCDbox{Temp: 26.5 \textdegree C}{HIGH Th: 30\textdegree C}
+    \end{samepage}
+    \item Vì nhiệt độ dưới ngưỡng, dòng 2 chỉ hiển thị ngưỡng, không có ký hiệu cảnh báo.
+    \item 5 LED cảnh báo trên PD0--PD4 giữ mức 1 nên tắt.
+\end{itemize}
+
+\subsection{\texorpdfstring{Trạng thái cảnh báo quá nhiệt ($T \ge 30\,^\circ\text{C}$)}{Trạng thái cảnh báo quá nhiệt (T ≥ 30 °C)}}
+Để tạo trạng thái quá nhiệt, nhóm đưa một nguồn hơi ấm nhẹ lại gần bề mặt DHT11. Khi nhiệt độ nhận được đạt hoặc vượt 30\,$^\circ$C:
+\begin{itemize}[leftmargin=1.2cm]
+    \item Vi điều khiển phát hiện điều kiện \texttt{temp\_int >= 30} ở lần đọc hợp lệ tiếp theo (mỗi vòng lặp gồm trễ 2 giây cộng thời gian đọc và hiển thị).
+    \item LCD hiển thị:
+    \LCDbox{Temp: 31.5 \textdegree C}{HIGH Th: 30\textdegree C *!}
+    Ký hiệu \texttt{*!} xuất hiện ở cuối dòng 2.
+    \item Đồng thời, lệnh \texttt{PORTD \&= 0xE0} kéo PD0--PD4 xuống mức 0, 5 LED cảnh báo sáng.
+    \item Khi bỏ nguồn nhiệt và nhiệt độ giảm xuống dưới 30\,$^\circ$C, ký hiệu \texttt{*!} biến mất và 5 LED tắt mà không cần reset.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.46\textwidth}
+        \centering
+        \includegraphics[height=7.5cm,keepaspectratio]{actual_system.jpg}
+        \caption{Cảnh báo quá nhiệt (31,5\,$^\circ$C)}
+        \label{fig:actual-overheat}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.46\textwidth}
+        \centering
+        \includegraphics[height=7.5cm,keepaspectratio]{sensor_disconnect.jpg}
+        \caption{Mất tín hiệu cảm biến}
+        \label{fig:actual-disconnect}
+    \end{subfigure}
+    \caption{Hình ảnh thực tế hệ thống trong các kịch bản thử nghiệm}
+    \label{fig:actual-system}
+    \vspace{0.1cm}
+    {\small\textit{Ghi chú:} Dãy LED trên kit gồm 8 LED nối PD0--PD7 (từ D3 ở dưới lên D10 ở trên). Ba LED trên cùng (PD5--PD7) dùng chung đường RW, RS, EN của LCD nên sáng theo mức logic của các tín hiệu này, không thuộc khối cảnh báo. Ở (a), 5 LED cảnh báo PD0--PD4 sáng; ở (b), 5 LED này tắt.\par}
+\end{figure}
+
+\subsection{Kiểm tra xử lý lỗi cảm biến}
+Nhóm kiểm tra hai tình huống lỗi:
+\begin{itemize}[leftmargin=1.2cm, topsep=0pt, itemsep=0.5pt, parsep=0pt]
+    \item Mất tín hiệu cảm biến (thử trên phần cứng): nhóm rút dây DATA nối với PA1. Vòng chờ đầu tiên của \texttt{DHT11\_Read} hết hạn và hàm trả về $-1$ sau khoảng 29\,ms (Bảng \ref{tab:timeout}); vi điều khiển không bị treo. LCD hiển thị thông báo lỗi (Hình \ref{fig:actual-disconnect}):
+    \LCDbox{DHT11: No Signal}{Check Pin PA1}
+    \item Sai checksum (phân tích mã nguồn): nhóm chưa tạo được nhiễu trên đường truyền để gây lỗi checksum, nên nhánh \texttt{status == -6} mới được kiểm tra bằng cách đọc mã nguồn. Theo mã nguồn, LCD sẽ hiển thị:
+    \LCDbox{DHT11: Sum Error}{Checksum Invalid}
+    \item Trong cả hai trường hợp, 5 LED cảnh báo được tắt (\texttt{PORTD |= 0x1F}) như phân tích ở mục \ref{sec:main-algo}.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\caption{Tổng hợp các kịch bản kiểm tra và kết quả}
+\label{tab:system-results}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.6cm} >{\centering\arraybackslash}p{1.5cm} >{\raggedright\arraybackslash}X >{\centering\arraybackslash}p{1.8cm}}
+\toprule
+\textbf{Kịch bản kiểm tra} & \textbf{Phương pháp xác minh} & \textbf{Giá trị đo} & \textbf{Nội dung hiển thị trên LCD 1602} & \textbf{Trạng thái LED} \\
+\midrule
+Khởi động hệ thống & Thực nghiệm trên kit & -- & Dòng 1: \mbox{\texttt{DA2: DO NHIET DO}}\newline Dòng 2: \mbox{\texttt{DHT11 SENSOR}} & Tắt toàn bộ \\
+\midrule
+Nhiệt độ bình thường & Thực nghiệm trên kit & 26,5\,$^\circ$C & Dòng 1: \mbox{\texttt{Temp: 26.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C}} & Tắt toàn bộ \\
+\midrule
+Nhiệt độ vượt ngưỡng & Thực nghiệm trên kit & 31,5\,$^\circ$C & Dòng 1: \mbox{\texttt{Temp: 31.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C *!}} & Sáng cả 5 LED \\
+\midrule
+Mất tín hiệu cảm biến & Thực nghiệm trên kit (rút dây PA1) & -- & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Tắt toàn bộ \\
+\midrule
+Sai checksum & Phân tích mã nguồn & -- & Dòng 1: \mbox{\texttt{DHT11: Sum Error}}\newline Dòng 2: \mbox{\texttt{Checksum Invalid}} & Tắt toàn bộ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Đánh giá kết quả và phạm vi kiểm chứng}
+
+\subsection{Kết quả chức năng đã ghi nhận}
+\label{sec:eval-results}
+Các kết quả ở mục \ref{sec:hw-results} cho thấy chương trình hiển thị được nhiệt độ, báo vượt ngưỡng bằng LCD và LED, và hiển thị thông báo khi mất tín hiệu cảm biến. Bảng \ref{tab:system-results} phân biệt các kịch bản thử trên phần cứng với nhánh checksum mới được kiểm tra qua mã nguồn. Điều kiện \texttt{temp\_int >= 30} bao gồm cả trường hợp đúng ngưỡng, nhưng báo cáo chưa có kết quả thử riêng tại 30\,$^\circ$C.
+
+Hình \ref{fig:actual-system}a ghi nhận LCD hiển thị 31,5\,$^\circ$C cùng ký hiệu \texttt{*!} và 5 LED cảnh báo sáng. Vì chương trình in trực tiếp $T_{int}$ và $T_{dec}$ nhận từ cảm biến, phần thập phân \texttt{.5} trên LCD chính là giá trị Byte 3 của gói tin. Như vậy module đang dùng trả về byte thập phân khác 0, khác với độ phân giải 1\,$^\circ$C ghi trong tài liệu tham chiếu \cite{dht11-datasheet}. Các giá trị này phản ánh dữ liệu cảm biến gửi về; độ chính xác so với nhiệt độ thực của môi trường cần được đối chiếu thêm với nhiệt kế tham chiếu.
+
+\begin{samepage}
+Checksum chỉ xác nhận gói tin được truyền đúng, không xác nhận độ chính xác của phép đo. Ngoài ra, khi có lỗi chương trình tắt 5 LED, nên LED tắt không đủ để kết luận môi trường đang dưới ngưỡng.
+\par\end{samepage}
+
+\subsection{Giới hạn của kết quả thực nghiệm}
+\label{sec:limitations}
+Báo cáo hiện chưa có các dữ liệu sau để đánh giá định lượng:
+\begin{itemize}[leftmargin=1.2cm]
+    \item Các cặp số đo đồng thời giữa hệ thống và nhiệt kế tham chiếu tại nhiều mức nhiệt, nên chưa xác định được sai lệch trung bình hoặc sai lệch lớn nhất.
+    \item Nhật ký chạy liên tục gồm tổng số lần đọc, số lần hợp lệ, số lỗi timeout và checksum, nên chưa tính được tỷ lệ đọc thành công hoặc độ ổn định dài hạn.
+    \item Thời gian từ khi số đo chạm ngưỡng đến khi LED đổi trạng thái; trễ 2 giây trong mã nguồn không thay thế được phép đo độ trễ toàn hệ thống.
+    \item Thử lặp lại ở dưới ngưỡng, đúng ngưỡng và trên ngưỡng, cũng như rút rồi nối lại cảm biến khi hệ thống đang cảnh báo.
+\end{itemize}
+Kết quả hiện có xác nhận các chức năng cơ bản, nhưng chưa xác nhận độ chính xác đo hoặc độ tin cậy dài hạn.
