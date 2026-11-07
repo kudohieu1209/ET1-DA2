@@ -52,10 +52,7 @@ Trong đề tài, PA1 nối với chân dữ liệu của DHT11, PC4--PC7 và PD
 \subsubsection{Cấu hình nguồn xung nhịp 8\,MHz bằng fuse}
 ATmega16 có sẵn mạch dao động RC nội đã hiệu chuẩn, tạo được các tần số 1, 2, 4 và 8\,MHz mà không cần thạch anh hay tụ ngoài.
 
-Sơ đồ kit có bố trí thạch anh ngoài \texttt{XT1} và hai tụ tải, nhưng đồ án chọn dao động RC nội 8\,MHz nên không sử dụng khối này. Giá trị \texttt{F\_CPU = 8000000UL} chỉ phục vụ tính toán trễ khi biên dịch; tần số phần cứng do fuse quyết định. Fuse được ghi ở bước nạp chương trình bằng ProgISP (mục \ref{sec:progisp}, Hình \ref{fig:progisp-setup}), trong đó:
-\begin{itemize}[leftmargin=1.2cm]
-    \item Low Fuse = \texttt{0xE4}: \texttt{CKSEL3..0 = 0100} chọn dao động RC nội 8\,MHz; \texttt{SUT1..0 = 10} đặt thời gian khởi động 6 chu kỳ clock cộng trễ điển hình 65\,ms ở 5\,V (Bảng 10 của datasheet).
-\end{itemize}
+Sơ đồ kit có bố trí thạch anh ngoài \texttt{XT1} và hai tụ tải, nhưng đồ án chọn dao động RC nội 8\,MHz nên không sử dụng khối này. Giá trị \texttt{F\_CPU = 8000000UL} chỉ phục vụ tính toán trễ khi biên dịch; tần số phần cứng do fuse quyết định. Fuse được ghi ở bước nạp chương trình bằng ProgISP (mục \ref{sec:progisp}, Hình \ref{fig:progisp-setup}). Với Low Fuse = \texttt{0xE4}, \texttt{CKSEL3..0 = 0100} chọn dao động RC nội 8\,MHz; \texttt{SUT1..0 = 10} đặt thời gian khởi động 6 chu kỳ clock cộng trễ điển hình 65\,ms ở 5\,V (Bảng 10 của datasheet).
 
 \subsubsection{Xung đột giữa JTAG và LCD trên PORT C}
 \label{sec:jtag}
@@ -97,7 +94,7 @@ Kit gồm các khối chức năng sau:
     \item Đế cắm vi điều khiển DIP-40: cho phép lắp và thay vi điều khiển trong quá trình thực hành.
     \item Khối nguồn 5\,V: IC ổn áp tuyến tính LM7805 hạ áp từ adapter 9--12\,V DC; kit cũng nhận nguồn 5\,V trực tiếp từ cổng USB qua mạch nạp USBasp. Khối nguồn có tụ lọc và LED báo nguồn.
     \item Cổng nạp ISP 10 chân (IDC-10): nối với USBasp qua các đường MOSI (PB5), MISO (PB6), SCK (PB7), RESET và GND.
-    \item Giắc J7 cho LCD 1602: hàng chân đơn 16 chân, tương thích màn hình dùng bộ điều khiển HD44780; biến trở VR1 dùng để chỉnh độ tương phản.
+    \item Giắc J7 cho LCD 1602: hàng chân đơn 16 chân, tương thích màn hình dùng bộ điều khiển HD44780; biến trở VR2 dùng để chỉnh độ tương phản.
     \item Dãy LED đơn và nút bấm: 8 LED đơn nối với PORT D và các nút bấm nối với PORT B, phục vụ bài thực hành vào/ra cơ bản. Đồ án dùng 5 LED trên PD0--PD4 để cảnh báo; 3 LED còn lại trên PD5--PD7 nằm chung đường với tín hiệu điều khiển LCD nên sáng theo mức logic của RW, RS, EN.
 \end{enumerate}
 
@@ -204,7 +201,7 @@ Chân J7 & Chân LCD & Tên chân & Chân MCU & Chức năng \\
 \midrule
 1 & 1 & $V_{SS}$ & GND & Cực âm nguồn (0\,V) \\
 2 & 2 & $V_{DD}$ & VCC & Cực dương nguồn (+5\,V) \\
-3 & 3 & $V_0$ & VR1 & Điện áp chỉnh độ tương phản \\
+3 & 3 & $V_0$ & VR2 & Điện áp chỉnh độ tương phản \\
 4 & 4 & RS & PD6 & Chọn thanh ghi (0: lệnh; 1: dữ liệu) \\
 5 & 5 & RW & PD5 & Chọn chiều (0: ghi vào LCD; 1: đọc từ LCD) \\
 6 & 6 & E & PD7 & Xung chốt dữ liệu (tích cực sườn xuống) \\

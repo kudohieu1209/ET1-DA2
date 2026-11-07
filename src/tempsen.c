@@ -147,7 +147,7 @@ int main(void) {
             PORTD |= 0x1F; // Trạng thái xác định: Tắt LED cảnh báo
         }
 
-        // Chu kỳ lấy mẫu khuyến nghị theo datasheet của Aosong (2 giây)
+        // Chờ 2 giây giữa hai lần đọc (datasheet Aosong yêu cầu tối thiểu 1 giây)
         _delay_ms(2000);
     }
 

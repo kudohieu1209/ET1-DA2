@@ -60,14 +60,14 @@ Nhóm vẽ lại sơ đồ giảng viên cung cấp (Hình \ref{fig:schematic}) 
     \caption{Sơ đồ nguyên lý kit AVR được nhóm vẽ lại từ tài liệu giảng viên cung cấp}
     \label{fig:schematic}
     \vspace{0.1cm}
-    {\small\textit{Ghi chú:} Các khối (a)--(d) nối với nhau qua nhãn mạng (PA0--PD7, VCC, GND). Trong đồ án, LCD dùng PC4--PC7 và PD5--PD7; 5 LED cảnh báo dùng PD0--PD4. Khối thạch anh XT1 có trên sơ đồ nhưng chương trình chọn dao động RC nội 8 MHz. Cảm biến DHT11 là module nối ngoài, không nằm trong sơ đồ kit này.\par}
+    {\small\textit{Ghi chú:} Các khối (a)--(d) nối với nhau qua nhãn mạng (PA0--PD7, VCC, GND). Trong đồ án, LCD dùng PC4--PC7 và PD5--PD7; 5 LED cảnh báo dùng PD0--PD4; trên khối (c), nhãn \texttt{AVR\_RX} và \texttt{AVR\_TX} chính là PD0 (RXD) và PD1 (TXD). Khối thạch anh XT1 có trên sơ đồ nhưng chương trình chọn dao động RC nội 8 MHz. Cảm biến DHT11 là module nối ngoài, không nằm trong sơ đồ kit này.\par}
 \end{figure}
 
 \subsection{Bảng kết nối dây chi tiết giữa các linh kiện}
 
 Bảng \ref{tab:hardware-wiring} liệt kê kết nối giữa từng khối chức năng và chân của ATmega16; số chân tính theo vỏ DIP-40 (Hình \ref{fig:atmega16-pinout}). Tên tín hiệu sau dấu ``/'' là chức năng thay thế của chân, không được dùng trong đồ án.
 
-\begin{table}[tb]
+\begin{table}[H]
 \centering
 \small
 \caption{Bảng tổng hợp kết nối tín hiệu phần cứng của hệ thống}
@@ -99,7 +99,7 @@ Dãy LED cảnh báo & Katot LED 1 & Chân 14 & PD0 / RXD & Cảnh báo, sáng k
 \end{tabularx}
 \end{table}
 
-\begin{figure}[tb]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.48\textwidth]{atmega_kit_3d.png}
     \caption{Mô hình 3D PCB do nhóm thiết kế trên Altium Designer}
@@ -147,7 +147,7 @@ Nếu chân DATA bị hở mạch hoặc cảm biến hỏng, các vòng chờ s
 
 Thời gian timeout được xác định từ mã máy do \texttt{avr-gcc} sinh ra với tùy chọn \texttt{-Os} (xem bằng \texttt{avr-objdump -d}). Mỗi lần lặp của bốn vòng chờ đầu gồm lệnh kiểm tra bit \texttt{sbic}/\texttt{sbis} (1 chu kỳ), \texttt{rjmp} (2), \texttt{sbiw} (2) và \texttt{brne} (2), tổng cộng 7 chu kỳ. Ở vòng chờ thứ năm, lệnh \texttt{sbis} nhảy qua \texttt{rjmp} (2 chu kỳ) nên mỗi lần lặp tốn 6 chu kỳ. Kết quả ở 8\,MHz được tổng hợp trong Bảng \ref{tab:timeout}.
 
-\begin{table}[H]
+\begin{table}[!htb]
 \centering
 \small
 \caption{Thời gian timeout của các vòng chờ trong \texttt{DHT11\_Read} ở 8 MHz}
