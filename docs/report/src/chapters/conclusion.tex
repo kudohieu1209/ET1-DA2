@@ -19,6 +19,7 @@ Các hạn chế hiện tại của mô hình gồm:
 \begin{itemize}[leftmargin=1.2cm]
     \item DHT11 có dải đo hẹp (0--50\,$^\circ$C), sai số $\pm$2\,$^\circ$C và chu kỳ đọc khoảng 2 giây, nên không phù hợp với ứng dụng cần độ chính xác cao hoặc đáp ứng nhanh.
     \item Chưa có phép đo đối chiếu với nhiệt kế tham chiếu, nhật ký chạy dài hạn và phép đo độ trễ cảnh báo, nên độ chính xác và độ ổn định mới được đánh giá ở mức chức năng (mục \ref{sec:limitations}).
+    \item Chương trình chưa nạp byte hiệu chuẩn 8\,MHz vào \texttt{OSCCAL} và nhóm chưa đo tần số thực của dao động RC; biên an toàn của xung khởi động DHT11 chỉ khoảng 11\,\% (mục \ref{sec:clock-tolerance}).
     \item Chưa có vùng trễ (hysteresis), nên cảnh báo có thể bật/tắt liên tục khi số đo dao động quanh ngưỡng.
     \item Ngưỡng 30\,$^\circ$C được cố định trong mã nguồn; muốn đổi ngưỡng phải biên dịch và nạp lại chương trình.
     \item Khi mất cảm biến, chương trình tắt toàn bộ LED để tránh cảnh báo dựa trên dữ liệu cũ; nhược điểm là hệ thống không còn cảnh báo nếu môi trường vẫn đang quá nhiệt.

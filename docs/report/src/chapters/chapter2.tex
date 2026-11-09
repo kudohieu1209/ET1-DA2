@@ -50,7 +50,8 @@ Trong đề tài, PA1 nối với chân dữ liệu của DHT11, PC4--PC7 và PD
 \subsection{Xung nhịp hệ thống và xung đột với giao diện JTAG}
 
 \subsubsection{Cấu hình nguồn xung nhịp 8\,MHz bằng fuse}
-ATmega16 có sẵn mạch dao động RC nội đã hiệu chuẩn, tạo được các tần số 1, 2, 4 và 8\,MHz mà không cần thạch anh hay tụ ngoài.
+\label{sec:clock}
+ATmega16 có sẵn mạch dao động RC nội, tạo được các tần số 1, 2, 4 và 8\,MHz mà không cần thạch anh hay tụ ngoài. Khi reset, phần cứng chỉ tự nạp byte hiệu chuẩn của mức 1\,MHz vào thanh ghi \texttt{OSCCAL}; muốn các mức còn lại đạt độ chính xác hiệu chuẩn của nhà sản xuất, chương trình phải tự nạp byte hiệu chuẩn tương ứng \cite{atmega16-datasheet}. Chương trình của đồ án không nạp lại \texttt{OSCCAL}, nên tần số thực ở chế độ 8\,MHz có thể lệch khỏi giá trị danh định; ảnh hưởng của sai lệch này tới giao tiếp DHT11 được phân tích ở mục \ref{sec:clock-tolerance}.
 
 Sơ đồ kit có bố trí thạch anh ngoài \texttt{XT1} và hai tụ tải, nhưng đồ án chọn dao động RC nội 8\,MHz nên không sử dụng khối này. Giá trị \texttt{F\_CPU = 8000000UL} chỉ phục vụ tính toán trễ khi biên dịch; tần số phần cứng do fuse quyết định. Fuse được ghi ở bước nạp chương trình bằng ProgISP (mục \ref{sec:progisp}, Hình \ref{fig:progisp-setup}). Với Low Fuse = \texttt{0xE4}, \texttt{CKSEL3..0 = 0100} chọn dao động RC nội 8\,MHz; \texttt{SUT1..0 = 10} đặt thời gian khởi động 6 chu kỳ clock cộng trễ điển hình 65\,ms ở 5\,V (Bảng 10 của datasheet).
 

@@ -4,7 +4,7 @@
 \section{Kết quả thực nghiệm trên phần cứng}
 \label{sec:hw-results}
 
-Hệ thống được lắp ráp, nạp chương trình và kiểm thử trên kit AVR tại phòng thí nghiệm Trường Điện -- Điện tử, Đại học Bách khoa Hà Nội. Các trạng thái ghi nhận trong quá trình thử nghiệm được trình bày dưới đây; phạm vi và giới hạn của phép kiểm chứng ở mục \ref{sec:limitations}.
+Hệ thống được lắp ráp, nạp chương trình và kiểm thử trên kit AVR tại phòng thí nghiệm Trường Điện -- Điện tử, Đại học Bách khoa Hà Nội. Ngoài ra, nhóm đo thêm một lần trong phòng ở vào ngày 09/11/2026 để có ảnh minh chứng cho trạng thái bình thường. Các trạng thái ghi nhận trong quá trình thử nghiệm được trình bày dưới đây; phạm vi và giới hạn của phép kiểm chứng ở mục \ref{sec:limitations}.
 
 \subsection{Giai đoạn khởi động}
 Khi cấp nguồn 5\,V từ cổng USB, vi điều khiển khởi động, tắt JTAG, khởi tạo LCD và các chân LED. LCD sau đó hiển thị màn hình chào:
@@ -21,6 +21,17 @@ Màn hình chào được giữ khoảng 1,5 giây theo trễ phần mềm. Tron
     \item Vì nhiệt độ dưới ngưỡng, dòng 2 chỉ hiển thị ngưỡng, không có ký hiệu cảnh báo.
     \item 5 LED cảnh báo trên PD0--PD4 giữ mức 1 nên tắt.
 \end{itemize}
+
+Lần đo thêm trong phòng ở (Hình \ref{fig:actual-normal}) cho kết quả tương tự. LCD hiển thị:
+\LCDbox{Temp: 24.4 \textdegree C}{HIGH Th: 30\textdegree C}
+Dòng 2 không có ký hiệu \texttt{*!}, đúng với trạng thái dưới ngưỡng. Trong ảnh, dãy LED trên kit bị dây nối che một phần nên không đủ để xác nhận trạng thái 5 LED cảnh báo. Lần đo này không có nhiệt kế tham chiếu, nên chỉ xác nhận chức năng hiển thị, không dùng để đánh giá độ chính xác.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=8cm,keepaspectratio]{normal_room.jpg}
+    \caption{Trạng thái bình thường khi đo trong phòng ở (24,4\,$^\circ$C)}
+    \label{fig:actual-normal}
+\end{figure}
 
 \subsection{\texorpdfstring{Trạng thái cảnh báo quá nhiệt ($T \ge 30\,^\circ\text{C}$)}{Trạng thái cảnh báo quá nhiệt (T ≥ 30 °C)}}
 Để tạo trạng thái quá nhiệt, nhóm đưa một nguồn hơi ấm nhẹ lại gần bề mặt DHT11. Khi nhiệt độ nhận được đạt hoặc vượt 30\,$^\circ$C:
@@ -73,17 +84,19 @@ Nhóm kiểm tra hai tình huống lỗi:
 \renewcommand{\arraystretch}{1.15}
 \begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.6cm} >{\centering\arraybackslash}p{1.5cm} >{\raggedright\arraybackslash}X >{\centering\arraybackslash}p{1.8cm}}
 \toprule
-\textbf{Kịch bản kiểm tra} & \textbf{Phương pháp xác minh} & \textbf{Giá trị đo} & \textbf{Nội dung hiển thị trên LCD 1602} & \textbf{Trạng thái LED} \\
+\textbf{Kịch bản kiểm tra} & \textbf{Phương pháp xác minh} & \textbf{Giá trị đo} & \textbf{Nội dung hiển thị trên LCD 1602} & \textbf{LED cảnh báo PD0--PD4} \\
 \midrule
-Khởi động hệ thống & Thực nghiệm trên kit & -- & Dòng 1: \mbox{\texttt{DA2: DO NHIET DO}}\newline Dòng 2: \mbox{\texttt{DHT11 SENSOR}} & Tắt toàn bộ \\
+Khởi động hệ thống & Thực nghiệm trên kit & -- & Dòng 1: \mbox{\texttt{DA2: DO NHIET DO}}\newline Dòng 2: \mbox{\texttt{DHT11 SENSOR}} & Tắt \\
 \midrule
-Nhiệt độ bình thường & Thực nghiệm trên kit & 26,5\,$^\circ$C & Dòng 1: \mbox{\texttt{Temp: 26.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C}} & Tắt toàn bộ \\
+Nhiệt độ bình thường & Thực nghiệm trên kit & 26,5\,$^\circ$C & Dòng 1: \mbox{\texttt{Temp: 26.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C}} & Tắt \\
 \midrule
-Nhiệt độ vượt ngưỡng & Thực nghiệm trên kit & 31,5\,$^\circ$C & Dòng 1: \mbox{\texttt{Temp: 31.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C *!}} & Sáng cả 5 LED \\
+Nhiệt độ bình thường (đo trong phòng ở) & Thực nghiệm trên kit & 24,4\,$^\circ$C & Dòng 1: \mbox{\texttt{Temp: 24.4 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C}} & Ảnh bị dây che \\
 \midrule
-Mất tín hiệu cảm biến & Thực nghiệm trên kit (rút dây PA1) & -- & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Tắt toàn bộ \\
+Nhiệt độ vượt ngưỡng & Thực nghiệm trên kit & 31,5\,$^\circ$C & Dòng 1: \mbox{\texttt{Temp: 31.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C *!}} & Sáng \\
 \midrule
-Sai checksum & Phân tích mã nguồn & -- & Dòng 1: \mbox{\texttt{DHT11: Sum Error}}\newline Dòng 2: \mbox{\texttt{Checksum Invalid}} & Tắt toàn bộ \\
+Mất tín hiệu cảm biến & Thực nghiệm trên kit (rút dây PA1) & -- & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Tắt \\
+\midrule
+Sai checksum & Phân tích mã nguồn & -- & Dòng 1: \mbox{\texttt{DHT11: Sum Error}}\newline Dòng 2: \mbox{\texttt{Checksum Invalid}} & Tắt \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -94,7 +107,7 @@ Sai checksum & Phân tích mã nguồn & -- & Dòng 1: \mbox{\texttt{DHT11: Sum 
 \label{sec:eval-results}
 Các kết quả ở mục \ref{sec:hw-results} cho thấy chương trình hiển thị được nhiệt độ, báo vượt ngưỡng bằng LCD và LED, và hiển thị thông báo khi mất tín hiệu cảm biến. Bảng \ref{tab:system-results} phân biệt các kịch bản thử trên phần cứng với nhánh checksum mới được kiểm tra qua mã nguồn. Điều kiện \texttt{temp\_int >= 30} bao gồm cả trường hợp đúng ngưỡng, nhưng báo cáo chưa có kết quả thử riêng tại 30\,$^\circ$C.
 
-Hình \ref{fig:actual-system}a ghi nhận LCD hiển thị 31,5\,$^\circ$C cùng ký hiệu \texttt{*!} và 5 LED cảnh báo sáng. Vì chương trình in trực tiếp $T_{int}$ và $T_{dec}$ nhận từ cảm biến, phần thập phân \texttt{.5} trên LCD chính là giá trị Byte 3 của gói tin. Như vậy module đang dùng trả về byte thập phân khác 0, khác với độ phân giải 1\,$^\circ$C ghi trong tài liệu tham chiếu \cite{dht11-datasheet}. Các giá trị này phản ánh dữ liệu cảm biến gửi về; độ chính xác so với nhiệt độ thực của môi trường cần được đối chiếu thêm với nhiệt kế tham chiếu.
+Hình \ref{fig:actual-system}a ghi nhận LCD hiển thị 31,5\,$^\circ$C cùng ký hiệu \texttt{*!} và 5 LED cảnh báo sáng. Vì chương trình in trực tiếp $T_{int}$ và $T_{dec}$ nhận từ cảm biến, phần thập phân trên LCD (\texttt{.5} ở Hình \ref{fig:actual-system}a, \texttt{.4} ở Hình \ref{fig:actual-normal}) chính là giá trị Byte 3 của gói tin. Như vậy module đang dùng trả về byte thập phân khác 0 và có nhiều giá trị khác nhau, khác với độ phân giải 1\,$^\circ$C ghi trong tài liệu tham chiếu \cite{dht11-datasheet}. Các giá trị này phản ánh dữ liệu cảm biến gửi về; độ chính xác so với nhiệt độ thực của môi trường cần được đối chiếu thêm với nhiệt kế tham chiếu.
 
 \begin{samepage}
 Checksum chỉ xác nhận gói tin được truyền đúng, không xác nhận độ chính xác của phép đo. Ngoài ra, khi có lỗi chương trình tắt 5 LED, nên LED tắt không đủ để kết luận môi trường đang dưới ngưỡng.

@@ -168,6 +168,15 @@ $-5$ & Kết thúc mức cao của bit `1' & 6 & 7,5\,ms \\
 
 Khi rút dây DATA, điện trở kéo lên giữ PA1 ở mức cao, vòng chờ đầu tiên hết hạn và hàm trả về $-1$ sau khoảng 20\,ms (xung khởi động) + 8,75\,ms $\approx$ 29\,ms, không đáng kể so với chu kỳ 2 giây. Các giá trị trên tỷ lệ nghịch với tần số thực của dao động RC nội. Cũng từ mã máy, \texttt{\_delay\_us(38)} được biên dịch thành vòng trễ 304 chu kỳ, đúng 38\,$\mu$s ở 8\,MHz.
 
+\subsubsection{Dung sai theo tần số dao động thực}
+\label{sec:clock-tolerance}
+Vì \texttt{OSCCAL} không được nạp lại cho mức 8\,MHz (mục \ref{sec:clock}), tần số thực $f$ có thể khác 8\,MHz. Các trễ phần mềm được tính theo \texttt{F\_CPU = 8000000UL}, nên thời gian thực bằng thời gian danh định nhân với $8\,\text{MHz}/f$. Hai mốc thời gian quyết định việc đọc DHT11:
+\begin{itemize}[leftmargin=1.2cm]
+    \item Thời điểm lấy mẫu $t = 38 \cdot 8/f$ ($\mu$s, $f$ tính bằng MHz) phải lớn hơn 28\,$\mu$s (mức cao dài nhất của bit `0') và nhỏ hơn 70\,$\mu$s (mức cao của bit `1'). Điều kiện này cho $4{,}3\,\text{MHz} < f < 10{,}9\,\text{MHz}$, tức chịu được sai lệch từ $-46\,\%$ đến $+36\,\%$.
+    \item Xung khởi động $20 \cdot 8/f$ (ms) phải dài ít nhất 18\,ms, cho $f \le 8{,}9\,\text{MHz}$: dao động RC chỉ được chạy nhanh hơn danh định tối đa khoảng 11\,\%.
+\end{itemize}
+Ràng buộc chặt nhất vì vậy là độ dài xung khởi động, không phải thời điểm lấy mẫu. Trong các thử nghiệm ở Chương \ref{chap:results}, các gói tin nhận được đều khớp checksum, cho thấy thời điểm lấy mẫu nằm trong vùng cho phép; tuy nhiên nhóm chưa đo tần số thực của kit. Nếu cần thêm biên an toàn, có thể tăng xung khởi động lên 25\,ms (vẫn nằm trong giới hạn của DHT11) hoặc nạp byte hiệu chuẩn 8\,MHz vào \texttt{OSCCAL} khi khởi động.
+
 \subsubsection{Giải mã bit dữ liệu}
 Bit `0' có mức cao kéo dài 26--28\,$\mu$s, bit `1' khoảng 70\,$\mu$s (mục \ref{sec:dht11-protocol}). Thời điểm lấy mẫu 38\,$\mu$s nằm giữa hai giá trị này: nếu PA1 còn ở mức cao thì bit là `1', nếu đã về mức thấp thì bit là `0'. Sau xung khởi động và tín hiệu phản hồi, vòng lặp lồng nhau quét 5 byte (40 bit); mỗi bit được giải mã theo các bước:
 \begin{enumerate}[leftmargin=1.2cm]
