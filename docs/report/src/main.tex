@@ -113,6 +113,24 @@
   \end{tabular}\vspace{-0.2cm}
   \end{center}}
 
+% Hình minh họa màn hình LCD 1602 (nền xanh lục, 16 ký tự mỗi dòng).
+\definecolor{lcdback}{HTML}{BFD97A}
+\definecolor{lcdink}{HTML}{1F2E14}
+\newlength{\LCDartwidth}
+\AtBeginDocument{\settowidth{\LCDartwidth}{\ttfamily\small 0000000000000000}}
+\newcommand{\LCDart}[2]{{%
+  \setlength{\fboxsep}{3.5pt}\setlength{\fboxrule}{0pt}%
+  \colorbox{black!78}{\setlength{\fboxsep}{5pt}\colorbox{lcdback}{%
+    \color{lcdink}\ttfamily\small
+    \begin{tabular}{@{}l@{}}\makebox[\LCDartwidth][l]{#1}\\\makebox[\LCDartwidth][l]{#2}\end{tabular}}}}}
+
+% Số liệu hoặc ảnh thực nghiệm còn chờ bổ sung (hiện chữ đỏ trong PDF).
+\newcommand{\ChoSoLieu}[1]{\textcolor{red}{[#1]}}
+\newcommand{\AnhThucTe}[2]{%
+  \IfFileExists{img/#1}{\includegraphics[height=#2,keepaspectratio]{#1}}%
+  {\fbox{\parbox[c][#2][c]{0.9\linewidth}{\centering\small
+    \textcolor{red}{Ảnh thực tế sẽ bổ sung}\\[2pt]\texttt{\detokenize{img/#1}}}}}}
+
 \newcommand{\ReportTopic}{Thiết kế hệ thống đo nhiệt độ và cảnh báo ngưỡng sử dụng ATmega16}
 
 \begin{document}

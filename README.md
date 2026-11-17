@@ -1,7 +1,7 @@
 # Hệ Thống Giám Sát Nhiệt Độ & Cảnh Báo Ngưỡng (ATmega16 + DHT11)
 
 Dự án Đồ án 2 - Đại học Bách Khoa Hà Nội (HUST).  
-Ứng dụng vi điều khiển **ATmega16** thu thập dữ liệu nhiệt độ từ cảm biến **DHT11**, hiển thị trực quan lên màn hình **LCD 16x2** và kích hoạt cảnh báo thông qua dàn LED khi nhiệt độ vượt ngưỡng an toàn.
+Ứng dụng vi điều khiển **ATmega16** thu thập dữ liệu nhiệt độ và độ ẩm từ cảm biến **DHT11**, hiển thị trực quan lên màn hình **LCD 16x2** và kích hoạt cảnh báo thông qua dàn LED khi nhiệt độ vượt ngưỡng an toàn.
 
 ---
 
@@ -9,13 +9,13 @@ Dự án Đồ án 2 - Đại học Bách Khoa Hà Nội (HUST).
 
 - **Đọc dữ liệu chính xác từ DHT11**
 - **Hiển thị trực quan qua LCD 16x2**:
-  - **Dòng 1**: Hiển thị nhiệt độ hiện tại kèm phần thập phân (`Temp: 28.5 °C`).
-  - **Dòng 2**: Hiển thị ngưỡng cảnh báo (`HIGH Th: 30°C`).
+  - **Dòng 1**: Hiển thị nhiệt độ (kèm phần thập phân) và độ ẩm tương đối (`T:28.5°C H:65%RH`).
+  - **Dòng 2**: Hiển thị ngưỡng và trạng thái (`T>=30° H>=80% OK`; `T!` nóng, `H!` ẩm, `!!` cả hai).
   - Tự động hiển thị thông báo lỗi `DHT11: No Signal - Check Pin PA1` khi mất kết nối hoặc cảm biến lỗi.
 - **Hệ thống cảnh báo tự động**:
-  - Tự động so sánh nhiệt độ đo được với ngưỡng **High Threshold (30°C)**.
-  - Khi $T \ge 30^\circ\text{C}$: Kích hoạt dấu cảnh báo `*!` trên LCD và bật sáng 5 LED cảnh báo.
-  - Khi $T < 30^\circ\text{C}$: Trạng thái bình thường, dàn LED tắt.
+  - So sánh nhiệt độ với ngưỡng **30°C** và độ ẩm với ngưỡng **80 %RH** (hằng số `TEMP_TH`, `HUMI_TH` trong `tempsen.c`).
+  - Khi $T \ge 30^\circ\text{C}$ **hoặc** $H \ge 80\%$: hiện trạng thái cảnh báo trên LCD và bật sáng cả 5 LED (PD0–PD4).
+  - Khi cả hai dưới ngưỡng: trạng thái `OK`, dàn LED tắt. PD5–PD7 là chân điều khiển LCD nên không dùng làm LED cảnh báo.
 - **Tối ưu phần cứng**: Tắt JTAG để tái sử dụng PORT C điều khiển LCD 4-bit; hỗ trợ Makefile tự động hóa toàn bộ quy trình biên dịch và nạp firmware.
 
 ---

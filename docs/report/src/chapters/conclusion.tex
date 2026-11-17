@@ -2,13 +2,14 @@
 
 \section{Kết luận}
 
-Đề tài đã xây dựng mô hình đo nhiệt độ và cảnh báo ngưỡng dùng ATmega16, DHT11 và LCD 1602. Các kết quả chính gồm:
+Đề tài đã xây dựng mô hình đo nhiệt độ, độ ẩm và cảnh báo ngưỡng dùng ATmega16, DHT11 và LCD 1602. Các kết quả chính gồm:
 \begin{itemize}[leftmargin=1.2cm]
     \item Vẽ lại sơ đồ nguyên lý từ tài liệu giảng viên cung cấp và thiết kế PCB trên Altium Designer; xác định cách nối cảm biến ngoài kit và các nhóm chân dùng cho LCD, LED.
-    \item Viết chương trình C đọc gói dữ liệu 40 bit từ DHT11, kiểm tra checksum, giới hạn mỗi vòng chờ bằng timeout 7,5--8,75\,ms và hiển thị thông báo lỗi theo từng loại. Chương trình chiếm 2830\,B (17,3\,\%) bộ nhớ Flash.
+    \item Viết chương trình C đọc gói dữ liệu 40 bit từ DHT11, kiểm tra checksum, giới hạn mỗi vòng chờ bằng timeout 7,5--8,75\,ms và hiển thị thông báo lỗi theo từng loại. Chương trình chiếm 2920\,B (17,8\,\%) bộ nhớ Flash.
     \item Cấu hình thư viện LCD giao tiếp 4 bit và dùng mặt nạ bit để LCD và LED dùng chung PORT D mà không ảnh hưởng nhau.
     \item Cấu hình dao động RC nội 8\,MHz bằng fuse (Low Fuse \texttt{0xE4}), thống nhất với giá trị \texttt{F\_CPU}; tắt JTAG bằng lệnh ghi \texttt{JTD} để dùng PC4, PC5 cho LCD.
-    \item Ghi nhận trên phần cứng các trạng thái hiển thị nhiệt độ, cảnh báo vượt ngưỡng và báo mất tín hiệu cảm biến (Chương \ref{chap:results}). Nhánh lỗi checksum hiện mới được kiểm tra bằng phân tích mã nguồn.
+    \item Hiển thị đồng thời nhiệt độ và độ ẩm; bật 5 LED khi một trong hai đại lượng vượt ngưỡng và dùng ký hiệu \texttt{OK}, \texttt{T!}, \texttt{H!}, \texttt{!!} trên LCD để phân biệt nguyên nhân cảnh báo.
+    \item Ghi nhận trên phần cứng các trạng thái bình thường, vượt ngưỡng nhiệt độ, vượt ngưỡng độ ẩm và mất tín hiệu cảm biến (Chương \ref{chap:results}). Nhánh lỗi checksum hiện mới được kiểm tra bằng phân tích mã nguồn.
 \end{itemize}
 Mô hình thực hiện đúng các chức năng đề ra trong phạm vi thử nghiệm đã trình bày; các hạn chế còn lại được tổng hợp ở mục \ref{sec:conclusion-limits}.
 
@@ -21,9 +22,10 @@ Các hạn chế hiện tại của mô hình gồm:
     \item Chưa có phép đo đối chiếu với nhiệt kế tham chiếu, nhật ký chạy dài hạn và phép đo độ trễ cảnh báo, nên độ chính xác và độ ổn định mới được đánh giá ở mức chức năng (mục \ref{sec:limitations}).
     \item Chương trình chưa nạp byte hiệu chuẩn 8\,MHz vào \texttt{OSCCAL} và nhóm chưa đo tần số thực của dao động RC; biên an toàn của xung khởi động DHT11 chỉ khoảng 11\,\% (mục \ref{sec:clock-tolerance}).
     \item Chưa có vùng trễ (hysteresis), nên cảnh báo có thể bật/tắt liên tục khi số đo dao động quanh ngưỡng.
-    \item Ngưỡng 30\,$^\circ$C được cố định trong mã nguồn; muốn đổi ngưỡng phải biên dịch và nạp lại chương trình.
-    \item Khi mất cảm biến, chương trình tắt toàn bộ LED để tránh cảnh báo dựa trên dữ liệu cũ; nhược điểm là hệ thống không còn cảnh báo nếu môi trường vẫn đang quá nhiệt.
-    \item Hệ thống chưa lưu lịch sử nhiệt độ và chưa truyền dữ liệu từ xa.
+    \item Hai ngưỡng 30\,$^\circ$C và 80\,\%RH được cố định trong mã nguồn; muốn đổi ngưỡng phải biên dịch và nạp lại chương trình.
+    \item Hai đại lượng dùng chung 5 LED, nên chỉ nhìn LED thì không biết cảnh báo do nhiệt độ hay độ ẩm mà phải đọc ký hiệu trên LCD. DHT11 có sai số độ ẩm $\pm$5\,\%RH và chỉ đo đến 90\,\%RH, nên cảnh báo độ ẩm gần ngưỡng 80\,\%RH có độ bất định đáng kể.
+    \item Khi mất cảm biến, chương trình tắt toàn bộ LED để tránh cảnh báo dựa trên dữ liệu cũ; nhược điểm là hệ thống không còn cảnh báo nếu môi trường vẫn đang quá nhiệt hoặc quá ẩm.
+    \item Hệ thống chưa lưu lịch sử nhiệt độ, độ ẩm và chưa truyền dữ liệu từ xa.
 \end{itemize}
 
 \section{Hướng phát triển}
@@ -34,6 +36,6 @@ Từ mô hình hiện có, hệ thống có thể phát triển theo các hướ
     \item Hoàn thiện kiểm chứng: ghi dữ liệu đo, đối chiếu với nhiệt kế tham chiếu, thống kê lỗi khi chạy liên tục và đo độ trễ cảnh báo. Bổ sung hysteresis với ngưỡng bật và tắt riêng, chọn theo yêu cầu ứng dụng và độ dao động của số đo.
     \item Nâng cấp cảm biến: thay DHT11 bằng cảm biến số chính xác hơn tùy yêu cầu ứng dụng, ví dụ DHT22 hoặc các cảm biến I2C như Sensirion SHT30/SHT35, Bosch BME280 (đo thêm áp suất khí quyển).
     \item Cài đặt ngưỡng: dùng các nút bấm trên PORT B của kit hoặc bàn phím ma trận $4 \times 4$ để chỉnh ngưỡng, lưu giá trị vào EEPROM của ATmega16 để giữ lại khi mất điện; bổ sung còi báo.
-    \item Phân biệt lỗi cảm biến: cho LED nhấp nháy (ví dụ 2\,Hz) hoặc còi kêu ngắt quãng khi mất cảm biến, để người vận hành phân biệt ba trạng thái: bình thường (LED tắt), quá nhiệt (LED sáng liên tục) và lỗi cảm biến (LED nhấp nháy).
+    \item Phân biệt lỗi cảm biến: cho LED nhấp nháy (ví dụ 2\,Hz) hoặc còi kêu ngắt quãng khi mất cảm biến, để người vận hành phân biệt ba trạng thái: bình thường (LED tắt), vượt ngưỡng (LED sáng liên tục) và lỗi cảm biến (LED nhấp nháy); có thể tách dãy LED thành hai nhóm riêng cho nhiệt độ và độ ẩm.
     \item Giám sát từ xa: dùng USART của ATmega16 giao tiếp với module Wi-Fi (ESP8266/ESP32), Bluetooth (HC-05) hoặc LoRa để gửi dữ liệu lên máy chủ qua MQTT/HTTP, cho phép theo dõi và nhận cảnh báo trên điện thoại. Khi dùng USART phần cứng cần chuyển LED khỏi PD0/RXD và PD1/TXD, đồng thời kiểm tra mức điện áp giao tiếp của module (ESP8266/ESP32 dùng mức 3,3\,V).
 \end{enumerate}

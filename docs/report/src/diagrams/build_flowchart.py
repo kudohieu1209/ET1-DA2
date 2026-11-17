@@ -22,9 +22,9 @@ root = ET.Element(f'{{{NS}}}svg', {
 def node(kind, parent=root, **attrs):
     return ET.SubElement(parent, f'{{{NS}}}{kind}', {k.replace('_', '-'): str(v) for k, v in attrs.items()})
 
-node('title', id='title').text = 'Lưu đồ đo nhiệt độ, cảnh báo và xử lý lỗi'
+node('title', id='title').text = 'Lưu đồ đo nhiệt độ, độ ẩm, cảnh báo và xử lý lỗi'
 node('desc', id='description').text = (
-    'Khởi tạo, đọc DHT11, kiểm tra status, so sánh ngưỡng 30 độ C hoặc '
+    'Khởi tạo, đọc DHT11, kiểm tra status, so sánh ngưỡng 30 độ C và 80 %RH hoặc '
     'phân loại checksum và timeout, cập nhật LCD và LED, trễ 2 giây rồi đọc lại.'
 )
 node('rect', width=1080, height=1350, fill='white')
@@ -72,13 +72,13 @@ text(540,513,['Đọc thành công?'],size=26)
 text(540,548,['status == 0'],size=24,mono=True)
 
 diamond(290,755,340,140)
-text(290,764,['temp_int >= 30?'],size=24,mono=True)
+text(290,748,['T ≥ 30 °C hoặc', 'H ≥ 80 %RH?'],size=24,gap=31)
 diamond(800,755,340,140)
 text(800,764,['status == -6?'],size=24,mono=True)
 
 cards = [
-    (165, '#FFF2F0', '#A85C54', 'CẢNH BÁO', ['Hiện nhiệt độ + *!', 'Bật 5 LED']),
-    (415, '#F0F7F3', '#668673', 'BÌNH THƯỜNG', ['Hiện nhiệt độ', 'và ngưỡng; tắt LED']),
+    (165, '#FFF2F0', '#A85C54', 'CẢNH BÁO', ['Hiện T, H + T!/H!/!!', 'Bật 5 LED']),
+    (415, '#F0F7F3', '#668673', 'BÌNH THƯỜNG', ['Hiện T, H + OK', 'Tắt 5 LED']),
     (665, '#FFF8EB', '#9B824B', 'LỖI CHECKSUM', ['Hiện lỗi checksum', 'Tắt 5 LED']),
     (915, '#FFF8EB', '#9B824B', 'MẤT TÍN HIỆU', ['Hiện lỗi mất tín hiệu', 'Tắt 5 LED']),
 ]

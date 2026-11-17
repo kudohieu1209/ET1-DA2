@@ -114,26 +114,26 @@ Dãy LED cảnh báo & Katot LED 1 & Chân 14 & PD0 / RXD & Cảnh báo, sáng k
 Chương trình vận hành tuần tự theo các bước dưới đây. Lưu đồ ở Hình \ref{fig:main-flowchart} thể hiện cùng các nhánh xử lý; mã nguồn đầy đủ nằm ở Phụ lục A.
 
 \begin{enumerate}[leftmargin=0.8cm,itemsep=6pt,parsep=0pt,topsep=4pt]
-    \item \textbf{Khởi tạo hệ thống.} Ghi hai lần bit JTD trong \texttt{MCUCSR} để tắt JTAG và giải phóng PC4, PC5. Khởi tạo LCD bằng \texttt{LCD4\_INIT}; đặt PD0--PD4 làm đầu ra (\texttt{DDRD |= 0x1F}) và xuất mức cao để tắt LED (\texttt{PORTD |= 0x1F}). LCD hiện \texttt{DA2: DO NHIET DO} và \texttt{DHT11 SENSOR} khoảng 1,5 giây, sau đó được xóa.
-    \item \textbf{Đọc cảm biến.} Gọi \texttt{DHT11\_Read} để nhận dữ liệu nhiệt độ cùng mã trả về \texttt{status}. Chương trình chỉ so sánh ngưỡng và hiển thị nhiệt độ khi \texttt{status == 0}.
-    \item \textbf{Xử lý dữ liệu hợp lệ.} Dòng 1 LCD hiển thị nhiệt độ theo định dạng \texttt{Temp: XX.Y °C}. Dòng 2 hiển thị ngưỡng; các khoảng trắng cuối chuỗi được dùng để ghi đè nội dung cũ trong 16 vị trí:
+    \item \textbf{Khởi tạo hệ thống.} Ghi hai lần bit JTD trong \texttt{MCUCSR} để tắt JTAG và giải phóng PC4, PC5. Khởi tạo LCD bằng \texttt{LCD4\_INIT}; đặt PD0--PD4 làm đầu ra (\texttt{DDRD |= LED\_MASK}, với \texttt{LED\_MASK = 0x1F}) và xuất mức cao để tắt LED (\texttt{PORTD |= LED\_MASK}). LCD hiện \texttt{DO NHIET \& DO AM} và \texttt{DHT11 SENSOR} khoảng 1,5 giây, sau đó được xóa.
+    \item \textbf{Đọc cảm biến.} Gọi \texttt{DHT11\_Read} để nhận nhiệt độ, độ ẩm cùng mã trả về \texttt{status}. Chương trình chỉ so sánh ngưỡng và hiển thị số đo khi \texttt{status == 0}.
+    \item \textbf{Xử lý dữ liệu hợp lệ.} Dòng 1 LCD hiển thị nhiệt độ và độ ẩm theo định dạng \texttt{T:XX.Y°C H:XX\%RH}. Dòng 2 hiển thị hai ngưỡng và ký hiệu trạng thái, ví dụ \texttt{T>=30° H>=80\% OK}. Cả hai dòng luôn dài đúng 16 ký tự nên ghi đè hết nội dung cũ:
     \begin{itemize}[leftmargin=0.6cm,itemsep=3pt,topsep=3pt]
-        \item Nếu \texttt{temp\_int >= 30}: hiện \texttt{HIGH Th: 30°C *!}; dùng \texttt{PORTD \&= 0xE0} kéo PD0--PD4 xuống mức thấp, bật 5 LED.
-        \item Nếu \texttt{temp\_int < 30}: hiện \texttt{HIGH Th: 30°C}, xóa dấu \texttt{*!}; dùng \texttt{PORTD |= 0x1F} tắt 5 LED.
+        \item Nếu \texttt{temp\_int >= TEMP\_TH} hoặc \texttt{humi\_int >= HUMI\_TH}: ký hiệu là \texttt{T!}, \texttt{H!} hoặc \texttt{!!}; dùng \texttt{PORTD \&= \textasciitilde LED\_MASK} kéo PD0--PD4 xuống mức thấp, bật 5 LED.
+        \item Nếu cả hai dưới ngưỡng: ký hiệu là \texttt{OK}; dùng \texttt{PORTD |= LED\_MASK} tắt 5 LED.
     \end{itemize}
-    \item \textbf{Xử lý lỗi.} Không dùng lại dữ liệu cũ để so sánh ngưỡng. Cả hai nhánh lỗi đều tắt 5 LED bằng \texttt{PORTD |= 0x1F}:
+    \item \textbf{Xử lý lỗi.} Không dùng lại dữ liệu cũ để so sánh ngưỡng. Cả hai nhánh lỗi đều tắt 5 LED bằng \texttt{PORTD |= LED\_MASK}:
     \begin{itemize}[leftmargin=0.6cm,itemsep=3pt,topsep=3pt]
         \item \texttt{status == -6}: hiện \texttt{DHT11: Sum Error} và \texttt{Checksum Invalid} trên hai dòng LCD.
         \item \texttt{status} từ -1 đến -5: hiện \texttt{DHT11: No Signal} và \texttt{Check Pin PA1}, tương ứng với timeout khi chờ tín hiệu.
     \end{itemize}
-    Việc tắt LED khi lỗi tránh cảnh báo dựa trên dữ liệu cũ, nhưng cũng làm hệ thống không cảnh báo được nếu môi trường đang quá nhiệt; hạn chế này được nêu ở mục \ref{sec:conclusion-limits}.
+    Việc tắt LED khi lỗi tránh cảnh báo dựa trên dữ liệu cũ, nhưng cũng làm hệ thống không cảnh báo được nếu môi trường đang quá nhiệt hoặc quá ẩm; hạn chế này được nêu ở mục \ref{sec:conclusion-limits}.
     \item \textbf{Lặp lại.} Thực hiện \texttt{\_delay\_ms(2000)}, rồi quay lại bước đọc cảm biến. Thời gian giữa hai lượt đọc còn bao gồm giao tiếp và cập nhật LCD, như phân tích ở mục \ref{sec:threshold}.
 \end{enumerate}
 
 \begin{figure}[p]
 \centering
 \includegraphics[width=\textwidth,height=0.88\textheight,keepaspectratio]{diagrams/main-flowchart.pdf}
-\caption{Lưu đồ thuật toán đo nhiệt độ, cảnh báo và xử lý lỗi}
+\caption{Lưu đồ thuật toán đo nhiệt độ, độ ẩm, cảnh báo và xử lý lỗi}
 \label{fig:main-flowchart}
 \end{figure}
 
@@ -231,17 +231,59 @@ Khi mới cấp điện, HD44780 có thể chưa ở chế độ giao tiếp mon
 \subsection{Thuật toán so sánh ngưỡng cảnh báo và điều khiển LED}
 \label{sec:threshold}
 
-Ngưỡng cảnh báo được cố định ở 30\,$^\circ$C (\texttt{HIGH Th: 30°C}). Đây là mốc kiểm thử để quan sát sự chuyển trạng thái của mô hình trong điều kiện phòng và gia nhiệt nhẹ, không phải ngưỡng an toàn được suy ra từ yêu cầu của một ứng dụng cụ thể. Với dữ liệu nhiệt độ không âm theo định dạng đang dùng, phép so sánh \texttt{temp\_int >= 30} cũng kích hoạt cảnh báo tại đúng 30\,$^\circ$C.
-
-Hệ thống chưa có vùng trễ (hysteresis): cùng một ngưỡng được dùng để bật và tắt cảnh báo. Nếu số đo dao động quanh 30\,$^\circ$C, LED có thể đổi trạng thái qua các lần đọc. Đây là hạn chế cần khảo sát ở các điểm sát ngưỡng.
-
-Khi điều khiển LED trên PORT D cần lưu ý rằng PD5, PD6, PD7 đang dùng cho các tín hiệu RW, RS, EN của LCD. Nếu ghi trực tiếp một giá trị vào cả thanh ghi \texttt{PORTD}, các tín hiệu này sẽ bị ghi đè và LCD có thể nhận sai lệnh hoặc dữ liệu. Vì vậy chương trình dùng mặt nạ bit:
+Hai ngưỡng cảnh báo được khai báo bằng hằng số ở đầu chương trình: \texttt{TEMP\_TH = 30} ($^\circ$C) và \texttt{HUMI\_TH = 80} (\%RH). Đây là các mốc kiểm thử để quan sát sự chuyển trạng thái của mô hình, không phải ngưỡng an toàn được suy ra từ yêu cầu của một ứng dụng cụ thể:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Khi \texttt{temp\_int >= 30}: \texttt{PORTD \&= 0xE0} (mặt nạ \texttt{1110 0000}) đưa PD0--PD4 về 0 để bật LED, giữ nguyên PD5--PD7.
-    \item Khi \texttt{temp\_int < 30}: \texttt{PORTD |= 0x1F} (mặt nạ \texttt{0001 1111}) đưa PD0--PD4 lên 1 để tắt LED, giữ nguyên PD5--PD7.
+    \item 30\,$^\circ$C cao hơn nhiệt độ phòng thông thường nhưng đạt được bằng cách gia nhiệt nhẹ cảm biến.
+    \item 80\,\%RH là mức độ ẩm cao thường gặp khi trời nồm, vẫn nằm trong dải đo 20--90\,\%RH của DHT11 với khoảng dư 10\,\%RH so với giới hạn trên, và đạt được bằng cách thở vào cảm biến.
+\end{itemize}
+Phép so sánh dùng dấu \texttt{>=} nên cảnh báo được kích hoạt cả khi số đo đúng bằng ngưỡng. Hai kết quả so sánh được lưu vào \texttt{is\_temp\_high} và \texttt{is\_humi\_high}; cảnh báo bật khi ít nhất một biến bằng 1. Hai ký tự cuối dòng 2 cho biết nguyên nhân: \texttt{OK} (bình thường), \texttt{T!} (chỉ nhiệt độ vượt ngưỡng), \texttt{H!} (chỉ độ ẩm vượt ngưỡng) và \texttt{!!} (cả hai). Hình \ref{fig:lcd-states} minh họa nội dung LCD của mọi trạng thái theo thiết kế chương trình.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.48\textwidth}\centering
+        \LCDart{T:26.5\textdegree C H:65\%RH}{T>=30\textdegree\ H>=80\% OK}
+        \caption{Bình thường; 5 LED tắt}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\textwidth}\centering
+        \LCDart{T:31.5\textdegree C H:65\%RH}{T>=30\textdegree\ H>=80\% T!}
+        \caption{Vượt ngưỡng nhiệt độ; 5 LED sáng}
+    \end{subfigure}
+
+    \vspace{0.35cm}
+    \begin{subfigure}[t]{0.48\textwidth}\centering
+        \LCDart{T:27.0\textdegree C H:85\%RH}{T>=30\textdegree\ H>=80\% H!}
+        \caption{Vượt ngưỡng độ ẩm; 5 LED sáng}
+        \label{fig:lcd-humi}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\textwidth}\centering
+        \LCDart{T:31.5\textdegree C H:85\%RH}{T>=30\textdegree\ H>=80\% !!}
+        \caption{Cả hai vượt ngưỡng; 5 LED sáng}
+    \end{subfigure}
+
+    \vspace{0.35cm}
+    \begin{subfigure}[t]{0.48\textwidth}\centering
+        \LCDart{DHT11: No Signal}{Check Pin PA1}
+        \caption{Mất tín hiệu ($-1$ đến $-5$); 5 LED tắt}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\textwidth}\centering
+        \LCDart{DHT11: Sum Error}{Checksum Invalid}
+        \caption{Sai checksum ($-6$); 5 LED tắt}
+    \end{subfigure}
+    \caption{Nội dung LCD 1602 của các trạng thái theo thiết kế chương trình}
+    \label{fig:lcd-states}
+    \vspace{0.1cm}
+    {\small\textit{Ghi chú:} Hình được dựng lại từ các chuỗi định dạng trong mã nguồn để minh họa bố cục hiển thị; các giá trị nhiệt độ, độ ẩm là giá trị giả định, không phải số đo. Kết quả đo trên kit ở Chương \ref{chap:results}.\par}
+\end{figure}
+
+Hệ thống chưa có vùng trễ (hysteresis): cùng một ngưỡng được dùng để bật và tắt cảnh báo. Nếu số đo dao động quanh 30\,$^\circ$C hoặc 80\,\%RH, LED có thể đổi trạng thái qua các lần đọc. Đây là hạn chế cần khảo sát ở các điểm sát ngưỡng.
+
+Khi điều khiển LED trên PORT D cần lưu ý rằng PD5, PD6, PD7 đang dùng cho các tín hiệu RW, RS, EN của LCD. Nếu ghi trực tiếp một giá trị vào cả thanh ghi \texttt{PORTD}, các tín hiệu này sẽ bị ghi đè và LCD có thể nhận sai lệnh hoặc dữ liệu. Vì vậy chương trình dùng mặt nạ bit \texttt{LED\_MASK = 0x1F} (\texttt{0001 1111}):
+\begin{itemize}[leftmargin=1.2cm]
+    \item Khi có cảnh báo: \texttt{PORTD \&= \textasciitilde LED\_MASK} (tức \texttt{\&= 1110 0000}) đưa PD0--PD4 về 0 để bật LED, giữ nguyên PD5--PD7.
+    \item Khi bình thường: \texttt{PORTD |= LED\_MASK} đưa PD0--PD4 lên 1 để tắt LED, giữ nguyên PD5--PD7.
 \end{itemize}
 
-Nhờ mặt nạ bit, khối LED và khối LCD cập nhật các nhóm chân riêng trên cùng PORT D. Chuỗi cảnh báo \texttt{HIGH Th: 30°C *!} trên dòng 2 dài đúng 16 ký tự, vừa một dòng của LCD 1602. Sau mỗi vòng lặp, chương trình thực hiện \texttt{\_delay\_ms(2000)}. Chu kỳ giữa hai lần bắt đầu đọc liên tiếp còn bao gồm thời gian giao tiếp DHT11 và cập nhật LCD:
+Nhờ mặt nạ bit, khối LED và khối LCD cập nhật các nhóm chân riêng trên cùng PORT D. Dòng 2 như \texttt{T>=30° H>=80\% T!} dài đúng 16 ký tự, vừa một dòng của LCD 1602. Sau mỗi vòng lặp, chương trình thực hiện \texttt{\_delay\_ms(2000)}. Chu kỳ giữa hai lần bắt đầu đọc liên tiếp còn bao gồm thời gian giao tiếp DHT11 và cập nhật LCD:
 \begin{equation}
 T_{\text{chu kỳ}} \approx 2{,}0\,\text{s} + T_{\text{đọc}} + T_{\text{LCD}} + T_{\text{xử lý}}.
 \end{equation}
@@ -272,14 +314,14 @@ Makefile khai báo \texttt{LFUSE = 0xE4} và \texttt{HFUSE = 0xD9}; lệnh \text
 \toprule
 Vùng nhớ & Thành phần & Sử dụng & Dung lượng chip & Tỷ lệ \\
 \midrule
-Flash & \texttt{.text} (2674 B) + \texttt{.data} (156 B) & 2830 B & 16384 B & 17,3\,\% \\
-SRAM & \texttt{.data} (156 B) + \texttt{.bss} (0 B), chưa tính ngăn xếp & 156 B & 1024 B & 15,2\,\% \\
+Flash & \texttt{.text} (2766 B) + \texttt{.data} (154 B) & 2920 B & 16384 B & 17,8\,\% \\
+SRAM & \texttt{.data} (154 B) + \texttt{.bss} (0 B), chưa tính ngăn xếp & 154 B & 1024 B & 15,0\,\% \\
 EEPROM & Không sử dụng & 0 B & 512 B & 0\,\% \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Toàn bộ 156 B của vùng \texttt{.data} là các chuỗi hằng hiển thị trên LCD (cùng chuỗi định dạng \texttt{"\%05u"} của thư viện LCD); chúng được chép từ Flash sang SRAM khi khởi động. Biến cục bộ như \texttt{buffer[32]} trong \texttt{main()} và vùng nhớ tạm của \texttt{sprintf} nằm trên ngăn xếp nên không có trong số liệu này. Chương trình còn nhiều dư địa bộ nhớ cho các hướng mở rộng ở mục \ref{sec:future}.
+Toàn bộ 154 B của vùng \texttt{.data} là các chuỗi hằng hiển thị trên LCD (cùng chuỗi định dạng \texttt{"\%05u"} của thư viện LCD); chúng được chép từ Flash sang SRAM khi khởi động. Biến cục bộ như \texttt{buffer[32]} trong \texttt{main()} và vùng nhớ tạm của \texttt{sprintf} nằm trên ngăn xếp nên không có trong số liệu này. Chương trình còn nhiều dư địa bộ nhớ cho các hướng mở rộng ở mục \ref{sec:future}.
 
 \subsection{Quy trình nạp chương trình bằng phần mềm ProgISP}
 \label{sec:progisp}

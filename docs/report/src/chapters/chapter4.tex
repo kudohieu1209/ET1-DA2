@@ -4,65 +4,84 @@
 \section{Kết quả thực nghiệm trên phần cứng}
 \label{sec:hw-results}
 
-Hệ thống được lắp ráp, nạp chương trình và kiểm thử trên kit AVR tại phòng thí nghiệm Trường Điện -- Điện tử, Đại học Bách khoa Hà Nội. Ngoài ra, nhóm đo thêm một lần trong phòng ở vào ngày 09/11/2026 để có ảnh minh chứng cho trạng thái bình thường. Các trạng thái ghi nhận trong quá trình thử nghiệm được trình bày dưới đây; phạm vi và giới hạn của phép kiểm chứng ở mục \ref{sec:limitations}.
+Hệ thống được lắp ráp, nạp chương trình ở Phụ lục A và kiểm thử trên kit AVR. Nhiệt độ và độ ẩm trong phòng không tự đi qua mọi trạng thái cần kiểm tra, nên nhóm chủ động tạo điều kiện cho từng kịch bản:
+\begin{itemize}[leftmargin=1.2cm]
+    \item Bình thường: bật điều hòa và chờ số đo ổn định, vì khi chỉ dùng quạt nhiệt độ đo được vẫn từ 30\,$^\circ$C trở lên.
+    \item Vượt ngưỡng nhiệt độ: đưa một nguồn hơi ấm nhẹ lại gần bề mặt DHT11.
+    \item Vượt ngưỡng độ ẩm: thở vào bề mặt cảm biến trong vài giây. Hơi thở vừa ẩm vừa ấm nên thường làm tăng cả hai đại lượng.
+    \item Mất tín hiệu: rút dây DATA nối với PA1.
+\end{itemize}
+Nội dung LCD theo thiết kế của từng trạng thái đã trình bày ở Hình \ref{fig:lcd-states}; mục này đối chiếu thiết kế với kết quả trên kit. Phạm vi và giới hạn của phép kiểm chứng ở mục \ref{sec:limitations}.
 
 \subsection{Giai đoạn khởi động}
 Khi cấp nguồn 5\,V từ cổng USB, vi điều khiển khởi động, tắt JTAG, khởi tạo LCD và các chân LED. LCD sau đó hiển thị màn hình chào:
-\LCDbox{DA2: DO NHIET DO}{DHT11 SENSOR}
-Màn hình chào được giữ khoảng 1,5 giây theo trễ phần mềm. Trong giai đoạn này, 5 LED cảnh báo tắt do PD0--PD4 được đặt mức 1 khi khởi tạo (\texttt{PORTD |= 0x1F}). Sau đó chương trình gửi lệnh xóa màn hình (\texttt{0x01}) trước khi bắt đầu vòng lặp đo.
+\LCDbox{DO NHIET \& DO AM}{DHT11 SENSOR}
+Màn hình chào được giữ khoảng 1,5 giây theo trễ phần mềm. Trong giai đoạn này, 5 LED cảnh báo tắt do PD0--PD4 được đặt mức 1 khi khởi tạo (\texttt{PORTD |= LED\_MASK}). Sau đó chương trình gửi lệnh xóa màn hình (\texttt{0x01}) trước khi bắt đầu vòng lặp đo.
 
-\subsection{\texorpdfstring{Trạng thái bình thường ($T < 30\,^\circ\text{C}$)}{Trạng thái bình thường (T < 30 °C)}}
-Ở trạng thái không cảnh báo, LCD hiển thị nhiệt độ 26,5\,$^\circ$C, nhỏ hơn ngưỡng 30\,$^\circ$C:
+\subsection{Trạng thái bình thường}
+Khi chỉ dùng quạt, nhiệt độ đo được trong phòng vẫn từ 30\,$^\circ$C trở lên. Nhóm bật điều hòa và chờ số đo ổn định; khi đó LCD hiển thị (Hình \ref{fig:actual-normal}):
+\LCDbox{T:29.7\textdegree C H:61\%RH}{T>=30\textdegree\ H>=80\% OK}
 \begin{itemize}[leftmargin=1.2cm]
     \item DHT11 gửi gói tin 40 bit về vi điều khiển; checksum khớp nên dữ liệu được chấp nhận.
-    \item \begin{samepage}LCD 1602 hiển thị:
-    \LCDbox{Temp: 26.5 \textdegree C}{HIGH Th: 30\textdegree C}
-    \end{samepage}
-    \item Vì nhiệt độ dưới ngưỡng, dòng 2 chỉ hiển thị ngưỡng, không có ký hiệu cảnh báo.
-    \item 5 LED cảnh báo trên PD0--PD4 giữ mức 1 nên tắt.
+    \item Nhiệt độ 29,7\,$^\circ$C và độ ẩm 61\,\%RH đều dưới ngưỡng nên dòng 2 kết thúc bằng \texttt{OK}.
+    \item 5 LED cảnh báo D3--D7 (PD0--PD4) giữ mức 1 nên tắt.
 \end{itemize}
+Số đo 29,7\,$^\circ$C nằm sát ngưỡng. Chương trình chỉ so sánh phần nguyên \texttt{temp\_int} với \texttt{TEMP\_TH}, nên 29,7\,$^\circ$C ($T_{int} = 29$) được xếp là bình thường, còn mọi giá trị từ 30,0\,$^\circ$C trở lên sẽ được xếp là vượt ngưỡng.
 
-Lần đo thêm trong phòng ở (Hình \ref{fig:actual-normal}) cho kết quả tương tự. LCD hiển thị:
-\LCDbox{Temp: 24.4 \textdegree C}{HIGH Th: 30\textdegree C}
-Dòng 2 không có ký hiệu \texttt{*!}, đúng với trạng thái dưới ngưỡng. Trong ảnh, dãy LED trên kit bị dây nối che một phần nên không đủ để xác nhận trạng thái 5 LED cảnh báo. Lần đo này không có nhiệt kế tham chiếu, nên chỉ xác nhận chức năng hiển thị, không dùng để đánh giá độ chính xác.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[height=8cm,keepaspectratio]{normal_room.jpg}
-    \caption{Trạng thái bình thường khi đo trong phòng ở (24,4\,$^\circ$C)}
-    \label{fig:actual-normal}
-\end{figure}
-
-\subsection{\texorpdfstring{Trạng thái cảnh báo quá nhiệt ($T \ge 30\,^\circ\text{C}$)}{Trạng thái cảnh báo quá nhiệt (T ≥ 30 °C)}}
-Để tạo trạng thái quá nhiệt, nhóm đưa một nguồn hơi ấm nhẹ lại gần bề mặt DHT11. Khi nhiệt độ nhận được đạt hoặc vượt 30\,$^\circ$C:
+\subsection{\texorpdfstring{Cảnh báo vượt ngưỡng nhiệt độ ($T \ge 30\,^\circ\text{C}$)}{Cảnh báo vượt ngưỡng nhiệt độ (T ≥ 30 °C)}}
+Khi đưa nguồn hơi ấm lại gần cảm biến, nhiệt độ tăng vượt ngưỡng trong khi độ ẩm vẫn dưới 80\,\%RH. Ở lần đo trong Hình \ref{fig:actual-overheat}, LCD hiển thị:
+\LCDbox{T:31.3\textdegree C H:69\%RH}{T>=30\textdegree\ H>=80\% T!}
 \begin{itemize}[leftmargin=1.2cm]
-    \item Vi điều khiển phát hiện điều kiện \texttt{temp\_int >= 30} ở lần đọc hợp lệ tiếp theo (mỗi vòng lặp gồm trễ 2 giây cộng thời gian đọc và hiển thị).
-    \item LCD hiển thị:
-    \LCDbox{Temp: 31.5 \textdegree C}{HIGH Th: 30\textdegree C *!}
-    Ký hiệu \texttt{*!} xuất hiện ở cuối dòng 2.
-    \item Đồng thời, lệnh \texttt{PORTD \&= 0xE0} kéo PD0--PD4 xuống mức 0, 5 LED cảnh báo sáng.
-    \item Khi bỏ nguồn nhiệt và nhiệt độ giảm xuống dưới 30\,$^\circ$C, ký hiệu \texttt{*!} biến mất và 5 LED tắt mà không cần reset.
+    \item Vi điều khiển phát hiện \texttt{temp\_int >= TEMP\_TH} ở lần đọc hợp lệ tiếp theo (mỗi vòng lặp gồm trễ 2 giây cộng thời gian đọc và hiển thị).
+    \item Nhiệt độ 31,3\,$^\circ$C vượt ngưỡng còn độ ẩm 69\,\%RH dưới ngưỡng, nên dòng 2 kết thúc bằng \texttt{T!}, cho biết cảnh báo chỉ do nhiệt độ.
+    \item Lệnh \texttt{PORTD \&= \textasciitilde LED\_MASK} kéo PD0--PD4 xuống mức 0, 5 LED cảnh báo D3--D7 sáng. Trong ảnh, D8 và D10 cũng sáng còn D9 tắt, do trạng thái các đường RW, EN, RS của LCD như ở mục \ref{sec:threshold}.
+    \item Khi bỏ nguồn nhiệt và nhiệt độ giảm xuống dưới 30\,$^\circ$C, ký hiệu trở về \texttt{OK} và 5 LED tắt mà không cần reset.
 \end{itemize}
+
+\subsection{\texorpdfstring{Cảnh báo vượt ngưỡng độ ẩm ($H \ge 80\,\%$RH)}{Cảnh báo vượt ngưỡng độ ẩm (H ≥ 80 \%RH)}}
+Khi thở vào bề mặt cảm biến, cả độ ẩm và nhiệt độ cùng tăng. Ở lần đo trong Hình \ref{fig:actual-both}, LCD hiển thị:
+\LCDbox{T:32.1\textdegree C H:88\%RH}{T>=30\textdegree\ H>=80\% !!}
+\begin{itemize}[leftmargin=1.2cm]
+    \item Độ ẩm 88\,\%RH vượt ngưỡng 80\,\%RH và nhiệt độ 32,1\,$^\circ$C vượt ngưỡng 30\,$^\circ$C, nên \texttt{is\_temp\_high} và \texttt{is\_humi\_high} cùng bằng 1 và dòng 2 kết thúc bằng \texttt{!!}.
+    \item 5 LED cảnh báo D3--D7 (PD0--PD4) sáng. Trong ba LED phía trên, D8 (PD5, RW = 0) và D10 (PD7, EN = 0) sáng, còn D9 (PD6) tắt vì RS = 1 sau khi LCD nhận ký tự cuối, đúng với phân tích ở mục \ref{sec:threshold}.
+    \item Kết quả này đồng thời xác nhận nhánh so sánh độ ẩm hoạt động trên phần cứng: chỉ riêng ngưỡng nhiệt độ thì ký hiệu sẽ là \texttt{T!}, không phải \texttt{!!}.
+\end{itemize}
+Trạng thái chỉ độ ẩm vượt ngưỡng (\texttt{H!}) chưa tạo được trên kit: hơi thở làm độ ẩm tăng nhưng cũng làm nhiệt độ vượt 30\,$^\circ$C, nên LCD chuyển sang \texttt{!!} thay vì \texttt{H!}. Nhánh so sánh độ ẩm được xác nhận gián tiếp qua kết quả \texttt{!!} ở trên; nội dung LCD của trạng thái \texttt{H!} theo thiết kế ở Hình \ref{fig:lcd-humi}.
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.46\textwidth}
+    \begin{subfigure}[b]{0.48\textwidth}
         \centering
-        \includegraphics[height=7.5cm,keepaspectratio]{actual_system.jpg}
-        \caption{Cảnh báo quá nhiệt (31,5\,$^\circ$C)}
-        \label{fig:actual-overheat}
+        \AnhThucTe{thuc_te_binh_thuong.jpg}{6.2cm}
+        \caption{Bình thường (\texttt{OK}): 29,7\,$^\circ$C, 61\,\%RH}
+        \label{fig:actual-normal}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.46\textwidth}
+    \begin{subfigure}[b]{0.48\textwidth}
         \centering
-        \includegraphics[height=7.5cm,keepaspectratio]{sensor_disconnect.jpg}
+        \AnhThucTe{thuc_te_nhiet_do.jpg}{6.2cm}
+        \caption{Vượt ngưỡng nhiệt độ (\texttt{T!}): 31,3\,$^\circ$C, 69\,\%RH}
+        \label{fig:actual-overheat}
+    \end{subfigure}
+
+    \vspace{0.3cm}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \AnhThucTe{thuc_te_ca_hai.jpg}{6.2cm}
+        \caption{Cả hai vượt ngưỡng (\texttt{!!}): 32,1\,$^\circ$C, 88\,\%RH}
+        \label{fig:actual-both}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \AnhThucTe{sensor_disconnect.jpg}{6.2cm}
         \caption{Mất tín hiệu cảm biến}
         \label{fig:actual-disconnect}
     \end{subfigure}
     \caption{Hình ảnh thực tế hệ thống trong các kịch bản thử nghiệm}
     \label{fig:actual-system}
     \vspace{0.1cm}
-    {\small\textit{Ghi chú:} Dãy LED trên kit gồm 8 LED nối PD0--PD7 (từ D3 ở dưới lên D10 ở trên). Ba LED trên cùng (PD5--PD7) dùng chung đường RW, RS, EN của LCD nên sáng theo mức logic của các tín hiệu này, không thuộc khối cảnh báo. Ở (a), 5 LED cảnh báo PD0--PD4 sáng; ở (b), 5 LED này tắt.\par}
+    {\small\textit{Ghi chú:} Dãy LED trên kit gồm 8 LED D3--D10 nối lần lượt PD0--PD7 (nhãn in cạnh mỗi LED; hướng dãy LED trong ảnh tùy góc chụp). Ba LED D8--D10 (PD5--PD7) dùng chung đường RW, RS, EN của LCD nên sáng theo mức logic của các tín hiệu này, không thuộc khối cảnh báo. Ở (b) và (c), 5 LED cảnh báo PD0--PD4 sáng; ở (a) và (d), 5 LED này tắt.\par}
 \end{figure}
 
 \subsection{Kiểm tra xử lý lỗi cảm biến}
@@ -72,7 +91,7 @@ Nhóm kiểm tra hai tình huống lỗi:
     \LCDbox{DHT11: No Signal}{Check Pin PA1}
     \item Sai checksum (phân tích mã nguồn): nhóm chưa tạo được nhiễu trên đường truyền để gây lỗi checksum, nên nhánh \texttt{status == -6} mới được kiểm tra bằng cách đọc mã nguồn. Theo mã nguồn, LCD sẽ hiển thị:
     \LCDbox{DHT11: Sum Error}{Checksum Invalid}
-    \item Trong cả hai trường hợp, 5 LED cảnh báo được tắt (\texttt{PORTD |= 0x1F}) như phân tích ở mục \ref{sec:main-algo}.
+    \item Trong cả hai trường hợp, 5 LED cảnh báo được tắt (\texttt{PORTD |= LED\_MASK}) như phân tích ở mục \ref{sec:main-algo}.
 \end{itemize}
 
 \begin{table}[H]
@@ -82,17 +101,17 @@ Nhóm kiểm tra hai tình huống lỗi:
 \caption{Tổng hợp các kịch bản kiểm tra và kết quả}
 \label{tab:system-results}
 \renewcommand{\arraystretch}{1.15}
-\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.6cm} >{\centering\arraybackslash}p{1.5cm} >{\raggedright\arraybackslash}X >{\centering\arraybackslash}p{1.8cm}}
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.5cm} >{\centering\arraybackslash}p{1.7cm} >{\raggedright\arraybackslash}X >{\centering\arraybackslash}p{1.6cm}}
 \toprule
 \textbf{Kịch bản kiểm tra} & \textbf{Phương pháp xác minh} & \textbf{Giá trị đo} & \textbf{Nội dung hiển thị trên LCD 1602} & \textbf{LED cảnh báo PD0--PD4} \\
 \midrule
-Khởi động hệ thống & Thực nghiệm trên kit & -- & Dòng 1: \mbox{\texttt{DA2: DO NHIET DO}}\newline Dòng 2: \mbox{\texttt{DHT11 SENSOR}} & Tắt \\
+Khởi động hệ thống & Thực nghiệm trên kit & -- & Dòng 1: \mbox{\texttt{DO NHIET \& DO AM}}\newline Dòng 2: \mbox{\texttt{DHT11 SENSOR}} & Tắt \\
 \midrule
-Nhiệt độ bình thường & Thực nghiệm trên kit & 26,5\,$^\circ$C & Dòng 1: \mbox{\texttt{Temp: 26.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C}} & Tắt \\
+Bình thường & Thực nghiệm trên kit (bật điều hòa) & 29,7\,$^\circ$C\newline 61\,\%RH & Dòng 1: \mbox{\texttt{T:29.7\textdegree C H:61\%RH}}\newline Dòng 2: \mbox{\texttt{T>=30\textdegree\ H>=80\% OK}} & Tắt \\
 \midrule
-Nhiệt độ bình thường (đo trong phòng ở) & Thực nghiệm trên kit & 24,4\,$^\circ$C & Dòng 1: \mbox{\texttt{Temp: 24.4 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C}} & Ảnh bị dây che \\
+Vượt ngưỡng nhiệt độ & Thực nghiệm trên kit (hơi ấm) & 31,3\,$^\circ$C\newline 69\,\%RH & Dòng 1: \mbox{\texttt{T:31.3\textdegree C H:69\%RH}}\newline Dòng 2: \mbox{\texttt{T>=30\textdegree\ H>=80\% T!}} & Sáng \\
 \midrule
-Nhiệt độ vượt ngưỡng & Thực nghiệm trên kit & 31,5\,$^\circ$C & Dòng 1: \mbox{\texttt{Temp: 31.5 \textdegree C}}\newline Dòng 2: \mbox{\texttt{HIGH Th: 30\textdegree C *!}} & Sáng \\
+Cả hai vượt ngưỡng & Thực nghiệm trên kit (thở vào cảm biến) & 32,1\,$^\circ$C\newline 88\,\%RH & Dòng 1: \mbox{\texttt{T:32.1\textdegree C H:88\%RH}}\newline Dòng 2: \mbox{\texttt{T>=30\textdegree\ H>=80\% !!}} & Sáng \\
 \midrule
 Mất tín hiệu cảm biến & Thực nghiệm trên kit (rút dây PA1) & -- & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Tắt \\
 \midrule
@@ -105,9 +124,11 @@ Sai checksum & Phân tích mã nguồn & -- & Dòng 1: \mbox{\texttt{DHT11: Sum 
 
 \subsection{Kết quả chức năng đã ghi nhận}
 \label{sec:eval-results}
-Các kết quả ở mục \ref{sec:hw-results} cho thấy chương trình hiển thị được nhiệt độ, báo vượt ngưỡng bằng LCD và LED, và hiển thị thông báo khi mất tín hiệu cảm biến. Bảng \ref{tab:system-results} phân biệt các kịch bản thử trên phần cứng với nhánh checksum mới được kiểm tra qua mã nguồn. Điều kiện \texttt{temp\_int >= 30} bao gồm cả trường hợp đúng ngưỡng, nhưng báo cáo chưa có kết quả thử riêng tại 30\,$^\circ$C.
+Các kết quả ở mục \ref{sec:hw-results} cho thấy chương trình hiển thị đồng thời nhiệt độ và độ ẩm, báo vượt ngưỡng bằng LCD và LED, và hiển thị thông báo khi mất tín hiệu cảm biến. Bảng \ref{tab:system-results} phân biệt các kịch bản thử trên phần cứng với nhánh checksum mới được kiểm tra qua mã nguồn. Các điều kiện \texttt{>=} bao gồm cả trường hợp đúng ngưỡng, nhưng báo cáo chưa có kết quả thử riêng tại đúng 30\,$^\circ$C hoặc 80\,\%RH.
 
-Hình \ref{fig:actual-system}a ghi nhận LCD hiển thị 31,5\,$^\circ$C cùng ký hiệu \texttt{*!} và 5 LED cảnh báo sáng. Vì chương trình in trực tiếp $T_{int}$ và $T_{dec}$ nhận từ cảm biến, phần thập phân trên LCD (\texttt{.5} ở Hình \ref{fig:actual-system}a, \texttt{.4} ở Hình \ref{fig:actual-normal}) chính là giá trị Byte 3 của gói tin. Như vậy module đang dùng trả về byte thập phân khác 0 và có nhiều giá trị khác nhau, khác với độ phân giải 1\,$^\circ$C ghi trong tài liệu tham chiếu \cite{dht11-datasheet}. Các giá trị này phản ánh dữ liệu cảm biến gửi về; độ chính xác so với nhiệt độ thực của môi trường cần được đối chiếu thêm với nhiệt kế tham chiếu.
+Hình \ref{fig:actual-both} ghi nhận LCD hiển thị 32,1\,$^\circ$C, 88\,\%RH cùng ký hiệu \texttt{!!} và 5 LED cảnh báo sáng. Vì chương trình in trực tiếp $T_{int}$ và $T_{dec}$ nhận từ cảm biến, phần thập phân trên LCD (\texttt{.7}, \texttt{.3}, \texttt{.1} ở Hình \ref{fig:actual-system}) chính là giá trị Byte 3 của gói tin. Qua các lần đo, module đang dùng trả về byte thập phân khác 0 và có nhiều giá trị khác nhau, khác với độ phân giải 1\,$^\circ$C ghi trong tài liệu tham chiếu \cite{dht11-datasheet}. Các giá trị này phản ánh dữ liệu cảm biến gửi về; độ chính xác so với nhiệt độ thực của môi trường cần được đối chiếu thêm với nhiệt kế tham chiếu.
+
+Với độ ẩm, cách thở vào cảm biến chỉ cho biết số đo tăng vượt ngưỡng và nhánh cảnh báo phản ứng đúng; đây là phép thử định tính. Sai số $\pm$5\,\%RH của DHT11 có nghĩa là một số đo 80\,\%RH có thể ứng với độ ẩm thực trong khoảng 75--85\,\%RH, nên cảnh báo độ ẩm gần ngưỡng cần được hiểu với độ bất định này.
 
 \begin{samepage}
 Checksum chỉ xác nhận gói tin được truyền đúng, không xác nhận độ chính xác của phép đo. Ngoài ra, khi có lỗi chương trình tắt 5 LED, nên LED tắt không đủ để kết luận môi trường đang dưới ngưỡng.
@@ -117,9 +138,9 @@ Checksum chỉ xác nhận gói tin được truyền đúng, không xác nhận
 \label{sec:limitations}
 Báo cáo hiện chưa có các dữ liệu sau để đánh giá định lượng:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Các cặp số đo đồng thời giữa hệ thống và nhiệt kế tham chiếu tại nhiều mức nhiệt, nên chưa xác định được sai lệch trung bình hoặc sai lệch lớn nhất.
+    \item Các cặp số đo đồng thời giữa hệ thống và nhiệt kế, ẩm kế tham chiếu tại nhiều mức, nên chưa xác định được sai lệch trung bình hoặc sai lệch lớn nhất của cả hai đại lượng.
     \item Nhật ký chạy liên tục gồm tổng số lần đọc, số lần hợp lệ, số lỗi timeout và checksum, nên chưa tính được tỷ lệ đọc thành công hoặc độ ổn định dài hạn.
     \item Thời gian từ khi số đo chạm ngưỡng đến khi LED đổi trạng thái; trễ 2 giây trong mã nguồn không thay thế được phép đo độ trễ toàn hệ thống.
-    \item Thử lặp lại ở dưới ngưỡng, đúng ngưỡng và trên ngưỡng, cũng như rút rồi nối lại cảm biến khi hệ thống đang cảnh báo.
+    \item Thử lặp lại ở dưới ngưỡng, đúng ngưỡng và trên ngưỡng cho từng đại lượng, cũng như rút rồi nối lại cảm biến khi hệ thống đang cảnh báo.
 \end{itemize}
 Kết quả hiện có xác nhận các chức năng cơ bản, nhưng chưa xác nhận độ chính xác đo hoặc độ tin cậy dài hạn.

@@ -3,7 +3,7 @@
 
 \section{Đặt vấn đề}
 
-Nhiệt độ là đại lượng cần được theo dõi trong nhiều môi trường như phòng làm việc, tủ điện, phòng đặt thiết bị hoặc kho bảo quản. Khi nhiệt độ vượt mức cho phép, thiết bị điện tử có thể hoạt động không ổn định hoặc giảm tuổi thọ, còn vật tư bảo quản có thể bị hư hỏng. Một hệ thống đo liên tục, hiển thị giá trị tại chỗ và báo hiệu ngay khi vượt ngưỡng giúp người vận hành phát hiện sự cố sớm mà không cần kiểm tra thủ công.
+Nhiệt độ là đại lượng cần được theo dõi trong nhiều môi trường như phòng làm việc, tủ điện, phòng đặt thiết bị hoặc kho bảo quản. Khi nhiệt độ vượt mức cho phép, thiết bị điện tử có thể hoạt động không ổn định hoặc giảm tuổi thọ, còn vật tư bảo quản có thể bị hư hỏng. Độ ẩm cao kéo dài cũng gây hại tương tự: hơi nước dễ ngưng tụ trên mạch điện, gây oxy hóa tiếp điểm và làm vật tư bị ẩm mốc. Một hệ thống đo liên tục cả hai đại lượng, hiển thị giá trị tại chỗ và báo hiệu ngay khi vượt ngưỡng giúp người vận hành phát hiện sự cố sớm mà không cần kiểm tra thủ công.
 
 Với yêu cầu cơ bản gồm đo, hiển thị, so sánh ngưỡng và cảnh báo, một vi điều khiển 8 bit kết hợp cảm biến số và màn hình ký tự là đủ đáp ứng, với chi phí thấp và cấu trúc đơn giản. Trong học phần Đồ án Thiết kế II, nhóm thực hiện đề tài \textit{``\ReportTopic''} trên kit AVR của học phần, qua đó vận dụng kiến thức về lập trình thanh ghi, giao tiếp ngoại vi, cấu hình xung nhịp và quy trình nạp chương trình cho vi điều khiển.
 
@@ -13,18 +13,18 @@ Với yêu cầu cơ bản gồm đo, hiển thị, so sánh ngưỡng và cản
 
 Đề tài hướng tới các mục tiêu sau:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Xây dựng hệ thống đọc nhiệt độ từ cảm biến DHT11, hiển thị giá trị lên LCD 1602 và bật 5 LED cảnh báo khi nhiệt độ đạt hoặc vượt ngưỡng 30\,$^\circ$C.
+    \item Xây dựng hệ thống đọc nhiệt độ và độ ẩm từ cảm biến DHT11, hiển thị cả hai giá trị lên LCD 1602 và bật 5 LED cảnh báo khi nhiệt độ đạt hoặc vượt 30\,$^\circ$C hoặc độ ẩm đạt hoặc vượt 80\,\%RH.
     \item Xây dựng chương trình giao tiếp với DHT11 bằng thao tác thanh ghi, có cơ chế timeout để vi điều khiển không bị treo và kiểm tra checksum để loại bỏ gói tin sai.
     \item Vẽ lại sơ đồ nguyên lý kit AVR từ tài liệu giảng viên cung cấp và thiết kế PCB trên Altium Designer.
-    \item Kiểm thử trên phần cứng các trạng thái hoạt động chính: nhiệt độ bình thường, vượt ngưỡng và mất tín hiệu cảm biến.
+    \item Kiểm thử trên phần cứng các trạng thái hoạt động chính: bình thường, vượt ngưỡng nhiệt độ, vượt ngưỡng độ ẩm và mất tín hiệu cảm biến.
 \end{itemize}
 
 \subsection{Phạm vi}
 
 Đề tài giới hạn trong các nội dung sau:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Hệ thống dùng trong nhà, với nhiệt độ không âm. Ngưỡng 30\,$^\circ$C được cố định trong chương trình và dùng làm mốc kiểm thử chức năng, không phải ngưỡng an toàn của một ứng dụng cụ thể.
-    \item DHT11 trả về cả nhiệt độ và độ ẩm, nhưng chương trình hiện chỉ hiển thị và cảnh báo theo nhiệt độ.
+    \item Hệ thống dùng trong nhà, với nhiệt độ không âm. Hai ngưỡng 30\,$^\circ$C và 80\,\%RH được cố định trong chương trình (hằng số \texttt{TEMP\_TH}, \texttt{HUMI\_TH}) và dùng làm mốc kiểm thử chức năng, không phải ngưỡng an toàn của một ứng dụng cụ thể.
+    \item Hai đại lượng dùng chung một khối cảnh báo: 5 LED sáng khi một trong hai vượt ngưỡng, còn nguyên nhân cảnh báo được phân biệt bằng ký hiệu trạng thái trên LCD.
     \item Đề tài không bao gồm lưu trữ dữ liệu, truyền dữ liệu từ xa và cài đặt ngưỡng bằng phím bấm.
     \item Kết quả được đánh giá ở mức chức năng; việc đo độ chính xác so với nhiệt kế tham chiếu nằm ngoài phạm vi các thử nghiệm đã thực hiện (mục \ref{sec:limitations}).
 \end{itemize}
@@ -44,9 +44,9 @@ Từ mục tiêu trên và điều kiện thực hiện trên kit AVR của họ
 \toprule
 Nhóm yêu cầu & Chỉ tiêu & Cách đáp ứng \\
 \midrule
-Đo nhiệt độ & Đo nhiệt độ trong phòng, bao gồm vùng quanh ngưỡng 30\,$^\circ$C; cập nhật khoảng 2 giây một lần & DHT11 (mục \ref{sec:sensor-choice}); chu kỳ đọc (mục \ref{sec:threshold}) \\
-Hiển thị & Hiện giá trị đo, ngưỡng và thông báo lỗi bằng chữ ngay trên mô hình & LCD 1602 (mục \ref{sec:display-choice}) \\
-Cảnh báo & Báo khi nhiệt độ đạt hoặc vượt 30\,$^\circ$C bằng tín hiệu nhìn thấy được; tự trở về khi nhiệt độ giảm & 5 LED trên PD0--PD4 (mục \ref{sec:threshold}) \\
+Đo nhiệt độ, độ ẩm & Đo nhiệt độ và độ ẩm trong phòng, bao gồm vùng quanh hai ngưỡng 30\,$^\circ$C và 80\,\%RH; cập nhật khoảng 2 giây một lần & DHT11 (mục \ref{sec:sensor-choice}); chu kỳ đọc (mục \ref{sec:threshold}) \\
+Hiển thị & Hiện đồng thời nhiệt độ, độ ẩm, hai ngưỡng, trạng thái cảnh báo và thông báo lỗi bằng chữ ngay trên mô hình & LCD 1602 (mục \ref{sec:display-choice}) \\
+Cảnh báo & Báo khi nhiệt độ đạt hoặc vượt 30\,$^\circ$C hoặc độ ẩm đạt hoặc vượt 80\,\%RH bằng tín hiệu nhìn thấy được; tự trở về khi cả hai giảm dưới ngưỡng & 5 LED trên PD0--PD4, ký hiệu trạng thái trên LCD (mục \ref{sec:threshold}) \\
 Độ tin cậy & Phát hiện mất tín hiệu và gói tin sai; vi điều khiển không bị treo khi cảm biến hỏng & Timeout và checksum (mục \ref{sec:dht11-read}) \\
 Phần cứng & Dùng kit ATmega16 có sẵn, nguồn 5\,V, nạp qua USBasp; hạn chế linh kiện ngoài kit & Kết nối ở Bảng \ref{tab:hardware-wiring} \\
 \bottomrule
@@ -87,7 +87,7 @@ LM35 và DS18B20 chính xác hơn DHT11. Nhóm vẫn chọn DHT11 vì các lý d
 \begin{itemize}[leftmargin=1.2cm]
     \item Dải 0--50\,$^\circ$C và sai số $\pm$2\,$^\circ$C đáp ứng yêu cầu cảnh báo ngưỡng 30\,$^\circ$C trong phòng ở Bảng \ref{tab:requirements}.
     \item Tín hiệu số chỉ cần một chân GPIO (PA1); không chiếm kênh ADC và không phụ thuộc điện áp tham chiếu hay nhiễu trên dây như LM35.
-    \item Module 3 chân dễ đấu nối ngoài kit; cảm biến đo thêm độ ẩm, cho phép mở rộng chức năng mà không đổi phần cứng.
+    \item Module 3 chân dễ đấu nối ngoài kit; một cảm biến trả về cả nhiệt độ và độ ẩm trong cùng một gói tin, nên đáp ứng yêu cầu đo hai đại lượng mà không cần thêm linh kiện. LM35 và DS18B20 chỉ đo nhiệt độ.
     \item Giao thức buộc chương trình tự tạo và lấy mẫu xung theo thời gian, phù hợp với nội dung lập trình thanh ghi của học phần.
 \end{itemize}
 Đổi lại, sai số của DHT11 lớn hơn hai phương án còn lại. Nếu ứng dụng cần độ chính xác cao hơn, có thể thay bằng DS18B20 trên cùng chân PA1; thay đổi chủ yếu nằm ở phần mềm giao tiếp.
@@ -95,7 +95,7 @@ LM35 và DS18B20 chính xác hơn DHT11. Nhóm vẫn chọn DHT11 vì các lý d
 \subsection{Lựa chọn thiết bị hiển thị và cảnh báo}
 \label{sec:display-choice}
 
-Kit có sẵn ba thiết bị đầu ra dùng được: LED 7 thanh một chữ số D11, dãy 8 LED đơn trên PORT D và giắc J7 dành cho LCD 1602 (Hình \ref{fig:schematic}). LED 7 thanh một chữ số không đủ để hiện giá trị như \texttt{26.5} hay các thông báo lỗi, đồng thời dùng chung PC0--PC7 với giắc LCD. Nhóm chọn LCD 1602 (2 dòng $\times$ 16 ký tự, bộ điều khiển HD44780) vì đủ chỗ cho giá trị đo, ngưỡng và thông báo chẩn đoán bằng chữ; LCD chạy ở chế độ 4 bit để chỉ chiếm PC4--PC7 và PD5--PD7.
+Kit có sẵn ba thiết bị đầu ra dùng được: LED 7 thanh một chữ số D11, dãy 8 LED đơn trên PORT D và giắc J7 dành cho LCD 1602 (Hình \ref{fig:schematic}). LED 7 thanh một chữ số không đủ để hiện giá trị như \texttt{26.5} hay các thông báo lỗi, đồng thời dùng chung PC0--PC7 với giắc LCD. Nhóm chọn LCD 1602 (2 dòng $\times$ 16 ký tự, bộ điều khiển HD44780) vì đủ chỗ cho hai giá trị đo, hai ngưỡng, trạng thái cảnh báo và thông báo chẩn đoán bằng chữ; LCD chạy ở chế độ 4 bit để chỉ chiếm PC4--PC7 và PD5--PD7.
 
 Khối cảnh báo dùng 5 LED đơn trên PD0--PD4: các LED có sẵn trên kit, không cần mạch ngoài và dễ quan sát. Kit không có còi báo nên phương án này được đưa vào hướng phát triển (mục \ref{sec:future}).
 
@@ -114,7 +114,7 @@ Bảng \ref{tab:tools} liệt kê phần cứng và phần mềm nhóm sử dụ
 Thành phần & Mục đích sử dụng \\
 \midrule
 Kit AVR ATmega16 & Nền tảng phần cứng chính: nguồn 5\,V, vi điều khiển, giắc LCD, dãy LED \\
-Module DHT11, LCD 1602 & Cảm biến nhiệt độ và thiết bị hiển thị \\
+Module DHT11, LCD 1602 & Cảm biến nhiệt độ, độ ẩm và thiết bị hiển thị \\
 Mạch nạp USBasp & Nạp chương trình và fuse qua cổng ISP \\
 Altium Designer & Vẽ lại sơ đồ nguyên lý và thiết kế PCB \\
 avr-gcc, GNU Make & Biên dịch mã nguồn C thành tệp \texttt{.hex} (mục \ref{sec:makefile}) \\
