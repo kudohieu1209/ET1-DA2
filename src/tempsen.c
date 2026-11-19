@@ -1,24 +1,16 @@
 #define F_CPU 8000000UL
-#include "hunget_lcd.h" // Thư viện điều khiển LCD 16x2 chế độ 4 bit
+#include "hunget_lcd.h"
 #include <avr/io.h>
 #include <stdio.h>
 #include <util/delay.h>
 
-
-// =======================================================
-// CẤU HÌNH CHÂN DHT11 NỐI VÀO CHÂN PA1 TRÊN PORT A
-// =======================================================
 #define DHT_DDR DDRA
 #define DHT_PORT PORTA
 #define DHT_PIN_R PINA
 #define DHT_BIT PA1
 
-// =======================================================
-// NGƯỠNG CẢNH BÁO VÀ DÀN LED (PD0-PD4, Active LOW)
-// PD5-PD7 dùng cho chân điều khiển LCD (RW, RS, EN) nên không làm LED được
-// =======================================================
-#define TEMP_TH 30   // Ngưỡng nhiệt độ cao (°C)
-#define HUMI_TH 80   // Ngưỡng độ ẩm cao (%RH)
+#define TEMP_TH 30    // Ngưỡng nhiệt độ cao (°C)
+#define HUMI_TH 80    // Ngưỡng độ ẩm cao (%RH)
 #define LED_MASK 0x1F // PD0-PD4
 
 // Hàm đọc dữ liệu từ cảm biến số DHT11
@@ -117,7 +109,7 @@ int main(void) {
   LCD4_CUR_GOTO(2, 2);
   LCD4_OUT_STR("DHT11 SENSOR");
   _delay_ms(1500);
-  LCD4_OUT_CMD(0x01); // Xóa màn hình
+  LCD4_OUT_CMD(0x01);
   _delay_ms(2);
 
   char buffer[32];
@@ -129,18 +121,12 @@ int main(void) {
     int8_t status = DHT11_Read(&temp_int, &temp_dec, &humi_int);
 
     if (status == 0) {
-      // --- ĐỌC THÀNH CÔNG TỪ DHT11 ---
-      // Dòng 1: nhiệt độ + độ ẩm "T:31.5°C H:65%RH" (đúng 16 ký tự)
-      // %2u giữ độ rộng cố định khi giá trị chỉ có 1 chữ số (VD " 9.0", " 8%")
       LCD4_CUR_GOTO(1, 0);
       sprintf(buffer,
               "T:%2u.%u\xDF"
               "C H:%2u%%RH",
               temp_int, temp_dec, humi_int);
       LCD4_OUT_STR(buffer);
-
-      // Dòng 2: ngưỡng + trạng thái "T>=30° H>=80% OK" (đúng 16 ký tự)
-      // Trạng thái: OK = bình thường, T! = nóng, H! = ẩm, !! = cả hai
       uint8_t is_temp_high = (temp_int >= TEMP_TH);
       uint8_t is_humi_high = (humi_int >= HUMI_TH);
       const char *state = is_temp_high ? (is_humi_high ? "!!" : "T!")
@@ -174,7 +160,6 @@ int main(void) {
       PORTD |= LED_MASK; // Trạng thái xác định: Tắt LED cảnh báo
     }
 
-    // Chờ 2 giây giữa hai lần đọc (datasheet Aosong yêu cầu tối thiểu 1 giây)
     _delay_ms(2000);
   }
 
