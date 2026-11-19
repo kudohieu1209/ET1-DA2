@@ -9,12 +9,12 @@
 #define DHT_PIN_R PINA
 #define DHT_BIT PA1
 
-#define TEMP_TH 30    // Ngưỡng nhiệt độ cao (°C)
-#define HUMI_TH 80    // Ngưỡng độ ẩm cao (%RH)
+#define TEMP_TH 30
+#define HUMI_TH 80
 #define LED_MASK 0x1F // PD0-PD4
 
-// Hàm đọc dữ liệu từ cảm biến số DHT11
-// Trả về 0 nếu thành công, < 0 nếu lỗi/timeout
+// Hàm đọc dữ liệu từ cảm biến số DHT11: Trả về 0 nếu thành công, < 0 nếu
+// lỗi/timeout
 int8_t DHT11_Read(uint8_t *temp_int, uint8_t *temp_dec, uint8_t *humi_int) {
   uint8_t data[5] = {0, 0, 0, 0, 0};
   uint16_t timeout;

@@ -38,7 +38,7 @@ Khi đưa nguồn hơi ấm lại gần cảm biến, nhiệt độ tăng vượ
     \item Khi bỏ nguồn nhiệt và nhiệt độ giảm xuống dưới 30\,$^\circ$C, ký hiệu trở về \texttt{OK} và 5 LED tắt mà không cần reset.
 \end{itemize}
 
-\subsection{\texorpdfstring{Cảnh báo vượt ngưỡng độ ẩm ($H \ge 80\,\%$RH)}{Cảnh báo vượt ngưỡng độ ẩm (H ≥ 80 \%RH)}}
+\subsection{Cảnh báo vượt ngưỡng độ ẩm và vượt đồng thời hai ngưỡng}
 Khi thở vào bề mặt cảm biến, cả độ ẩm và nhiệt độ cùng tăng. Ở lần đo trong Hình \ref{fig:actual-both}, LCD hiển thị:
 \LCDbox{T:32.1\textdegree C H:88\%RH}{T>=30\textdegree\ H>=80\% !!}
 \begin{itemize}[leftmargin=1.2cm]
@@ -81,7 +81,7 @@ Trạng thái chỉ độ ẩm vượt ngưỡng (\texttt{H!}) chưa tạo đư�
     \caption{Hình ảnh thực tế hệ thống trong các kịch bản thử nghiệm}
     \label{fig:actual-system}
     \vspace{0.1cm}
-    {\small\textit{Ghi chú:} Dãy LED trên kit gồm 8 LED D3--D10 nối lần lượt PD0--PD7 (nhãn in cạnh mỗi LED; hướng dãy LED trong ảnh tùy góc chụp). Ba LED D8--D10 (PD5--PD7) dùng chung đường RW, RS, EN của LCD nên sáng theo mức logic của các tín hiệu này, không thuộc khối cảnh báo. Ở (b) và (c), 5 LED cảnh báo PD0--PD4 sáng; ở (a) và (d), 5 LED này tắt.\par}
+    {\small\textit{Ghi chú:} Dãy LED trên kit gồm 8 LED D3--D10 nối lần lượt PD0--PD7 (nhãn in cạnh mỗi LED; hướng dãy LED trong ảnh tùy góc chụp). Ba LED D8--D10 (PD5--PD7) dùng chung đường RW, RS, EN của LCD nên sáng theo mức logic của các tín hiệu này, không thuộc khối cảnh báo. Ở (b) và (c), 5 LED cảnh báo PD0--PD4 sáng; ở (a) và (d), 5 LED này tắt. LED 7 thanh D11 (anode chung, cấp nguồn qua jumper JP2) có các đoạn nối với PC0--PC7, trùng với bus dữ liệu PC4--PC7 của LCD, nên một vài đoạn sáng theo mức logic trên bus này; chương trình không sử dụng D11.\par}
 \end{figure}
 
 \subsection{Kiểm tra xử lý lỗi cảm biến}
@@ -112,6 +112,8 @@ Bình thường & Thực nghiệm trên kit (bật điều hòa) & 29,7\,$^\circ
 Vượt ngưỡng nhiệt độ & Thực nghiệm trên kit (hơi ấm) & 31,3\,$^\circ$C\newline 69\,\%RH & Dòng 1: \mbox{\texttt{T:31.3\textdegree C H:69\%RH}}\newline Dòng 2: \mbox{\texttt{T>=30\textdegree\ H>=80\% T!}} & Sáng \\
 \midrule
 Cả hai vượt ngưỡng & Thực nghiệm trên kit (thở vào cảm biến) & 32,1\,$^\circ$C\newline 88\,\%RH & Dòng 1: \mbox{\texttt{T:32.1\textdegree C H:88\%RH}}\newline Dòng 2: \mbox{\texttt{T>=30\textdegree\ H>=80\% !!}} & Sáng \\
+\midrule
+Chỉ vượt ngưỡng độ ẩm & Theo thiết kế (chưa tạo được độc lập trên kit) & -- & Dòng 1: \mbox{\texttt{T:27.0\textdegree C H:85\%RH}}\newline Dòng 2: \mbox{\texttt{T>=30\textdegree\ H>=80\% H!}} & Sáng \\
 \midrule
 Mất tín hiệu cảm biến & Thực nghiệm trên kit (rút dây PA1) & -- & Dòng 1: \mbox{\texttt{DHT11: No Signal}}\newline Dòng 2: \mbox{\texttt{Check Pin PA1}} & Tắt \\
 \midrule
